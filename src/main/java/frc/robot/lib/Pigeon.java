@@ -6,6 +6,7 @@ import frc.robot.Constants;
 import frc.robot.Ports;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
 
 public class Pigeon {
 
@@ -77,14 +78,14 @@ public class Pigeon {
     }
 
     public Rotation2d getUnadjustedYaw() {
-        return Rotation2d.fromDegrees(mGyro.getYaw().getValue());
+        return Rotation2d.fromDegrees(mGyro.getYaw().getValue().in(Units.Degrees));
     }
 
     public Rotation2d getUnadjustedPitch() {
-        return Rotation2d.fromDegrees(mGyro.getRoll().getValue());
+        return Rotation2d.fromDegrees(mGyro.getRoll().getValue().in(Units.Degrees));
     }
 
     public Rotation2d getUnadjustedRoll() {
-        return Rotation2d.fromDegrees(mGyro.getPitch().getValue());
+        return Rotation2d.fromDegrees(mGyro.getPitch().getValue().in(Units.Degrees));
     }
 }

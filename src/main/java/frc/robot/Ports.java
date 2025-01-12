@@ -1,6 +1,6 @@
 package frc.robot;
 
-public class Ports {
-    public static final int PIGEON = 0;
+public final class Ports {
+    public static final int PIGEON = -1;
     public static final String CANBUS_LOWER = "";
 }
