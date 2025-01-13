@@ -1,13 +1,17 @@
 package frc.robot.lib.swerve;
 
-import com.ctre.phoenix6.controls.*;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import frc.robot.Constants;
 import frc.robot.Ports;
 import frc.robot.subsystems.Subsystem;
 import frc.robot.lib.Util;
+import frc.robot.lib.Util.Conversions;
 import frc.robot.lib.logger.Log;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -100,14 +104,20 @@ public class SwerveModule extends Subsystem {
 
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
-        mPeriodicIO.velocity = Util.Conversions.RPSToMPS(mDriveMotor.getRotorVelocity().getValue().in(Units.Degrees),
-                Constants.SwerveConstants.wheelCircumference, Constants.SwerveConstants.driveGearRatio);
+        mPeriodicIO.velocity = Util.Conversions.RPSToMPS(
+            mDriveMotor.getRotorVelocity().getValue().in(Units.RotationsPerSecond),
+            Constants.SwerveConstants.wheelCircumference, Constants.SwerveConstants.driveGearRatio
+        );
 
-        mPeriodicIO.rotationPosition = Util.Conversions.rotationsToDegrees(mAngleMotor.getRotorPosition().getValue().in(Unit.degrees),
-                Constants.SwerveConstants.angleGearRatio);
+        mPeriodicIO.rotationPosition = Util.Conversions.rotationsToDegrees(
+            mAngleMotor.getRotorPosition().getValue().in(Units.Rotations),
+            Constants.SwerveConstants.angleGearRatio
+        );
 
-        mPeriodicIO.drivePosition = Util.Conversions.rotationsToMeters(mDriveMotor.getRotorPosition().getValue().in(Unit.degrees),
-                Constants.SwerveConstants.wheelCircumference, Constants.SwerveConstants.driveGearRatio);;
+        mPeriodicIO.drivePosition = Util.Conversions.rotationsToMeters(
+            mDriveMotor.getRotorPosition().getValue().in(Units.Rotations),
+            Constants.SwerveConstants.wheelCircumference, Constants.SwerveConstants.driveGearRatio
+        );
     }
 
     @Override
@@ -128,7 +138,9 @@ public class SwerveModule extends Subsystem {
         if (mPeriodicIO.driveControlMode == ControlModeState.Velocity) {
             mDriveMotor.setControl(new VelocityTorqueCurrentFOC(mPeriodicIO.driveDemand));
         } else {
-            mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand, true, false, false, false));
+            // TODO: previously this had extra args: true, false, false, false - but I can't find
+            // a constructor with that signature
+            mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand));
         }
     }
 
@@ -174,7 +186,7 @@ public class SwerveModule extends Subsystem {
     }
 
     public double getDriveMotorCurrent() {
-        return mDriveMotor.getStatorCurrent().getValue();
+        return mDriveMotor.getStatorCurrent().getValue().in(Units.Amps);
     }
 
     public void setDriveNeutralBrake(boolean wantBrake) {
