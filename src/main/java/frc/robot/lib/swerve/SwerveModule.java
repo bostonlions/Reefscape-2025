@@ -194,7 +194,7 @@ public class SwerveModule extends Subsystem {
             mDriveMotor.setNeutralMode(NeutralModeValue.Brake);
             mAngleMotor.setNeutralMode(NeutralModeValue.Coast);
         } else {
-            
+
             mDriveMotor.setNeutralMode(NeutralModeValue.Coast);
             // Brake angle motors when coasting drive
             mAngleMotor.setNeutralMode(NeutralModeValue.Brake);

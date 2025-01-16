@@ -44,8 +44,7 @@ public class ChassisSpeeds {
      * Constructs a ChassisSpeeds with zeros for vxMetersPerSecond,
      * vyMetersPerSecond, and theta.
      */
-    public ChassisSpeeds() {
-    }
+    public ChassisSpeeds() {}
 
     /**
      * Constructs a ChassisSpeeds object.
@@ -55,7 +54,8 @@ public class ChassisSpeeds {
      * @param omegaRadiansPerSecond Angular velocity.
      */
     public ChassisSpeeds(
-            double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond) {
+        double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond
+    ) {
         this.vxMetersPerSecond = vxMetersPerSecond;
         this.vyMetersPerSecond = vyMetersPerSecond;
         this.omegaRadiansPerSecond = omegaRadiansPerSecond;
@@ -83,20 +83,21 @@ public class ChassisSpeeds {
      *         reference.
      */
     public static ChassisSpeeds fromFieldRelativeSpeeds(
-            double vxMetersPerSecond,
-            double vyMetersPerSecond,
-            double omegaRadiansPerSecond,
-            Rotation2d robotAngle) {
+        double vxMetersPerSecond,
+        double vyMetersPerSecond,
+        double omegaRadiansPerSecond,
+        Rotation2d robotAngle
+    ) {
         return new ChassisSpeeds(
-                vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin(),
-                -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
-                omegaRadiansPerSecond);
+            vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin(),
+            -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
+            omegaRadiansPerSecond
+        );
     }
 
     public static ChassisSpeeds fromRobotRelativeSpeeds(
-            double vxMetersPerSecond,
-            double vyMetersPerSecond,
-            double omegaRadiansPerSecond) {
+        double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond
+    ) {
         return new ChassisSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
     }
 
@@ -105,15 +106,18 @@ public class ChassisSpeeds {
     }
 
     public boolean epsilonEquals(ChassisSpeeds other, double epsilon) {
-        return Util.epsilonEquals(vxMetersPerSecond, other.vxMetersPerSecond, epsilon) &&
-                Util.epsilonEquals(vyMetersPerSecond, other.vyMetersPerSecond, epsilon) &&
-                Util.epsilonEquals(omegaRadiansPerSecond, other.omegaRadiansPerSecond, epsilon);
+        return (
+            Util.epsilonEquals(vxMetersPerSecond, other.vxMetersPerSecond, epsilon) &&
+            Util.epsilonEquals(vyMetersPerSecond, other.vyMetersPerSecond, epsilon) &&
+            Util.epsilonEquals(omegaRadiansPerSecond, other.omegaRadiansPerSecond, epsilon)
+        );
     }
 
     @Override
     public String toString() {
         return String.format(
-                "ChassisSpeeds(Vx: %.2f m/s, Vy: %.2f m/s, Omega: %.2f rad/s)",
-                vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
+            "ChassisSpeeds(Vx: %.2f m/s, Vy: %.2f m/s, Omega: %.2f rad/s)",
+            vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond
+        );
     }
 }

@@ -7,7 +7,7 @@ public interface ISwerveModule {
     public double angleOffset();
 
     public void setDesiredState(ModuleState desiredState, boolean isOpenLoop);
-    
+
     public ModuleState getState();
 
     public Rotation2d getCanCoder();

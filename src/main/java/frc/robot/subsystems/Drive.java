@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.lib.Pigeon;
 import frc.robot.lib.swerve.SwerveModule;
 import frc.robot.Constants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.lib.loops.ILooper;
 import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
@@ -13,6 +14,7 @@ import frc.robot.lib.swerve.ChassisSpeeds;
 import frc.robot.lib.swerve.DriveMotionPlanner;
 import frc.robot.lib.swerve.ModuleState;
 import frc.robot.lib.swerve.SwerveDriveOdometry;
+import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -44,7 +46,8 @@ public class Drive extends Subsystem {
     private boolean odometryReset = false;
     private final DriveMotionPlanner mMotionPlanner;
 
-    private KinematicLimits mKinematicLimits = Constants.SwerveConstants.kUncappedLimits;
+    private SwerveConstants.KinematicLimits mKinematicLimits = SwerveConstants.kUncappedLimits;
+    private SwerveDriveKinematics kKinematics;
 
     private static Drive mInstance;
 
@@ -59,13 +62,15 @@ public class Drive extends Subsystem {
 
     private Drive() {
         mModules = new SwerveModule[] {
-                new SwerveModule(0, Constants.SwerveConstants.Mod0.SwerveModuleConstants()),
-                new SwerveModule(1, Constants.SwerveConstants.Mod1.SwerveModuleConstants()),
-                new SwerveModule(2, Constants.SwerveConstants.Mod2.SwerveModuleConstants()),
-                new SwerveModule(3, Constants.SwerveConstants.Mod3.SwerveModuleConstants())
+            new SwerveModule(0, SwerveConstants.Mod0),
+            new SwerveModule(1, SwerveConstants.Mod1),
+            new SwerveModule(2, SwerveConstants.Mod2),
+            new SwerveModule(3, SwerveConstants.Mod3)
         };
 
-        mOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.kKinematics, getModuleStates());
+        kKinematics = new SwerveDriveKinematics(SwerveConstants.swerveModuleLocations);
+
+        mOdometry = new SwerveDriveOdometry(kKinematics, getModuleStates());
         mMotionPlanner = new DriveMotionPlanner();
 
         mPigeon.setYaw(0.0);
@@ -76,7 +81,7 @@ public class Drive extends Subsystem {
         LoggingSystem.getInstance().registerObject(SwerveModule.class, mModules[3], "MOD_3");
     }
 
-    public void setKinematicLimits(KinematicLimits newLimits) {
+    public void setKinematicLimits(SwerveConstants.KinematicLimits newLimits) {
         this.mKinematicLimits = newLimits;
     }
 
@@ -200,7 +205,7 @@ public class Drive extends Subsystem {
 
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
         mPeriodicIO.meas_module_states = getModuleStates();
-        mPeriodicIO.meas_chassis_speeds = Constants.SwerveConstants.kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
+        mPeriodicIO.meas_chassis_speeds = kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
         mPeriodicIO.heading = mPigeon.getYaw();
         mPeriodicIO.pitch = mPigeon.getPitch();
 
@@ -233,7 +238,7 @@ public class Drive extends Subsystem {
                 twist_vel.dtheta / Constants.kLooperDt);
 
         if (mControlState == DriveControlState.PATH_FOLLOWING) {
-            ModuleState[] real_module_setpoints = Constants.SwerveConstants.kKinematics.toModuleStates(wanted_speeds);
+            ModuleState[] real_module_setpoints = kKinematics.toModuleStates(wanted_speeds);
             mPeriodicIO.des_module_states = real_module_setpoints;
             return;
         }
@@ -254,8 +259,8 @@ public class Drive extends Subsystem {
 
         ModuleState[] prev_module_states = mPeriodicIO.des_module_states.clone(); // Get last setpoint to get
                                                                                   // differentials
-        ChassisSpeeds prev_chassis_speeds = Constants.SwerveConstants.kKinematics.toChassisSpeeds(prev_module_states);
-        ModuleState[] target_module_states = Constants.SwerveConstants.kKinematics.toModuleStates(wanted_speeds);
+        ChassisSpeeds prev_chassis_speeds = kKinematics.toChassisSpeeds(prev_module_states);
+        ModuleState[] target_module_states = kKinematics.toModuleStates(wanted_speeds);
 
         if (wanted_speeds.epsilonEquals(new ChassisSpeeds(), Util.kEpsilon)) {
             for (int i = 0; i < target_module_states.length; i++) {
@@ -307,7 +312,7 @@ public class Drive extends Subsystem {
                     -12);
         }
 
-        ModuleState[] real_module_setpoints = Constants.SwerveConstants.kKinematics.toModuleStates(wanted_speeds);
+        ModuleState[] real_module_setpoints = kKinematics.toModuleStates(wanted_speeds);
         mPeriodicIO.des_module_states = real_module_setpoints;
 
     }
@@ -394,7 +399,7 @@ public class Drive extends Subsystem {
         return mMotionPlanner;
     }
 
-    public KinematicLimits getKinematicLimits() {
+    public SwerveConstants.KinematicLimits getKinematicLimits() {
         return mKinematicLimits;
     }
 
@@ -547,13 +552,6 @@ public class Drive extends Subsystem {
     @Override
     public boolean checkSystem() {
         return false;
-    }
-
-    public static class KinematicLimits {
-        public double kMaxDriveVelocity = Constants.SwerveConstants.maxSpeed; // m/s
-        public double kMaxAccel = Double.MAX_VALUE; // m/s^2
-        public double kMaxAngularVelocity = Constants.SwerveConstants.maxAngularVelocity; // rad/s
-        public double kMaxAngularAccel = Double.MAX_VALUE; // rad/s^2
     }
 
     // Auto engage controls

@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 public class LogWriter {
-    
+
     private final ArrayDeque<LogEntry> queue;
     private ArrayList<LogStorage> storage;
 
@@ -20,7 +20,7 @@ public class LogWriter {
         if (queue.isEmpty()) {
             return;
         }
-        
+
         LogEntry entry = queue.pop();
 
         LogStorage store = storage.get(entry.getTarget());

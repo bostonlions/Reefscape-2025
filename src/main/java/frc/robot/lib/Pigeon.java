@@ -28,7 +28,7 @@ public class Pigeon {
     private Rotation2d rollAdjustmentAngle = new Rotation2d();
     private Rotation2d pitchAdjustmentAngle = new Rotation2d();
 
-    private Pigeon(int port) {        
+    private Pigeon(int port) {
         mGyro = new Pigeon2(port, Ports.CANBUS_LOWER);
         mGyro.getConfigurator().apply(new Pigeon2Configuration());
     }

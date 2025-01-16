@@ -2,7 +2,8 @@ package frc.robot.lib.swerve;
 
 import java.util.ArrayList;
 
-import frc.robot.Constants;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.SnapConstants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -21,7 +22,7 @@ public class DriveMotionPlanner {
     private final ProfiledPIDController rotationController;
 
     private final PIDController snapController;
-    
+
     private final HolonomicDriveController mDriveController;
 
     private Trajectory mCurrentTrajectory;
@@ -31,11 +32,11 @@ public class DriveMotionPlanner {
     private boolean isFinished = false;
 
     public DriveMotionPlanner() {
-        forwardController = new PIDController(Constants.AutoConstants.kPXController, 0.0, Constants.AutoConstants.kDXController);
-        strafeController = new PIDController(Constants.AutoConstants.kPYController, 0.0, Constants.AutoConstants.kDYController);
-        rotationController = new ProfiledPIDController(Constants.AutoConstants.kPThetaController, 0.0, 0.0, Constants.AutoConstants.kThetaControllerConstraints);
-        snapController = new PIDController(Constants.SnapConstants.kP, Constants.SnapConstants.kI, Constants.SnapConstants.kD);
-        
+        forwardController = new PIDController(AutoConstants.kPXController, 0.0, AutoConstants.kDXController);
+        strafeController = new PIDController(AutoConstants.kPYController, 0.0, AutoConstants.kDYController);
+        rotationController = new ProfiledPIDController(AutoConstants.kPThetaController, 0.0, 0.0, AutoConstants.kThetaControllerConstraints);
+        snapController = new PIDController(SnapConstants.kP, SnapConstants.kI, SnapConstants.kD);
+
         rotationController.enableContinuousInput(0, 2 * Math.PI);
         snapController.enableContinuousInput(0, 2 * Math.PI);
 
@@ -83,13 +84,13 @@ public class DriveMotionPlanner {
         }
 
         if (timestamp > mStartTime + mCurrentTrajectory.getTotalTimeSeconds()) {
-            isFinished = true;    
+            isFinished = true;
         }
 
         if (mCurrentTrajectory == null) {
             return new ChassisSpeeds();
         }
-        
+
         Trajectory.State desired_state = mCurrentTrajectory.sample(timestamp - mStartTime);
 
         SmartDashboard.putNumber("Desired traj speed", desired_state.velocityMetersPerSecond);
