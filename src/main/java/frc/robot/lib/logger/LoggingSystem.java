@@ -75,7 +75,7 @@ public class LoggingSystem {
                 setDirectory();
 
                 // Record timestamp of logging start
-                mStartTimestamp = Timer.getFPGATimestamp(); 
+                mStartTimestamp = Timer.getFPGATimestamp();
             } catch (Exception e) {
                 disableLogger = true;
             }
@@ -192,7 +192,7 @@ public class LoggingSystem {
 
             LoggableProcessor processor = LoggalbeHandler.get(
                     field.getType().isEnum() ? String.class : field.getType());
-            
+
             processor.getLoggable(() -> {
                 try {
                     return field.get(loggedObject);
@@ -292,7 +292,7 @@ public class LoggingSystem {
 
             // Pass new filewriters handler
             mLogWriter.updateStorage(mStorage);
-            
+
             pathSet = true;
         }
     }

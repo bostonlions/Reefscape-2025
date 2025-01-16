@@ -9,9 +9,9 @@ public class LogStorage {
     private String filename;
     private String path;
     private FileWriter writer;
-    
+
     private final List<String> headers;
-    private final int size; 
+    private final int size;
 
     public LogStorage(String filename, List<String> headers) {
         this.filename = filename.toUpperCase();

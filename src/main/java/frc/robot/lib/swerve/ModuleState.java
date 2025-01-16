@@ -30,7 +30,7 @@ public class ModuleState extends SwerveModulePosition {
         if (Math.abs(delta) > 90){
             targetSpeed = -targetSpeed;
             targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
-        }        
+        }
         return ModuleState.fromSpeeds(Rotation2d.fromDegrees(targetAngle), targetSpeed);
       }
 }

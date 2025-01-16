@@ -9,7 +9,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import frc.robot.subsystems.Drive.KinematicLimits;
 import frc.robot.lib.Util.Conversions;
 import frc.robot.lib.swerve.SwerveModule.SwerveModuleConstants;
 
@@ -18,9 +17,9 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 
-import frc.robot.lib.swerve.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
@@ -89,14 +88,12 @@ public class Constants {
         public static final double driveGearRatio = ((5.3 / 1.07) / 1.04); // it's 4.76:1
         public static final double angleGearRatio = 21.4285714;// (150/7);// 10.29; // 72:14:24:12
 
-        public static final edu.wpi.first.math.geometry.Translation2d[] swerveModuleLocations = {
-                new edu.wpi.first.math.geometry.Translation2d(-wheelBase / 2.0, -trackWidth / 2.0),
-                new edu.wpi.first.math.geometry.Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
-                new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
-                new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0)
+        public static final Translation2d[] swerveModuleLocations = {
+            new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0),
+            new Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
+            new Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
+            new Translation2d(wheelBase / 2.0, trackWidth / 2.0)
         };
-
-        public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(swerveModuleLocations);
 
         /* Swerve Current Limiting - very neccesary! */
         public static final int angleContinuousCurrentLimit = 25;
@@ -118,8 +115,8 @@ public class Constants {
         public static final double maxSpeed = 4.8; // meters per second MAX : 5.02 m/s
         public static final double maxAngularVelocity = 8.0;
 
-        public static final double maxAttainableSpeed = maxSpeed * 0.85; // Max out at 85% to make sure speeds are
-                                                                         // attainable (4.6 mps)
+        // Max out at 85% to make sure speeds are attainable (4.6 mps)
+        public static final double maxAttainableSpeed = maxSpeed * 0.85;
 
         /* Angle Motor PID Values */
         public static final double angleKP = 0.6; // 0.3 falcon - higher with kraken
@@ -149,132 +146,117 @@ public class Constants {
         public static final boolean invertRAxis = false;
         public static final boolean invertXAxis = true;
 
+        public static class KinematicLimits {
+            public double kMaxDriveVelocity = maxSpeed; // m/s
+            public double kMaxAccel = Double.MAX_VALUE; // m/s^2
+            public double kMaxAngularVelocity = maxAngularVelocity; // rad/s
+            public double kMaxAngularAccel = Double.MAX_VALUE; // rad/s^2
+
+            public KinematicLimits() {}
+            public KinematicLimits(
+                double kMaxDriveVelocity, double kMaxAccel, double kMaxAngularVelocity, double kMaxAngularAccel
+            ) {
+                this.kMaxDriveVelocity = kMaxDriveVelocity;
+                this.kMaxAccel = kMaxAccel;
+                this.kMaxAngularVelocity = kMaxAngularVelocity;
+                this.kMaxAngularAccel = kMaxAngularAccel;
+            }
+        }
+
         public static final KinematicLimits kUncappedLimits = new KinematicLimits();
-        static {
-            kUncappedLimits.kMaxDriveVelocity = maxSpeed;
-            kUncappedLimits.kMaxAccel = Double.MAX_VALUE;
-            kUncappedLimits.kMaxAngularVelocity = maxAngularVelocity;
-            kUncappedLimits.kMaxAngularAccel = Double.MAX_VALUE;
-        }
 
-        public static final KinematicLimits kScoringLimits = new KinematicLimits();
-        static {
-            kScoringLimits.kMaxDriveVelocity = 2.0;
-            kScoringLimits.kMaxAccel = Double.MAX_VALUE;
-            kScoringLimits.kMaxAngularVelocity = Math.PI; // Rad/Sec
-            kScoringLimits.kMaxAngularAccel = 10 * Math.PI; // 2 * Math.PI;
-        }
+        public static final KinematicLimits kScoringLimits = new KinematicLimits(
+            2.0, Double.MAX_VALUE, Math.PI, 10 * Math.PI
+        );
 
-        public static final KinematicLimits kLoadingStationLimits = new KinematicLimits();
-        static {
-            kLoadingStationLimits.kMaxDriveVelocity = 1.5;
-            kLoadingStationLimits.kMaxAccel = Double.MAX_VALUE;
-            kLoadingStationLimits.kMaxAngularVelocity = maxAngularVelocity;
-            kLoadingStationLimits.kMaxAngularAccel = Double.MAX_VALUE;
-        }
+        public static final KinematicLimits kLoadingStationLimits = new KinematicLimits(
+            1.5, Double.MAX_VALUE, maxAngularVelocity, Double.MAX_VALUE
+        );
 
-        public static final KinematicLimits kAutoLimits = new KinematicLimits();
-        static {
-            kAutoLimits.kMaxDriveVelocity = maxAttainableSpeed;
-            kAutoLimits.kMaxAccel = Double.MAX_VALUE;
-            kAutoLimits.kMaxAngularVelocity = Double.MAX_VALUE; // Rad/Sec
-            kAutoLimits.kMaxAngularAccel = Double.MAX_VALUE; // 2 * Math.PI;
-        }
+        public static final KinematicLimits kAutoLimits = new KinematicLimits(
+            maxAttainableSpeed, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE
+        );
 
         /***
          * MODULE SPECIFIC CONSTANTS **
-         * 
+         *
          * which way to zero modules?
-         * if you tip the robot up on its back side, allign the bevel gears to the right
-         * side (from lookers perspective) on all the wheels. Make sure all the wheels are in line then record canCoder offset values in shuffleboard
-         * 
-         * Zero them so that odometry is x positive going forwards and y positive going
-         * left
-         * 
-         * 
+         * if you tip the robot up on its back side, align the bevel gears to the right
+         * side (from lookers perspective) on all the wheels. Make sure all the wheels are
+         * in line, then record canCoder offset values in shuffleboard
+         *
+         * Zero them so that odometry is x positive going forwards and y positive going left
          */
 
         /*** MODULE SPECIFIC CONSTANTS ***/
         /* Front Left Module - Module 0 */
-        public static final class Mod0 {
-            public static final double betaAngleOffset = 39.63;
-            public static final double compAngleOffset = 39.63;
-
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.PIGEON, Ports.PIGEON, Ports.PIGEON,
-                        isComp ? compAngleOffset : betaAngleOffset);
-            }
-        }
+        private static final double mod0BetaAngleOffset = 39.63;
+        private static final double mod0CompAngleOffset = 39.63;
+        public static final SwerveModuleConstants Mod0 = new SwerveModuleConstants(
+            Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+            isComp ? mod0CompAngleOffset : mod0BetaAngleOffset
+        );
 
         /* Front Right Module - Module 1 */
-        public static final class Mod1 {
-            public static final double betaAngleOffset = 169.62;
-            public static final double compAngleOffset = 169.62;
-
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.PIGEON, Ports.PIGEON,
-                    Ports.PIGEON, isComp ? compAngleOffset : betaAngleOffset);
-            }
-        }
+        private static final double mod1BetaAngleOffset = 169.62;
+        private static final double mod1CompAngleOffset = 169.62;
+        public static final SwerveModuleConstants Mod1 = new SwerveModuleConstants(
+            Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
+            isComp ? mod1CompAngleOffset : mod1BetaAngleOffset
+        );
 
         /* Back Left Module - Module 2 */
-        public static final class Mod2 {
-            public static final double betaAngleOffset = 181.58;
-            public static final double compAngleOffset = 181.58;
-
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.PIGEON, Ports.PIGEON, Ports.PIGEON,
-                        isComp ? compAngleOffset : betaAngleOffset);
-            }
-        }
+        private static final double mod2BetaAngleOffset = 181.58;
+        private static final double mod2CompAngleOffset = 181.58;
+        public static final SwerveModuleConstants Mod2 = new SwerveModuleConstants(
+            Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
+            isComp ? mod2CompAngleOffset : mod2BetaAngleOffset
+        );
 
         /* Back Right Module - Module 3 */
-        public static final class Mod3 {
-            public static final double betaAngleOffset = 278.52;
-            public static final double compAngleOffset = 278.52;
-
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.PIGEON, Ports.PIGEON, Ports.PIGEON,
-                        isComp ? compAngleOffset : betaAngleOffset);
-            }
-        }
+        private static final double mod3BetaAngleOffset = 278.52;
+        private static final double mod3CompAngleOffset = 278.52;
+        public static final SwerveModuleConstants Mod3 = new SwerveModuleConstants(
+            Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
+            isComp ? mod3CompAngleOffset : mod3BetaAngleOffset
+        );
 
         public static TalonFXConfiguration swerveDriveFXConfig() {
             TalonFXConfiguration config = new TalonFXConfiguration();
-            config.CurrentLimits.SupplyCurrentLimitEnable = Constants.SwerveConstants.driveEnableCurrentLimit;
-            config.CurrentLimits.SupplyCurrentLowerLimit = Constants.SwerveConstants.driveContinuousCurrentLimit;
-            config.CurrentLimits.SupplyCurrentLimit = Constants.SwerveConstants.drivePeakCurrentLimit;
-            config.CurrentLimits.SupplyCurrentLowerTime = Constants.SwerveConstants.drivePeakCurrentDuration;
+            config.CurrentLimits.SupplyCurrentLimitEnable = driveEnableCurrentLimit;
+            config.CurrentLimits.SupplyCurrentLowerLimit = driveContinuousCurrentLimit;
+            config.CurrentLimits.SupplyCurrentLimit = drivePeakCurrentLimit;
+            config.CurrentLimits.SupplyCurrentLowerTime = drivePeakCurrentDuration;
 
             config.Voltage.PeakForwardVoltage = 12.0;
             config.Voltage.PeakReverseVoltage = -12.0;
 
-            config.Slot0.kP = Constants.SwerveConstants.driveKP;
-            config.Slot0.kI = Constants.SwerveConstants.driveKI;
-            config.Slot0.kD = Constants.SwerveConstants.driveKD;
+            config.Slot0.kP = driveKP;
+            config.Slot0.kI = driveKI;
+            config.Slot0.kD = driveKD;
 
-            config.MotorOutput.NeutralMode = Constants.SwerveConstants.driveNeutralMode;
-            config.MotorOutput.Inverted = Constants.SwerveConstants.driveMotorInvert;
+            config.MotorOutput.NeutralMode = driveNeutralMode;
+            config.MotorOutput.Inverted = driveMotorInvert;
 
-            config.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = Constants.SwerveConstants.openLoopRamp;
-            config.OpenLoopRamps.VoltageOpenLoopRampPeriod = Constants.SwerveConstants.openLoopRamp;
+            config.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = openLoopRamp;
+            config.OpenLoopRamps.VoltageOpenLoopRampPeriod = openLoopRamp;
             return config;
         }
 
         public static TalonFXConfiguration swerveAngleFXConfig() {
             TalonFXConfiguration angleConfig = new TalonFXConfiguration();
-            angleConfig.CurrentLimits.SupplyCurrentLimitEnable = Constants.SwerveConstants.angleEnableCurrentLimit;
-            angleConfig.CurrentLimits.SupplyCurrentLowerLimit = Constants.SwerveConstants.angleContinuousCurrentLimit;
-            angleConfig.CurrentLimits.SupplyCurrentLimit = Constants.SwerveConstants.anglePeakCurrentLimit;
-            angleConfig.CurrentLimits.SupplyCurrentLowerTime = Constants.SwerveConstants.anglePeakCurrentDuration;
+            angleConfig.CurrentLimits.SupplyCurrentLimitEnable = angleEnableCurrentLimit;
+            angleConfig.CurrentLimits.SupplyCurrentLowerLimit = angleContinuousCurrentLimit;
+            angleConfig.CurrentLimits.SupplyCurrentLimit = anglePeakCurrentLimit;
+            angleConfig.CurrentLimits.SupplyCurrentLowerTime = anglePeakCurrentDuration;
 
-            angleConfig.Slot0.kP = Constants.SwerveConstants.angleKP;
-            angleConfig.Slot0.kI = Constants.SwerveConstants.angleKI;
-            angleConfig.Slot0.kD = Constants.SwerveConstants.angleKD;
-            angleConfig.Slot0.kV = Constants.SwerveConstants.angleKF;
+            angleConfig.Slot0.kP = angleKP;
+            angleConfig.Slot0.kI = angleKI;
+            angleConfig.Slot0.kD = angleKD;
+            angleConfig.Slot0.kV = angleKF;
 
-            angleConfig.MotorOutput.NeutralMode = Constants.SwerveConstants.angleNeutralMode;
-            angleConfig.MotorOutput.Inverted = Constants.SwerveConstants.angleMotorInvert;
+            angleConfig.MotorOutput.NeutralMode = angleNeutralMode;
+            angleConfig.MotorOutput.Inverted = angleMotorInvert;
 
             return angleConfig;
         }
@@ -282,7 +264,7 @@ public class Constants {
         public static CANcoderConfiguration swerveCancoderConfig() {
             CANcoderConfiguration config = new CANcoderConfiguration();
             config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
-            config.MagnetSensor.SensorDirection = Constants.SwerveConstants.canCoderInvert;
+            config.MagnetSensor.SensorDirection = canCoderInvert;
             return config;
         }
     }
@@ -293,11 +275,9 @@ public class Constants {
         public static final double kD = 0.2;
         public static final double snapTimeout = 0.25;
         public static final double snapEpsilon = 1.0;
-
     }
 
     public static final class AutoConstants {
-
         public static final double kPXController = 6.7;
         public static final double kPYController = 6.7;
 
@@ -314,8 +294,7 @@ public class Constants {
                 kMaxAngularSpeed, kMaxAngularAccel);
 
         // Static factory for creating trajectory configs
-        public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed,
-                double endSpeed) {
+        public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
             TrajectoryConfig config = new TrajectoryConfig(maxSpeed, maxAccel);
             config.setStartVelocity(startSpeed);
             config.setEndVelocity(endSpeed);
@@ -349,8 +328,9 @@ public class Constants {
                 new Translation3d(0.0, 0.0, 0.0),
                 new Rotation3d(0.0, 0.0, Math.PI));
 
-        public static final TrajectoryConfig TAG_TRAJECTORY_CONFIG = Constants.AutoConstants.createConfig(2.5, 2.0, 0.0,
-                0.0);
+        public static final TrajectoryConfig TAG_TRAJECTORY_CONFIG = Constants.AutoConstants.createConfig(
+            2.5, 2.0, 0.0, 0.0
+        );
 
         public static final double POSITION_OFF = 0.1;
 
@@ -556,9 +536,8 @@ public class Constants {
             config.MotionMagic.MotionMagicAcceleration = 120;
 
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // down to intake is increasing, up
-                                                                            // to load
-            // is decreasing
+            // down to intake is increasing, up to load is decreasing
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
             return config;
         }
@@ -580,8 +559,9 @@ public class Constants {
             config.MotionMagic.MotionMagicAcceleration = 170;
 
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // down to intake is increasing, up
-            return config;                                                  // to load is decreasing
+            // down to intake is increasing, up to load is decreasing
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            return config;
         }
 
         public static CANcoderConfiguration wristCancoderConfig() {
@@ -725,7 +705,6 @@ public class Constants {
                 { 0.23, 359.7 + 3, 7 },
                 { 0.235, 359.7, 7 },
                 { 0.237, 359, 5.5 } // really 0.275, but less so that everything else goes into position
-
         };
 
         public static final double[][] groundIntakeWristPositionsIn = {
@@ -745,7 +724,6 @@ public class Constants {
                 { 0.23, 335, 11 },
                 { 0.235, 340, 11 },
                 { 0.24, 345, 10 } // really 0.275, but less so that everything else goes into position
-
         };
     }
 
@@ -762,22 +740,17 @@ public class Constants {
 
         // PID TUNING
         // SUBWOOFER
-        public static final double kFFTopSubwoofer = 0.000153;// old eff val: 0.0001566; // this value tunes the
-                                                              // subwoofer shot
-        public static final double kFFBottomSubwoofer = 0.000154;// Old eff val 0.0001566; // this value tunes the
-                                                                 // subwoofer shot
+        public static final double kFFTopSubwoofer = 0.000153; // tunes the subwoofer shot
+        public static final double kFFBottomSubwoofer = 0.000154; // tunes the subwoofer shot
         // FAST
-        public static final double kFFTopFast = 0.000154;// OLD EFF: 0.000155;//0.000155;//0.0001564; // this value
-                                                         // tunes the note passing
-        public static final double kFFBottomFast = 0.000155;// old EFF 0.000165;//= 0.000167;// 0.000156; // this value
-                                                            // tunes the note passing
+        public static final double kFFTopFast = 0.000154; // tunes the note passing
+        public static final double kFFBottomFast = 0.000155; // tunes the note passing
 
         public static final double kMaxOutput = 1;
         public static final double kMinOutput = -1;
 
         public static final double kPSubWof = 0.00022;
         public static final double kPFast = 0.00022;
-
     }
 
     public static final class ShooterConstants {
@@ -804,8 +777,7 @@ public class Constants {
     public static final class ClimberHookConstants {
         public static final double kHookAngle = 88; // degrees
         public static final double kDeclimb1Angle = 88;
-        public static final double kUnhookAngle = 0; // makes it so we don't have to worry about resetting it while
-                                                     // practicing
+        public static final double kUnhookAngle = 0; // so we don't have to worry about resetting it while practicing
         public static final double kMaxAngle = 131;
         public static final double kMinAngle = 0;
         public static final double kGearRatio = 45;
