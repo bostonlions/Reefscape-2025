@@ -2,9 +2,6 @@ package frc.robot.lib.swerve;
 
 import java.util.ArrayList;
 
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.SnapConstants;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,6 +12,9 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.SnapConstants;
 
 public class DriveMotionPlanner {
     private final PIDController forwardController;

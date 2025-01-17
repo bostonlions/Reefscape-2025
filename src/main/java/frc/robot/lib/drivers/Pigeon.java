@@ -1,12 +1,13 @@
-package frc.robot.lib;
-
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.hardware.Pigeon2;
-import frc.robot.Constants;
-import frc.robot.Ports;
+package frc.robot.lib.drivers;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.hardware.Pigeon2;
+
+import frc.robot.Constants;
+import frc.robot.Ports;
 
 public class Pigeon {
 

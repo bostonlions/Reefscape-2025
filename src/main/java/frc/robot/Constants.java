@@ -9,8 +9,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import frc.robot.lib.Util.Conversions;
-import frc.robot.lib.swerve.SwerveModule.SwerveModuleConstants;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -24,6 +22,8 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.math.util.Units;
+
+import frc.robot.lib.Util.Conversions;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -88,7 +88,7 @@ public class Constants {
         public static final double driveGearRatio = ((5.3 / 1.07) / 1.04); // it's 4.76:1
         public static final double angleGearRatio = 21.4285714;// (150/7);// 10.29; // 72:14:24:12
 
-        public static final Translation2d[] swerveModuleLocations = {
+        public static final Translation2d[] locations = {
             new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0),
             new Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
             new Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
@@ -188,8 +188,21 @@ public class Constants {
          * Zero them so that odometry is x positive going forwards and y positive going left
          */
 
-        /*** MODULE SPECIFIC CONSTANTS ***/
-        /* Front Left Module - Module 0 */
+        public static class SwerveModuleConstants {
+            public final int driveMotorID;
+            public final int angleMotorID;
+            public final int cancoderID;
+            public final double angleOffset;
+
+            public SwerveModuleConstants(int driveMotorID, int angleMotorID, int canCoderID, double angleOffset) {
+                this.driveMotorID = driveMotorID;
+                this.angleMotorID = angleMotorID;
+                this.cancoderID = canCoderID;
+                this.angleOffset = angleOffset;
+            }
+        }
+
+            /* Front Left Module - Module 0 */
         private static final double mod0BetaAngleOffset = 39.63;
         private static final double mod0CompAngleOffset = 39.63;
         public static final SwerveModuleConstants Mod0 = new SwerveModuleConstants(
@@ -221,7 +234,7 @@ public class Constants {
             isComp ? mod3CompAngleOffset : mod3BetaAngleOffset
         );
 
-        public static TalonFXConfiguration swerveDriveFXConfig() {
+        public static TalonFXConfiguration driveFXConfig() {
             TalonFXConfiguration config = new TalonFXConfiguration();
             config.CurrentLimits.SupplyCurrentLimitEnable = driveEnableCurrentLimit;
             config.CurrentLimits.SupplyCurrentLowerLimit = driveContinuousCurrentLimit;
@@ -243,7 +256,7 @@ public class Constants {
             return config;
         }
 
-        public static TalonFXConfiguration swerveAngleFXConfig() {
+        public static TalonFXConfiguration angleFXConfig() {
             TalonFXConfiguration angleConfig = new TalonFXConfiguration();
             angleConfig.CurrentLimits.SupplyCurrentLimitEnable = angleEnableCurrentLimit;
             angleConfig.CurrentLimits.SupplyCurrentLowerLimit = angleContinuousCurrentLimit;
@@ -261,7 +274,7 @@ public class Constants {
             return angleConfig;
         }
 
-        public static CANcoderConfiguration swerveCancoderConfig() {
+        public static CANcoderConfiguration cancoderConfig() {
             CANcoderConfiguration config = new CANcoderConfiguration();
             config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
             config.MagnetSensor.SensorDirection = canCoderInvert;
@@ -352,12 +365,12 @@ public class Constants {
 
     public static final class MacAddressConstants {
         public static final byte[] COMP_ADDRESS = new byte[] {
-                // values are for comp -> 00:80:2f:35:b8:ca
+                // values for comp -> 00:80:2f:35:b8:ca
                 (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x35, (byte) 0xb8, (byte) 0xca
         };
 
         public static final byte[] BETA_ADDRESS = new byte[] {
-                // values are for beta -> 00:80:2f:34:0B:9B
+                // values for beta -> 00:80:2f:34:0B:9B
                 (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x34, (byte) 0x0b, (byte) 0x9b
         };
     }
@@ -598,21 +611,19 @@ public class Constants {
         public static final double kSourceLoadShooterHeight = 0.22;
 
         /* CLIMB */
-        public static final double kClimbInitHeight = 0.32 + Conversions.inchesToMeters(4.75); // initial height going
-                                                                                               // up
-        public static final double kMaxClimbInitHeight = 0.32 + Conversions.inchesToMeters(8); // TODO: set this
-        // to chain
-        public static final double kPullOntoChainHeight = Conversions.inchesToMeters(0.25); // height of the elevator
-                                                                                            // when transfering chain
+        // initial height going up
+        public static final double kClimbInitHeight = 0.32 + Conversions.inchesToMeters(4.75);
+        // TODO: set this to chain
+        public static final double kMaxClimbInitHeight = 0.32 + Conversions.inchesToMeters(8);
+        // height of the elevator when transfering chain
+        public static final double kPullOntoChainHeight = Conversions.inchesToMeters(0.25);
 
         public static final double kExtendOffChain1 = 0.054;
         public static final double kExtendOffChain2 = 0.126;
-        public static final double kExtendOffChain3 = 0.26 - Conversions.inchesToMeters(1); // to go within height
-                                                                                            // limits
-        public static final double kExtendToScoreTrapHeight = 0.447 - Conversions.inchesToMeters(3.5); // height of the
-                                                                                                       // elvator when
-                                                                                                       // scoring in the
-                                                                                                       // trap
+        // to go within height limits
+        public static final double kExtendOffChain3 = 0.26 - Conversions.inchesToMeters(1);
+        // height of the elvator when scoring in the trap
+        public static final double kExtendToScoreTrapHeight = 0.447 - Conversions.inchesToMeters(3.5);
 
         /* De Climb */
         public static final double kDeclimbHeight1 = 0.267;
@@ -620,7 +631,7 @@ public class Constants {
         public static final double kDeclimbHeight3 = 0.02;
         public static final double kDeclimbHeight4 = 0.32 + Conversions.inchesToMeters(2);
 
-        public static TalonFXConfiguration elevatorFastMotorConfig() {
+        public static TalonFXConfiguration motorConfig() {
             TalonFXConfiguration config = new TalonFXConfiguration();
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
             config.CurrentLimits.SupplyCurrentLowerLimit = 30; // start off pretty low
@@ -642,88 +653,42 @@ public class Constants {
             return config;
         }
 
-        public static TalonFXConfiguration elevatorSlowMotorConfig() {
-            TalonFXConfiguration config = new TalonFXConfiguration();
-            // TODO: do any of these configs even matter?
-            config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.SupplyCurrentLowerLimit = 30; // start off pretty low
-            config.CurrentLimits.SupplyCurrentLimit = 20;
-            config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
-
-            config.Slot0.kP = 0.6;
-            config.Slot0.kI = 0.0;
-            config.Slot0.kD = 0.0;
-            config.Slot0.kV = 0.0;
-
-            config.MotionMagic.MotionMagicCruiseVelocity = 140; // was 50 for 1st comp
-            config.MotionMagic.MotionMagicExpo_kA = 0.2;
-            config.MotionMagic.MotionMagicAcceleration = 140;
-
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-            return config;
-        }
-
-        public static TalonFXConfiguration elevatorCurlMotorConfig() {
-            TalonFXConfiguration config = new TalonFXConfiguration();
-            // TODO: do any of these configs even matter?
-            config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.SupplyCurrentLowerLimit = 35; // start off pretty low
-            config.CurrentLimits.SupplyCurrentLimit = 30;
-            config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
-
-            config.Slot0.kP = 0.6;
-            config.Slot0.kI = 0.0;
-            config.Slot0.kD = 0.0;
-            config.Slot0.kV = 0.0;
-
-            config.MotionMagic.MotionMagicCruiseVelocity = 140; // TODO: change this
-            config.MotionMagic.MotionMagicExpo_kA = 0.2;
-            config.MotionMagic.MotionMagicAcceleration = 200;
-
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-            return config;
-        }
-
         public static final double[][] groundIntakeWristPositionsOut = {
-                // @0 --> position of elevator (in meters)
-                // @1 --> position of wrist (in degrees)
-                // @2 --> position of the pivot(in degrees)
-                { 0.004, 335, 5 },
-                { 0.03, 337, 6 },
-                { 0.052, 340, 8 },
-                { 0.075, 341, 8 },
-                { 0.1, 343, 8 },
-                { 0.125, 345, 8 },
-                { 0.15, 348, 7 },
-                { 0.175, 354, 7 },
-                { 0.2, 356, 7 },
-                { 0.215, 358, 7 },
-                { 0.23, 359.7 + 3, 7 },
-                { 0.235, 359.7, 7 },
-                { 0.237, 359, 5.5 } // really 0.275, but less so that everything else goes into position
+            // @0 --> position of elevator (in meters)
+            // @1 --> position of wrist (in degrees)
+            // @2 --> position of the pivot(in degrees)
+            { 0.004, 335, 5 },
+            { 0.03, 337, 6 },
+            { 0.052, 340, 8 },
+            { 0.075, 341, 8 },
+            { 0.1, 343, 8 },
+            { 0.125, 345, 8 },
+            { 0.15, 348, 7 },
+            { 0.175, 354, 7 },
+            { 0.2, 356, 7 },
+            { 0.215, 358, 7 },
+            { 0.23, 359.7 + 3, 7 },
+            { 0.235, 359.7, 7 },
+            { 0.237, 359, 5.5 } // really 0.275, but less so that everything else goes into position
         };
 
         public static final double[][] groundIntakeWristPositionsIn = {
-                // @0 --> position of elevator (in meters)
-                // @1 --> position of wrist (in degrees)
-                // @2 --> position of the pivot(in degrees)
-                { 0.004, 190, 4.8 },
-                { 0.03, 200, 4.8 },
-                { 0.052, 210, 5 },
-                { 0.075, 215, 5 },
-                { 0.1, 235, 6 },
-                { 0.125, 290, 7 },
-                { 0.15, 300, 8 },
-                { 0.175, 328, 9 },
-                { 0.2, 330, 10 },
-                { 0.215, 333, 11 },
-                { 0.23, 335, 11 },
-                { 0.235, 340, 11 },
-                { 0.24, 345, 10 } // really 0.275, but less so that everything else goes into position
+            // @0 --> position of elevator (in meters)
+            // @1 --> position of wrist (in degrees)
+            // @2 --> position of the pivot(in degrees)
+            { 0.004, 190, 4.8 },
+            { 0.03, 200, 4.8 },
+            { 0.052, 210, 5 },
+            { 0.075, 215, 5 },
+            { 0.1, 235, 6 },
+            { 0.125, 290, 7 },
+            { 0.15, 300, 8 },
+            { 0.175, 328, 9 },
+            { 0.2, 330, 10 },
+            { 0.215, 333, 11 },
+            { 0.23, 335, 11 },
+            { 0.235, 340, 11 },
+            { 0.24, 345, 10 } // really 0.275, but less so that everything else goes into position
         };
     }
 
@@ -782,7 +747,85 @@ public class Constants {
         public static final double kMinAngle = 0;
         public static final double kGearRatio = 45;
 
-        public static TalonFXConfiguration climberHookMotorConfig() {
+        public static TalonFXConfiguration motorConfig() {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+            config.CurrentLimits.SupplyCurrentLimitEnable = false;
+            config.CurrentLimits.SupplyCurrentLowerLimit = 10; // start off pretty low
+            config.CurrentLimits.SupplyCurrentLimit = 20;
+            config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
+
+            config.Slot0.kP = 0.6;
+            config.Slot0.kI = 0.0;
+            config.Slot0.kD = 0.0;
+            config.Slot0.kV = 0.0;
+
+            config.MotionMagic.MotionMagicCruiseVelocity = 160;
+            config.MotionMagic.MotionMagicExpo_kA = 0.3;
+            config.MotionMagic.MotionMagicAcceleration = 400;
+
+            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            return config;
+        }
+    }
+
+    public static final class CoralConstants {
+        public static final double kGearRatio = 4;
+
+        public static TalonFXConfiguration motorConfig() {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+            config.CurrentLimits.SupplyCurrentLimitEnable = false;
+            config.CurrentLimits.SupplyCurrentLowerLimit = 10; // start off pretty low
+            config.CurrentLimits.SupplyCurrentLimit = 20;
+            config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
+
+            config.Slot0.kP = 0.6;
+            config.Slot0.kI = 0.0;
+            config.Slot0.kD = 0.0;
+            config.Slot0.kV = 0.0;
+
+            config.MotionMagic.MotionMagicCruiseVelocity = 160;
+            config.MotionMagic.MotionMagicExpo_kA = 0.3;
+            config.MotionMagic.MotionMagicAcceleration = 400;
+
+            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            return config;
+        }
+    }
+
+    public static final class AlgaeConstants {
+        public static final double kGroundIntakeAngle = 0; // degrees
+        public static final double kUpperIntakeAngle = 0;
+        public static final double kHoldAngle = 0;
+        public static final double kStowAnble = 0;
+        public static final double kMaxAngle = 0;
+        public static final double kMinAngle = 0;
+        public static final double kAngleGearRatio = 45;
+        public static final double kDriveGearRatio = 4;
+
+        public static TalonFXConfiguration driveMotorConfig() {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+            config.CurrentLimits.SupplyCurrentLimitEnable = false;
+            config.CurrentLimits.SupplyCurrentLowerLimit = 10; // start off pretty low
+            config.CurrentLimits.SupplyCurrentLimit = 20;
+            config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
+
+            config.Slot0.kP = 0.6;
+            config.Slot0.kI = 0.0;
+            config.Slot0.kD = 0.0;
+            config.Slot0.kV = 0.0;
+
+            config.MotionMagic.MotionMagicCruiseVelocity = 160;
+            config.MotionMagic.MotionMagicExpo_kA = 0.3;
+            config.MotionMagic.MotionMagicAcceleration = 400;
+
+            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            return config;
+        }
+
+        public static TalonFXConfiguration angleMotorConfig() {
             TalonFXConfiguration config = new TalonFXConfiguration();
             config.CurrentLimits.SupplyCurrentLimitEnable = false;
             config.CurrentLimits.SupplyCurrentLowerLimit = 10; // start off pretty low

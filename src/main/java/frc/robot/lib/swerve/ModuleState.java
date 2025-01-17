@@ -1,9 +1,9 @@
 package frc.robot.lib.swerve;
 
-import frc.robot.lib.Util;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+
+import frc.robot.lib.Util;
 
 public class ModuleState extends SwerveModulePosition {
 

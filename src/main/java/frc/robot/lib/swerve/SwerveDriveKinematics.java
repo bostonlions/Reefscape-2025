@@ -4,16 +4,17 @@
 
 package frc.robot.lib.swerve;
 
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.ejml.simple.SimpleMatrix;
+
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-
-import java.util.Arrays;
-import java.util.Collections;
-import org.ejml.simple.SimpleMatrix;
 
 /**
  * Helper class that converts a chassis velocity (dx, dy, and dtheta components) into individual
