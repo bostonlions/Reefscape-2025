@@ -226,10 +226,7 @@ public class Elevator extends Subsystem {
 
         } else if (mPeriodicIO.mControlModeState == ControlModeState.MOTION_MAGIC) {
             // mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand, true, 0, 0, false, false, false));
-            MotionMagicDutyCycle dutyCycle = new MotionMagicDutyCycle(mPeriodicIO.demand);
-            dutyCycle.EnableFOC = true;
-            dutyCycle.FeedForward = 0;
-            mMaster.setControl(dutyCycle);
+            mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand).withEnableFOC(true));
         }
 
         if (mPeriodicIO.position < 0.025 && Math.abs(mPeriodicIO.torqueCurrent) > 60)

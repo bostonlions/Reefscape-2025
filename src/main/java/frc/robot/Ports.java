@@ -29,4 +29,6 @@ public final class Ports {
 
     public static final int ELEVATOR_A = -1;
     public static final int ELEVATOR_B = -1;
+
+    public static final int CLIMBER_HOOK = -1;
  }
