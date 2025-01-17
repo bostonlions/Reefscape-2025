@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import frc.robot.lib.Pigeon;
 import frc.robot.lib.swerve.SwerveModule;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
@@ -8,6 +7,7 @@ import frc.robot.lib.loops.ILooper;
 import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
 import frc.robot.lib.Util.MovingAverage;
+import frc.robot.lib.drivers.Pigeon;
 import frc.robot.lib.logger.Log;
 import frc.robot.lib.logger.LoggingSystem;
 import frc.robot.lib.swerve.ChassisSpeeds;

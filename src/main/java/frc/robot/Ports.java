@@ -26,4 +26,7 @@ public final class Ports {
     public static final int BR_DRIVE = -1;
     public static final int BR_ROTATION = -1;
     public static final int BR_CANCODER = -1;
+
+    public static final int ELEVATOR_A = -1;
+    public static final int ELEVATOR_B = -1;
  }
