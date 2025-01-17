@@ -1,5 +1,15 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.robot.lib.swerve.SwerveModule;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
@@ -15,16 +25,6 @@ import frc.robot.lib.swerve.DriveMotionPlanner;
 import frc.robot.lib.swerve.ModuleState;
 import frc.robot.lib.swerve.SwerveDriveOdometry;
 import frc.robot.lib.swerve.SwerveDriveKinematics;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Drive extends Subsystem {
     public enum DriveControlState {
@@ -68,7 +68,7 @@ public class Drive extends Subsystem {
             new SwerveModule(3, SwerveConstants.Mod3)
         };
 
-        kKinematics = new SwerveDriveKinematics(SwerveConstants.swerveModuleLocations);
+        kKinematics = new SwerveDriveKinematics(SwerveConstants.locations);
 
         mOdometry = new SwerveDriveOdometry(kKinematics, getModuleStates());
         mMotionPlanner = new DriveMotionPlanner();

@@ -1,37 +1,37 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import frc.robot.Constants.ClimberHookConstants;
 import frc.robot.Ports;
 import frc.robot.lib.loops.ILooper;
 import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util.Conversions;
+import frc.robot.Constants.CoralConstants;
 
-public class ClimberHook extends Subsystem {
+public class Coral extends Subsystem {
 
-    private static ClimberHook mInstance;
+    private static Coral mInstance;
     private TalonFX mMotor;
 
     private mPeriodicIO mPeriodicIO = new mPeriodicIO();
 
-    public static ClimberHook getInstance() {
+    public static Coral getInstance() {
         if (mInstance == null) {
-            mInstance = new ClimberHook();
+            mInstance = new Coral();
         }
         return mInstance;
     }
 
-    private ClimberHook() {
-        mMotor = new TalonFX(Ports.CLIMBER_HOOK, Ports.CANBUS_LOWER);
+    private Coral() {
+        mMotor = new TalonFX(Ports.CORAL_DRIVE, Ports.CANBUS_LOWER);
         // configs from constants
-        mMotor.getConfigurator().apply(ClimberHookConstants.motorConfig());
+        mMotor.getConfigurator().apply(CoralConstants.motorConfig());
 
         setWantNeutralBrake(true);
         mMotor.setPosition(0);
@@ -86,7 +86,7 @@ public class ClimberHook extends Subsystem {
             mPeriodicIO.mControlModeState = ControlModeState.MOTION_MAGIC;
         }
 
-        double rotationDemand = Conversions.degreesToRotation(degrees, ClimberHookConstants.kGearRatio);
+        double rotationDemand = Conversions.degreesToRotation(degrees, CoralConstants.kGearRatio);
         mPeriodicIO.demand = rotationDemand;
     }
 
@@ -127,10 +127,10 @@ public class ClimberHook extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / ClimberHookConstants.kGearRatio;
+        mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / CoralConstants.kGearRatio;
         mPeriodicIO.current = mMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.velocity_rps = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / ClimberHookConstants.kGearRatio;
+        mPeriodicIO.velocity_rps = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / CoralConstants.kGearRatio;
     }
 
     @Override

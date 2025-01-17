@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOError;
 import java.io.IOException;
+import java.lang.Object;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,12 +19,10 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 
-import frc.robot.Robot;
-import frc.robot.lib.loops.Loop;
-
 import edu.wpi.first.wpilibj.Timer;
 
-import java.lang.Object;
+import frc.robot.Robot;
+import frc.robot.lib.loops.Loop;
 
 import static java.util.Map.entry;
 

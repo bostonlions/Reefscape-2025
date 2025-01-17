@@ -4,10 +4,10 @@
 
 package frc.robot.lib.swerve;
 
-import frc.robot.lib.Util;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+
+import frc.robot.lib.Util;
 
 /**
  * Represents the speed of a robot chassis. Although this struct contains

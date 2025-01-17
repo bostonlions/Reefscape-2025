@@ -1,5 +1,9 @@
 package frc.robot.lib.swerve;
 
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.units.Units;
+
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -13,10 +17,6 @@ import frc.robot.subsystems.Subsystem;
 import frc.robot.lib.Util;
 import frc.robot.lib.Util.Conversions;
 import frc.robot.lib.logger.Log;
-
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.units.Units;
 
 public class SwerveModule extends Subsystem {
 
@@ -32,22 +32,22 @@ public class SwerveModule extends Subsystem {
     private ModuleState targetModuleState;
 
 
-    public SwerveModule(int moduleNumber, SwerveModuleConstants moduleConstants) {
+    public SwerveModule(int moduleNumber, Constants.SwerveConstants.SwerveModuleConstants moduleConstants) {
         this.kModuleNumber = moduleNumber;
         kAngleOffset = moduleConstants.angleOffset;
 
         // Absolute encoder config
         angleEncoder = new CANcoder(moduleConstants.cancoderID, Ports.CANBUS_LOWER);
-        angleEncoder.getConfigurator().apply(Constants.SwerveConstants.swerveCancoderConfig());
+        angleEncoder.getConfigurator().apply(Constants.SwerveConstants.cancoderConfig());
 
         // Angle motor config
         mAngleMotor = new TalonFX(moduleConstants.angleMotorID, Ports.CANBUS_LOWER);
-        mAngleMotor.getConfigurator().apply(Constants.SwerveConstants.swerveAngleFXConfig());
+        mAngleMotor.getConfigurator().apply(Constants.SwerveConstants.angleFXConfig());
         mAngleMotor.setPosition(0);
 
         // Drive motor config
         mDriveMotor = new TalonFX(moduleConstants.driveMotorID, Ports.CANBUS_LOWER);
-        mDriveMotor.getConfigurator().apply(Constants.SwerveConstants.swerveDriveFXConfig());
+        mDriveMotor.getConfigurator().apply(Constants.SwerveConstants.driveFXConfig());
         mDriveMotor.setPosition(0.0);
 
         resetToAbsolute();
@@ -141,20 +141,6 @@ public class SwerveModule extends Subsystem {
             // TODO: previously this had extra args: true, false, false, false - but I can't find
             // a constructor with that signature
             mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand));
-        }
-    }
-
-    public static class SwerveModuleConstants {
-        public final int driveMotorID;
-        public final int angleMotorID;
-        public final int cancoderID;
-        public final double angleOffset;
-
-        public SwerveModuleConstants(int driveMotorID, int angleMotorID, int canCoderID, double angleOffset) {
-            this.driveMotorID = driveMotorID;
-            this.angleMotorID = angleMotorID;
-            this.cancoderID = canCoderID;
-            this.angleOffset = angleOffset;
         }
     }
 

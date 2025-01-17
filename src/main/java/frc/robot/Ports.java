@@ -31,4 +31,9 @@ public final class Ports {
     public static final int ELEVATOR_B = -1;
 
     public static final int CLIMBER_HOOK = -1;
+
+    public static final int CORAL_DRIVE = -1;
+
+    public static final int ALGAE_DRIVE = -1;
+    public static final int ALGAE_ANGLE = -1;
  }

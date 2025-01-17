@@ -40,8 +40,8 @@ public class Elevator extends Subsystem {
         mMaster = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_LOWER);
 
         // Customize these configs from constants in the future
-        mMaster.getConfigurator().apply(Constants.ElevatorConstants.elevatorFastMotorConfig());
-        mSlave.getConfigurator().apply(Constants.ElevatorConstants.elevatorFastMotorConfig());
+        mMaster.getConfigurator().apply(Constants.ElevatorConstants.motorConfig());
+        mSlave.getConfigurator().apply(Constants.ElevatorConstants.motorConfig());
 
         mSlave.setControl(new Follower(Ports.ELEVATOR_B, true));
         setNeutralBrake(false);
