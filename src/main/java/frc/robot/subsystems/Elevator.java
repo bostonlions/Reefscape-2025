@@ -36,8 +36,8 @@ public class Elevator extends Subsystem {
     }
 
     private Elevator() {
-        mSlave = new TalonFX(Ports.ELEVATOR_A, Ports.CANBUS_UPPER);
-        mMaster = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_UPPER);
+        mSlave = new TalonFX(Ports.ELEVATOR_A, Ports.CANBUS_OPS);
+        mMaster = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_OPS);
 
         // Customize these configs from constants in the future
         mMaster.getConfigurator().apply(Constants.ElevatorConstants.motorConfig());
