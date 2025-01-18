@@ -73,7 +73,6 @@ public class Util {
 		if (min > max) {
 			throw new IllegalArgumentException("min must not be greater than max");
 		}
-
 		return Math.max(min, Math.min(value, max));
 	}
 
@@ -229,11 +228,11 @@ public class Util {
          * @param gearRatio Gear Ratio between Falcon and Mechanism (set to 1 for Falcon RPM)
          * @return RPM of Mechanism
          */
-        public static double RPMToFalcon(double RPM, double gearRatio) {
-            double motorRPM = RPM * gearRatio;
-            double sensorCounts = motorRPM * (2048.0 / 600.0);
-            return sensorCounts;
-        }
+        // public static double RPMToFalcon(double RPM, double gearRatio) {
+        //     double motorRPM = RPM * gearRatio;
+        //     double sensorCounts = motorRPM * (2048.0 / 600.0);
+        //     return sensorCounts;
+        // }
 
         // /**
         //  * @param velocitycounts Falcon Velocity Counts
