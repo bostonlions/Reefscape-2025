@@ -29,7 +29,7 @@ public class ClimberHook extends Subsystem {
     }
 
     private ClimberHook() {
-        mMotor = new TalonFX(Ports.CLIMBER_HOOK, Ports.CANBUS_LOWER);
+        mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_UPPER);
         // configs from constants
         mMotor.getConfigurator().apply(ClimberHookConstants.motorConfig());
 

@@ -1,17 +1,17 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.units.Units;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+// import com.ctre.phoenix6.controls.DutyCycleOut;
+// import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+// import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Ports;
-import frc.robot.lib.loops.ILooper;
-import frc.robot.lib.loops.Loop;
-import frc.robot.lib.Util.Conversions;
+// import frc.robot.lib.loops.ILooper;
+// import frc.robot.lib.loops.Loop;
+// import frc.robot.lib.Util.Conversions;
 import frc.robot.Constants.AlgaeConstants;
 
 public class Algae extends Subsystem {
@@ -20,7 +20,7 @@ public class Algae extends Subsystem {
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;
 
-    private mPeriodicIO mPeriodicIO = new mPeriodicIO();
+    // private mPeriodicIO mPeriodicIO = new mPeriodicIO();
 
     public static Algae getInstance() {
         if (mInstance == null) {
@@ -30,9 +30,9 @@ public class Algae extends Subsystem {
     }
 
     private Algae() {
-        mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_LOWER);
+        mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_UPPER);
         mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig());
-        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_LOWER);
+        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_UPPER);
         mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig());
 
         mAngleMotor.setPosition(0);

@@ -37,16 +37,16 @@ public class SwerveModule extends Subsystem {
         kAngleOffset = moduleConstants.angleOffset;
 
         // Absolute encoder config
-        angleEncoder = new CANcoder(moduleConstants.cancoderID, Ports.CANBUS_LOWER);
+        angleEncoder = new CANcoder(moduleConstants.cancoderID, Ports.CANBUS_DRIVE);
         angleEncoder.getConfigurator().apply(Constants.SwerveConstants.cancoderConfig());
 
         // Angle motor config
-        mAngleMotor = new TalonFX(moduleConstants.angleMotorID, Ports.CANBUS_LOWER);
+        mAngleMotor = new TalonFX(moduleConstants.angleMotorID, Ports.CANBUS_DRIVE);
         mAngleMotor.getConfigurator().apply(Constants.SwerveConstants.angleFXConfig());
         mAngleMotor.setPosition(0);
 
         // Drive motor config
-        mDriveMotor = new TalonFX(moduleConstants.driveMotorID, Ports.CANBUS_LOWER);
+        mDriveMotor = new TalonFX(moduleConstants.driveMotorID, Ports.CANBUS_DRIVE);
         mDriveMotor.getConfigurator().apply(Constants.SwerveConstants.driveFXConfig());
         mDriveMotor.setPosition(0.0);
 

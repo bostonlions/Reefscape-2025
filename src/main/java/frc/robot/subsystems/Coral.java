@@ -29,7 +29,7 @@ public class Coral extends Subsystem {
     }
 
     private Coral() {
-        mMotor = new TalonFX(Ports.CORAL_DRIVE, Ports.CANBUS_LOWER);
+        mMotor = new TalonFX(Ports.CORAL_DRIVE, Ports.CANBUS_UPPER);
         // configs from constants
         mMotor.getConfigurator().apply(CoralConstants.motorConfig());
 

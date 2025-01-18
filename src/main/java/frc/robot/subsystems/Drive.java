@@ -62,10 +62,10 @@ public class Drive extends Subsystem {
 
     private Drive() {
         mModules = new SwerveModule[] {
-            new SwerveModule(0, SwerveConstants.Mod0),
-            new SwerveModule(1, SwerveConstants.Mod1),
-            new SwerveModule(2, SwerveConstants.Mod2),
-            new SwerveModule(3, SwerveConstants.Mod3)
+            new SwerveModule(0, SwerveConstants.FL),
+            new SwerveModule(1, SwerveConstants.FR),
+            new SwerveModule(2, SwerveConstants.BL),
+            new SwerveModule(3, SwerveConstants.BR)
         };
 
         kKinematics = new SwerveDriveKinematics(SwerveConstants.locations);
