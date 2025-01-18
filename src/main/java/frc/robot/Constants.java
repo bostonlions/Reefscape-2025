@@ -177,10 +177,10 @@ public class Constants {
             maxAttainableSpeed, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE
         );
 
-        /***
-         * MODULE SPECIFIC CONSTANTS **
+        /**
+         * MODULE SPECIFIC CONSTANTS
          *
-         * which way to zero modules?
+         * How to zero modules:
          * if you tip the robot up on its back side, align the bevel gears to the right
          * side (from lookers perspective) on all the wheels. Make sure all the wheels are
          * in line, then record canCoder offset values in shuffleboard
@@ -202,36 +202,28 @@ public class Constants {
             }
         }
 
-            /* Front Left Module - Module 0 */
-        private static final double mod0BetaAngleOffset = 39.63;
-        private static final double mod0CompAngleOffset = 39.63;
-        public static final SwerveModuleConstants Mod0 = new SwerveModuleConstants(
-            Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
-            isComp ? mod0CompAngleOffset : mod0BetaAngleOffset
+        // Front Left Module - Module 0
+        private static final double FL_AngleOffset = 39.63;
+        public static final SwerveModuleConstants FL = new SwerveModuleConstants(
+            Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, FL_AngleOffset
         );
 
-        /* Front Right Module - Module 1 */
-        private static final double mod1BetaAngleOffset = 169.62;
-        private static final double mod1CompAngleOffset = 169.62;
-        public static final SwerveModuleConstants Mod1 = new SwerveModuleConstants(
-            Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
-            isComp ? mod1CompAngleOffset : mod1BetaAngleOffset
+        // Front Right Module - Module 1
+        private static final double FR_AngleOffset = 169.62;
+        public static final SwerveModuleConstants FR = new SwerveModuleConstants(
+            Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, FR_AngleOffset
         );
 
-        /* Back Left Module - Module 2 */
-        private static final double mod2BetaAngleOffset = 181.58;
-        private static final double mod2CompAngleOffset = 181.58;
-        public static final SwerveModuleConstants Mod2 = new SwerveModuleConstants(
-            Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
-            isComp ? mod2CompAngleOffset : mod2BetaAngleOffset
+        // Back Left Module - Module 2
+        private static final double BL_AngleOffset = 181.58;
+        public static final SwerveModuleConstants BL = new SwerveModuleConstants(
+            Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, BL_AngleOffset
         );
 
-        /* Back Right Module - Module 3 */
-        private static final double mod3BetaAngleOffset = 278.52;
-        private static final double mod3CompAngleOffset = 278.52;
-        public static final SwerveModuleConstants Mod3 = new SwerveModuleConstants(
-            Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
-            isComp ? mod3CompAngleOffset : mod3BetaAngleOffset
+        // Back Right Module - Module 3
+        private static final double BR_AngleOffset = 278.52;
+        public static final SwerveModuleConstants BR = new SwerveModuleConstants(
+            Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, BR_AngleOffset
         );
 
         public static TalonFXConfiguration driveFXConfig() {
