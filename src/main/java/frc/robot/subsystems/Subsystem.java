@@ -18,34 +18,30 @@ import frc.robot.lib.loops.ILooper;
  * instantializing all member components at the start of the match.
  */
 public abstract class Subsystem {
-    public void writeToLog() {
-    }
+    public void writeToLog() {}
 
-    // Optional design pattern for caching periodic reads to avoid hammering the
-    // HAL/CAN.
-    public void readPeriodicInputs() {
-    }
+    /*
+     * Optional design pattern for caching periodic reads to avoid hammering the
+     * HAL/CAN.
+     */
+    public void readPeriodicInputs() {}
 
-    // Optional design pattern for caching periodic writes to avoid hammering the
-    // HAL/CAN.
-    public void writePeriodicOutputs() {
-    }
+    /*
+     * Optional design pattern for caching periodic writes to avoid hammering the
+     * HAL/CAN.
+     */
+    public void writePeriodicOutputs() {}
 
-    public void stop() {
-    };
+    public void stop() {}
 
-    public void zeroSensors() {
-    }
+    public void zeroSensors() {}
 
-    public void outputTelemetry() {
-    }
+    public void outputTelemetry() {}
 
-    public void registerEnabledLoops(ILooper enabledLooper) {
-    }
+    public void registerEnabledLoops(ILooper enabledLooper) {}
 
     public boolean checkSystem() {
         return false;
     }
-
     public boolean hasEmergency = false;
 }
