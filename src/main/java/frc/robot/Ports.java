@@ -2,15 +2,18 @@ package frc.robot;
 
 public final class Ports {
     public static final String CANBUS_DRIVE = "Skibidi";
-    public static final String CANBUS_UPPER = "";
+    public static final String CANBUS_OPS = "";
 
-    public static final int PIGEON = 13;
+    public static final int DRIVER_CONTROL = 2;
+    public static final int OPERATOR_CONTROL = 1;
 
     /**
      * Swerve Modules - as viewed from the bottom:
      * FL FR
      * BL BR
      */
+
+    public static final int PIGEON = 13;
 
     public static final int FL_DRIVE = 9;
     public static final int FL_ROTATION = 12;

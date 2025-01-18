@@ -30,7 +30,7 @@ public class Pigeon {
     private Rotation2d pitchAdjustmentAngle = new Rotation2d();
 
     private Pigeon(int port) {
-        mGyro = new Pigeon2(port, Ports.CANBUS_LOWER);
+        mGyro = new Pigeon2(port, Ports.CANBUS_DRIVE);
         mGyro.getConfigurator().apply(new Pigeon2Configuration());
     }
 

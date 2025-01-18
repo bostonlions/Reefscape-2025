@@ -30,9 +30,9 @@ public class Algae extends Subsystem {
     }
 
     private Algae() {
-        mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_UPPER);
+        mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
         mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig());
-        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_UPPER);
+        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
         mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig());
 
         mAngleMotor.setPosition(0);
