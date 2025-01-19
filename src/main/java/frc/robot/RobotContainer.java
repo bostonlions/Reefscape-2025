@@ -8,13 +8,22 @@ package frc.robot;
 // import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.subsystems.Drive;
 import frc.robot.controlboard.ControlBoard;
+
 /**
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
  * and commands. Since Command-based is a "declarative" paradigm, very little robot logic should
- * actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
+ * actually be handled in the {@link Robot} periodic methods (other than the scheduler calls);
+ * Trigger->command mappings should be defined here; for defining these mappings:
+ *      Schedule ExampleCommand when exampleCondition becomes true:
+ *          new Trigger(exampleSubsystem::exampleCondition)
+ *            .onTrue(new ExampleCommand(exampleSubsystem));
+ *      Schedule exampleMethodCommand when the Xbox controller's B button is pressed,
+ *      cancelling on release:
+ *          driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
  */
 public class RobotContainer {
     private Drive driveSubsystem;
@@ -32,17 +41,10 @@ public class RobotContainer {
                 driveSubsystem
             )
         );
-        // Initialization of subsystems, OI devices, and commands:
-        // this.exampleSubsystem = new ExampleSubsystem();
-        // this.driverController = new CommandXboxController(Ports.PIGEON);
 
-        // The below code defines trigger->command mappings; for defining these mappings:
-        //   Schedule ExampleCommand when exampleCondition becomes true:
-        //     new Trigger(exampleSubsystem::exampleCondition)
-        //       .onTrue(new ExampleCommand(exampleSubsystem));
-        //   Schedule exampleMethodCommand when the Xbox controller's B button is pressed,
-        //   cancelling on release:
-        //     driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
-
+        // adding data to smart dashboard
+        SmartDashboard.putData(driveSubsystem);
+        for (int i = 0; i<=3; i++)
+            SmartDashboard.putData(driveSubsystem.mModules[i]);
     }
 }
