@@ -20,7 +20,7 @@ public class ClimberHook extends SubsystemBase {
     private static ClimberHook mInstance;
     private TalonFX mMotor;
 
-    private mPeriodicIO mPeriodicIO = new mPeriodicIO();
+    private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public static ClimberHook getInstance() {
         if (mInstance == null) {
@@ -105,7 +105,7 @@ public class ClimberHook extends SubsystemBase {
         return mPeriodicIO.current;
     }
 
-    public static class mPeriodicIO {
+    public static class PeriodicIO {
         // Inputs
         public double timestamp = 0.0;
         public double targetVelocity = 0.0;

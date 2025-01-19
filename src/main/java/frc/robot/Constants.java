@@ -203,27 +203,26 @@ public class Constants {
                 this.name = name;
             }
         }
-
         // Front Left Module - Module 0
-        private static final double FL_AngleOffset = 39.63;
+        private static final double FL_AngleOffset = 0.931641*360;
         public static final SwerveModuleConstants FL = new SwerveModuleConstants(
             Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, FL_AngleOffset, "FL"
         );
 
         // Front Right Module - Module 1
-        private static final double FR_AngleOffset = 169.62;
+        private static final double FR_AngleOffset = 0.248535*360;
         public static final SwerveModuleConstants FR = new SwerveModuleConstants(
             Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, FR_AngleOffset, "FR"
         );
 
         // Back Left Module - Module 2
-        private static final double BL_AngleOffset = 181.58;
+        private static final double BL_AngleOffset = 0.531494*360;
         public static final SwerveModuleConstants BL = new SwerveModuleConstants(
             Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, BL_AngleOffset, "BL"
         );
 
         // Back Right Module - Module 3
-        private static final double BR_AngleOffset = 278.52;
+        private static final double BR_AngleOffset = 0.203125*360;
         public static final SwerveModuleConstants BR = new SwerveModuleConstants(
             Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, BR_AngleOffset, "BR"
         );
