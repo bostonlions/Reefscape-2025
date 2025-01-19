@@ -1,19 +1,14 @@
 package frc.robot.lib;
 
 import java.util.List;
-import java.util.ArrayList;
 
-/**
- * Contains basic functions that are used often.
- */
+/** Contains basic functions that are used often. */
 public class Util {
     public static final double kEpsilon = 1e-12;
 
     private Util() {};
 
-    /**
-     * Limits the given input to the given magnitude.
-     */
+    /** Limits @param v to @param maxMagnitude */
     public static double limit(double v, double maxMagnitude) {
         return limit(v, -maxMagnitude, maxMagnitude);
     }
@@ -26,9 +21,7 @@ public class Util {
         return inRange(v, -maxMagnitude, maxMagnitude);
     }
 
-    /**
-     * Checks if the given input is within the range (min, max), both exclusive.
-     */
+    /** Checks if @param v is within the range @param min to @param max both exclusive. */
     public static boolean inRange(double v, double min, double max) {
         return v > min && v < max;
     }
@@ -124,54 +117,7 @@ public class Util {
         return Math.signum(deadbandedValue) * ((Math.abs(deadbandedValue) - deadband) / (maxValue - deadband));
     }
 
-    public static boolean shouldReverse(double goalAngle, double currentAngle) {
-        double diff = (goalAngle - currentAngle + 720.0) % 360.0;
-        return diff > 90 && diff < 270;
-    }
-
-    /**
-     * Helper class for storing and calculating a moving average.
-     * Copied from Team 254 lib/util/MovingAverage.java
-     */
-    public static class MovingAverage {
-        ArrayList<Double> numbers = new ArrayList<Double>();
-        int maxSize;
-
-        public MovingAverage(int maxSize) {
-            this.maxSize = maxSize;
-        }
-
-        public void addNumber(double newNumber) {
-            numbers.add(newNumber);
-            if (numbers.size() > maxSize) {
-                numbers.remove(0);
-            }
-        }
-
-        public double getAverage() {
-            double total = 0;
-
-            for (double number : numbers) {
-                total += number;
-            }
-
-            return total / numbers.size();
-        }
-
-        public int getSize() {
-            return numbers.size();
-        }
-
-        public boolean isUnderMaxSize() {
-            return getSize() < maxSize;
-        }
-
-        public void clear() {
-            numbers.clear();
-        }
-    }
-
-    public class Conversions {
+    public final class Conversions {
         private Conversions() {};
 
         // /**
