@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+// import com.ctre.phoenix6.controls.DutyCycleOut;
+// import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ClimberHookConstants;
 import frc.robot.Ports;
-import frc.robot.lib.loops.ILooper;
-import frc.robot.lib.loops.Loop;
+// import frc.robot.lib.loops.ILooper;
+// import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util.Conversions;
 
 public class ClimberHook extends SubsystemBase {
