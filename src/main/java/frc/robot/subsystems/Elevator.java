@@ -1,26 +1,27 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.util.sendable.SendableBuilder;
+// import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
+// import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
-import com.ctre.phoenix6.controls.VoltageOut;
+// import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+// import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
 import frc.robot.Ports;
-import frc.robot.lib.loops.ILooper;
-import frc.robot.lib.loops.Loop;
+// import frc.robot.lib.loops.ILooper;
+// import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
 import frc.robot.lib.Util.Conversions;
-import frc.robot.lib.logger.Log;
 
-public class Elevator extends Subsystem {
+public class Elevator extends SubsystemBase {
 
     PeriodicIO mPeriodicIO = new PeriodicIO();
 
@@ -66,40 +67,40 @@ public class Elevator extends Subsystem {
         //     mNeedsToHome = false;
         // }
         // force update state
-        writePeriodicOutputs();
+        // writePeriodicOutputs();
     }
 
-    @Override
-    public void registerEnabledLoops(ILooper mEnabledILooper) {
-        mEnabledILooper.register(new Loop() {
-            @Override
-            public void onStart(double timestamp) {
-                setNeutralBrake(true);
-                // in the future we might want to do this
-                // setSetpointMotionMagic(0.0);
-            }
+    // @Override
+    // public void registerEnabledLoops(ILooper mEnabledILooper) {
+    //     mEnabledILooper.register(new Loop() {
+    //         @Override
+    //         public void onStart(double timestamp) {
+    //             setNeutralBrake(true);
+    //             // in the future we might want to do this
+    //             // setSetpointMotionMagic(0.0);
+    //         }
 
-            @Override
-            public void onLoop(double timestamp) {
-                // constantly re-homing unless in open loop, so if it is disabled we can push it
-                // in and it will remember the most "in" spot
-                // if (atHomingLocation() && mNeedsToHome) {
-                // setWantHome(true);
-                // } else if (mPeriodicIO.mControlModeState != ControlModeState.OPEN_LOOP) {
-                // setWantHome(false);
-                // }
-                if (mPeriodicIO.position < 0.0) {
-                    zeroSensors();
-                    setSetpointMotionMagic(0.01);
-                }
-            }
+    //         @Override
+    //         public void onLoop(double timestamp) {
+    //             // constantly re-homing unless in open loop, so if it is disabled we can push it
+    //             // in and it will remember the most "in" spot
+    //             // if (atHomingLocation() && mNeedsToHome) {
+    //             // setWantHome(true);
+    //             // } else if (mPeriodicIO.mControlModeState != ControlModeState.OPEN_LOOP) {
+    //             // setWantHome(false);
+    //             // }
+    //             if (mPeriodicIO.position < 0.0) {
+    //                 zeroSensors();
+    //                 setSetpointMotionMagic(0.01);
+    //             }
+    //         }
 
-            @Override
-            public void onStop(double timestamp) {
-                setNeutralBrake(true);
-            }
-        });
-    }
+    //         @Override
+    //         public void onStop(double timestamp) {
+    //             setNeutralBrake(true);
+    //         }
+    //     });
+    // }
 
     public void zeroWhenDisabled() {
         if (mPeriodicIO.position < 0.0) {
@@ -193,49 +194,49 @@ public class Elevator extends Subsystem {
         mPeriodicIO.demand = demand;
     }
 
-    @Override
-    public synchronized void writePeriodicOutputs() {
+    // @Override
+    // public synchronized void writePeriodicOutputs() {
 
-        // if ((Math.abs(mPeriodicIO.torqueCurrent) > 30) && mPeriodicIO.velocity < 0.1
-        // && mPeriodicIO.position < 0) {
-        // mHoming = false;
-        // zeroSensors();
-        // setSetpointMotionMagic(0.01);
-        // }
+    //     // if ((Math.abs(mPeriodicIO.torqueCurrent) > 30) && mPeriodicIO.velocity < 0.1
+    //     // && mPeriodicIO.position < 0) {
+    //     // mHoming = false;
+    //     // zeroSensors();
+    //     // setSetpointMotionMagic(0.01);
+    //     // }
 
-        // if (mHoming) { // sets it moving backward until velocity slows down
-        // mMaster.setControl(new VoltageOut(-4));
-        // if (mHomingDelay.update(Timer.getFPGATimestamp(),
-        // Util.epsilonEquals(mPeriodicIO.velocity, 0.0, 0.1))) { // is this motor
-        // velocity or elevator
-        // // velocity
-        // zeroSensors();
-        // setSetpointMotionMagic(0.01);
-        // mHoming = false;
-        // }
-        // } else
+    //     // if (mHoming) { // sets it moving backward until velocity slows down
+    //     // mMaster.setControl(new VoltageOut(-4));
+    //     // if (mHomingDelay.update(Timer.getFPGATimestamp(),
+    //     // Util.epsilonEquals(mPeriodicIO.velocity, 0.0, 0.1))) { // is this motor
+    //     // velocity or elevator
+    //     // // velocity
+    //     // zeroSensors();
+    //     // setSetpointMotionMagic(0.01);
+    //     // mHoming = false;
+    //     // }
+    //     // } else
 
-        //took out homing because it was messing up the start of autos
+    //     //took out homing because it was messing up the start of autos
 
-        if (mPeriodicIO.mControlModeState == ControlModeState.OPEN_LOOP) {
-            if (mPeriodicIO.demand > 1 || mPeriodicIO.demand < -1) {
-                mMaster.setControl(new VoltageOut(mPeriodicIO.demand)); // Enable FOC in the future?
-            } else {
-                mMaster.setControl(new DutyCycleOut(mPeriodicIO.demand));
-            }
+    //     if (mPeriodicIO.mControlModeState == ControlModeState.OPEN_LOOP) {
+    //         if (mPeriodicIO.demand > 1 || mPeriodicIO.demand < -1) {
+    //             mMaster.setControl(new VoltageOut(mPeriodicIO.demand)); // Enable FOC in the future?
+    //         } else {
+    //             mMaster.setControl(new DutyCycleOut(mPeriodicIO.demand));
+    //         }
 
-        } else if (mPeriodicIO.mControlModeState == ControlModeState.MOTION_MAGIC) {
-            // mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand, true, 0, 0, false, false, false));
-            mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand).withEnableFOC(true));
-        }
+    //     } else if (mPeriodicIO.mControlModeState == ControlModeState.MOTION_MAGIC) {
+    //         // mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand, true, 0, 0, false, false, false));
+    //         mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand).withEnableFOC(true));
+    //     }
 
-        if (mPeriodicIO.position < 0.025 && Math.abs(mPeriodicIO.torqueCurrent) > 60)
-        {
-            zeroSensors();
-            setSetpointMotionMagic(0.015);
-        }
+    //     if (mPeriodicIO.position < 0.025 && Math.abs(mPeriodicIO.torqueCurrent) > 60)
+    //     {
+    //         zeroSensors();
+    //         setSetpointMotionMagic(0.015);
+    //     }
 
-    }
+    // }
 
     public void zeroSensors() {
         mMaster.setPosition(0);
@@ -257,44 +258,43 @@ public class Elevator extends Subsystem {
         mMaster.getConfigurator().apply(config);
     }
 
-    @Log
-    public double getElevatorUnits() {
-        return mPeriodicIO.position;
-    }
+    // @Log
+    // public double getElevatorUnits() {
+    //     return mPeriodicIO.position;
+    // }
 
-    @Log
-    public double getElevatorDemand() {
-        return mPeriodicIO.demand;
-    }
+    // @Log
+    // public double getElevatorDemand() {
+    //     return mPeriodicIO.demand;
+    // }
 
-    @Log
-    public double getElevatorVelocity() {
-        return mPeriodicIO.velocity;
-    }
+    // @Log
+    // public double getElevatorVelocity() {
+    //     return mPeriodicIO.velocity;
+    // }
 
-    @Log
-    public double getElevatorVolts() {
-        return mPeriodicIO.voltage;
-    }
+    // @Log
+    // public double getElevatorVolts() {
+    //     return mPeriodicIO.voltage;
+    // }
 
-    @Log
-    public double getElevatorCurrent() {
-        return mPeriodicIO.current;
-    }
+    // @Log
+    // public double getElevatorCurrent() {
+    //     return mPeriodicIO.current;
+    // }
 
-    @Log
-    public boolean getElevatorHoming() {
-        return mHoming;
-    }
+    // @Log
+    // public boolean getElevatorHoming() {
+    //     return mHoming;
+    // }
 
-    @Log
-    public double getTimestamp() {
-        return mPeriodicIO.timestamp;
-    }
+    // @Log
+    // public double getTimestamp() {
+    //     return mPeriodicIO.timestamp;
+    // }
 
     public static class PeriodicIO {
         // Inputs
-        private double timestamp;
         private double voltage;
         private double current;
         private double position;
@@ -313,21 +313,20 @@ public class Elevator extends Subsystem {
     }
 
     @Override
-    public void outputTelemetry() {
-        SmartDashboard.putNumber("Elevator Position Meters", mPeriodicIO.position);
-        SmartDashboard.putNumber("Elevator Position Inches", Conversions.metersToInches(mPeriodicIO.position));
-        SmartDashboard.putNumber("Elevator Motor Rotations", mMaster.getRotorPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Demand", mPeriodicIO.demand);
-        SmartDashboard.putNumber("Elevator Velocity", mPeriodicIO.velocity);
-        SmartDashboard.putNumber("Elevator Output Volts", mPeriodicIO.voltage);
-        SmartDashboard.putNumber("Elevator Current", mPeriodicIO.current);
-        SmartDashboard.putNumber("Elevator Torque Current", mPeriodicIO.torqueCurrent);
-        SmartDashboard.putBoolean("Elevator Homing", mHoming);
+    public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.position, null);
+        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.position), null);
+        builder.addDoubleProperty("Elevator Motor Rotations", () -> mMaster.getRotorPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Elevator Demand", () -> mPeriodicIO.demand, null);
+        builder.addDoubleProperty("Elevator Velocity", () -> mPeriodicIO.velocity, null);
+        builder.addDoubleProperty("Elevator Output Volts", () -> mPeriodicIO.voltage, null);
+        builder.addDoubleProperty("Elevator Current", () -> mPeriodicIO.current, null);
+        builder.addDoubleProperty("Elevator Torque Current", () -> mPeriodicIO.torqueCurrent, null);
+        builder.addBooleanProperty("Elevator Homing", () -> mHoming, null);
     }
 
     @Override
-    public void readPeriodicInputs() {
-        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
+    public void periodic() {
         mPeriodicIO.voltage = mMaster.getMotorVoltage().getValue().in(Units.Volts);
         mPeriodicIO.current = mMaster.getStatorCurrent().getValue().in(Units.Amps);
         mPeriodicIO.position = Conversions.rotationsToMeters(mMaster.getRotorPosition().getValue().in(Units.Rotations),
@@ -335,15 +334,4 @@ public class Elevator extends Subsystem {
         mPeriodicIO.velocity = mMaster.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
         mPeriodicIO.torqueCurrent = mMaster.getTorqueCurrent().getValueAsDouble();
     }
-
-    @Override
-    public void stop() {
-        super.stop();
-    }
-
-    @Override
-    public boolean checkSystem() {
-        return false;
-    }
-
 }

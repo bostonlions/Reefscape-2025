@@ -8,26 +8,26 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.lib.swerve.SwerveModule;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.lib.loops.ILooper;
-import frc.robot.lib.loops.Loop;
+// import frc.robot.lib.loops.ILooper;
+// import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
 import frc.robot.lib.Util.MovingAverage;
 import frc.robot.lib.drivers.Pigeon;
-import frc.robot.lib.logger.Log;
-import frc.robot.lib.logger.LoggingSystem;
 import frc.robot.lib.swerve.ChassisSpeeds;
 import frc.robot.lib.swerve.DriveMotionPlanner;
 import frc.robot.lib.swerve.ModuleState;
 import frc.robot.lib.swerve.SwerveDriveOdometry;
 import frc.robot.lib.swerve.SwerveDriveKinematics;
 
-public class Drive extends Subsystem {
+public class Drive extends SubsystemBase {
     public enum DriveControlState {
         FORCE_ORIENT,
         OPEN_LOOP,
@@ -75,11 +75,6 @@ public class Drive extends Subsystem {
         mMotionPlanner = new DriveMotionPlanner();
 
         mPigeon.setYaw(0.0);
-
-        LoggingSystem.getInstance().registerObject(SwerveModule.class, mModules[0], "MOD_0");
-        LoggingSystem.getInstance().registerObject(SwerveModule.class, mModules[1], "MOD_1");
-        LoggingSystem.getInstance().registerObject(SwerveModule.class, mModules[2], "MOD_2");
-        LoggingSystem.getInstance().registerObject(SwerveModule.class, mModules[3], "MOD_3");
     }
 
     public void setKinematicLimits(SwerveConstants.KinematicLimits newLimits) {
@@ -166,63 +161,45 @@ public class Drive extends Subsystem {
         }
     }
 
-    @Override
-    public void registerEnabledLoops(ILooper enabledLooper) {
-        enabledLooper.register(new Loop() {
-            @Override
-            public void onStart(double timestamp) {
-                mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
-                mControlState = DriveControlState.OPEN_LOOP;
-            }
+    // @Override
+    // public void registerEnabledLoops(ILooper enabledLooper) {
+    //     enabledLooper.register(new Loop() {
+    //         @Override
+    //         public void onStart(double timestamp) {
+    //             mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
+    //             mControlState = DriveControlState.OPEN_LOOP;
+    //         }
 
-            @Override
-            public void onLoop(double timestamp) {
-                synchronized (Drive.this) {
-                    switch (mControlState) {
-                        case PATH_FOLLOWING:
-                            updatePathFollower();
-                            break;
-                        case HEADING_CONTROL:
-                            break;
-                        case AUTO_BALANCE:
-                        case OPEN_LOOP:
-                        case VELOCITY:
-                        case FORCE_ORIENT:
-                            break;
-                        default:
-                            stop();
-                            break;
-                    }
-                    updateSetpoint();
-                    mOdometry.update(mPeriodicIO.heading, getModuleStates());
-                }
-            }
+    //         @Override
+    //         public void onLoop(double timestamp) {
+    //             synchronized (Drive.this) {
+    //                 switch (mControlState) {
+    //                     case PATH_FOLLOWING:
+    //                         updatePathFollower();
+    //                         break;
+    //                     case HEADING_CONTROL:
+    //                         break;
+    //                     case AUTO_BALANCE:
+    //                     case OPEN_LOOP:
+    //                     case VELOCITY:
+    //                     case FORCE_ORIENT:
+    //                         break;
+    //                     default:
+    //                         stop();
+    //                         break;
+    //                 }
+    //                 updateSetpoint();
+    //                 mOdometry.update(mPeriodicIO.heading, getModuleStates());
+    //             }
+    //         }
 
-            @Override
-            public void onStop(double timestamp) {
-                mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
-                mControlState = DriveControlState.OPEN_LOOP;
-            }
-        });
-    }
-
-    private double last_pitch = 0.0;
-
-    @Override
-    public void readPeriodicInputs() {
-        for (SwerveModule swerveModule : mModules) {
-            swerveModule.readPeriodicInputs();
-        }
-
-        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-        mPeriodicIO.meas_module_states = getModuleStates();
-        mPeriodicIO.meas_chassis_speeds = kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
-        mPeriodicIO.heading = mPigeon.getYaw();
-        mPeriodicIO.pitch = mPigeon.getPitch();
-
-        smoothed_pitch_velocity.addNumber((mPeriodicIO.pitch.getDegrees() - last_pitch) / Constants.kLooperDt);
-        last_pitch = mPeriodicIO.pitch.getDegrees();
-    }
+    //         @Override
+    //         public void onStop(double timestamp) {
+    //             mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
+    //             mControlState = DriveControlState.OPEN_LOOP;
+    //         }
+    //     });
+    // }
 
     private void updatePathFollower() {
         if (mControlState == DriveControlState.PATH_FOLLOWING) {
@@ -349,21 +326,40 @@ public class Drive extends Subsystem {
         }
     }
 
+    // TODO: does this need to be in periodic? Or should it be in the commands?
     @Override
-    public void writePeriodicOutputs() {
-        for (int i = 0; i < mModules.length; i++) {
-            if (mControlState == DriveControlState.OPEN_LOOP || mControlState == DriveControlState.HEADING_CONTROL) {
-                mModules[i].setDesiredState(mPeriodicIO.des_module_states[i], true);
-            } else if (mControlState == DriveControlState.PATH_FOLLOWING || mControlState == DriveControlState.VELOCITY
-                    ||
-                    mControlState == DriveControlState.AUTO_BALANCE
-                    || mControlState == DriveControlState.FORCE_ORIENT) {
-                mModules[i].setDesiredState(mPeriodicIO.des_module_states[i], false);
+    public void periodic() {
+
+        /* read periodic inputs */
+
+        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
+        mPeriodicIO.meas_module_states = getModuleStates();
+        mPeriodicIO.meas_chassis_speeds = kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
+        mPeriodicIO.heading = mPigeon.getYaw();
+        double last_pitch = mPeriodicIO.pitch.getDegrees();
+        mPeriodicIO.pitch = mPigeon.getPitch();
+
+        smoothed_pitch_velocity.addNumber((mPeriodicIO.pitch.getDegrees() - last_pitch) / Constants.kLooperDt);
+
+        /* write periodic outputs */
+
+        boolean isOpenLoop = (
+            mControlState == DriveControlState.OPEN_LOOP || mControlState == DriveControlState.HEADING_CONTROL
+        );
+        boolean isNotOpenLoop = (
+            mControlState == DriveControlState.PATH_FOLLOWING || mControlState == DriveControlState.VELOCITY
+            || mControlState == DriveControlState.AUTO_BALANCE || mControlState == DriveControlState.FORCE_ORIENT
+        );
+        // TODO: are the above all the states? (if so we always enter the if)
+        if (isOpenLoop || isNotOpenLoop) {
+            for (SwerveModule mod : mModules) {
+                mod.setDesiredState(mPeriodicIO.des_module_states[mod.moduleNumber()], isOpenLoop);
             }
         }
 
-        for (SwerveModule swerveModule : mModules) {
-            swerveModule.writePeriodicOutputs();
+        /* read and write module periodic io */
+        for (SwerveModule mod : mModules) {
+            mod.periodic();
         }
     }
 
@@ -440,137 +436,32 @@ public class Drive extends Subsystem {
     }
 
     @Override
-    public void outputTelemetry() {
+    public void initSendable(SendableBuilder builder) {
         if (Constants.disableExtraTelemetry) {
             return;
         }
-        for (SwerveModule module : mModules) {
-            module.outputTelemetry();
-        }
-        SmartDashboard.putNumber("Pitch", mPeriodicIO.pitch.getDegrees());
-        // SmartDashboard.putNumber("Delta Pitch",
-        // smoothed_pitch_velocity.getAverage());
-        SmartDashboard.putString("drive control state", mControlState.toString());
-        SmartDashboard.putNumber("Drive X Velocity", getMeasuredXVelocity());
-        SmartDashboard.putNumber("ROBOT HEADING", getHeading().getDegrees());
+        builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
+        builder.addDoubleProperty("Delta Pitch", smoothed_pitch_velocity::getAverage, null);
+        builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
+        builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);
+
+        builder.addDoubleProperty("Timestamp", () -> mPeriodicIO.timestamp, null);
+        builder.addDoubleProperty("Trajectory X Error", () -> mMotionPlanner.getXError(getPose().getX(), Timer.getFPGATimestamp()), null);
+        builder.addDoubleProperty("Trajectory Y Error", () -> mMotionPlanner.getYError(getPose().getY(), Timer.getFPGATimestamp()), null);
+        builder.addDoubleProperty("Rotation Error", () -> mMotionPlanner.getRotationalError(getPose().getRotation().getDegrees()), null);
+        builder.addDoubleProperty("Trajectory X", () -> mMotionPlanner.getXError(0.0, Timer.getFPGATimestamp()), null);
+        builder.addDoubleProperty("Trajectory Y", () -> mMotionPlanner.getYError(0.0, Timer.getFPGATimestamp()), null);
+        builder.addDoubleProperty("Trajectory Heading", mMotionPlanner::getRotationalTarget, null);
+        builder.addDoubleProperty("Measured Velocity X", () -> mPeriodicIO.meas_chassis_speeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("Measured Velocity Y", () -> mPeriodicIO.meas_chassis_speeds.vyMetersPerSecond, null);
+        builder.addDoubleProperty("Measured Omega rad/s", () -> mPeriodicIO.meas_chassis_speeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Target Velocity X", () -> mPeriodicIO.des_chassis_speeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("Target Velocity Y", () -> mPeriodicIO.des_chassis_speeds.vyMetersPerSecond, null);
+        builder.addDoubleProperty("Target Omega rad/s", () -> mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Pose X", () -> getPose().getX(), null);
+        builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
+        builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getDegrees(), null);
     }
-
-    @Log
-    public double getTimestamp() {
-        return mPeriodicIO.timestamp;
-    }
-
-    @Log
-    public double getPitch() {
-        return mPigeon.getPitch().getDegrees();
-    }
-
-    @Log
-    public double getSmoothedPitchVelocity() {
-        return smoothed_pitch_velocity.getAverage();
-    }
-
-    @Log
-    public double getXTrajectoryError() {
-        return mMotionPlanner.getXError(getPose().getX(), Timer.getFPGATimestamp());
-    }
-
-    @Log
-    public double getYTrajectoryError() {
-        return mMotionPlanner.getYError(getPose().getY(), Timer.getFPGATimestamp());
-    }
-
-    @Log
-    public double getRotationError() {
-        return mMotionPlanner.getRotationalError(getPose().getRotation().getDegrees());
-    }
-
-    @Log
-    public double getTrajectoryX() {
-        return mMotionPlanner.getXError(0.0, Timer.getFPGATimestamp());
-    }
-
-    @Log
-    public double getTrajectoryY() {
-        return mMotionPlanner.getYError(0.0, Timer.getFPGATimestamp());
-    }
-
-    @Log
-    public double getTrajectoryHeading() {
-        return mMotionPlanner.getRotationalTarget();
-    }
-
-    @Log
-    public double getMeasuredXVelocity() {
-        return mPeriodicIO.meas_chassis_speeds.vxMetersPerSecond;
-    }
-
-    @Log
-    public double getMeasuredYVelocity() {
-        return mPeriodicIO.meas_chassis_speeds.vyMetersPerSecond;
-    }
-
-    @Log
-    public double getMeasuredOmega() {
-        return mPeriodicIO.meas_chassis_speeds.omegaRadiansPerSecond;
-    }
-
-    @Log
-    public double getPoseX() {
-        return getPose().getX();
-    }
-
-    @Log
-    public double getPoseY() {
-        return getPose().getY();
-
-    }
-
-    @Log
-    public double getThetaDegrees() {
-        return getPose().getRotation().getDegrees();
-
-    }
-
-    @Log
-    public double getTargetXSpeed() {
-        return mPeriodicIO.des_chassis_speeds.vxMetersPerSecond;
-    }
-
-    @Log
-    public double getTargetYSpeed() {
-        return mPeriodicIO.des_chassis_speeds.vyMetersPerSecond;
-    }
-
-    @Log
-    public double getTargetOmega() {
-        return mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond;
-    }
-
-    @Log
-    public String getControlState() {
-        return mControlState.toString();
-    }
-
-    @Log
-    public int getBalanceStep() {
-        return balance_step;
-    }
-
-    @Override
-    public void stop() {}
-
-    @Override
-    public boolean checkSystem() {
-        return false;
-    }
-
-    // Auto engage controls
-
-    double flap_trigger_angle = -5.0; // Less than
-    double platform_trigger_angle = -12.0; // Equal to
-    double balance_trigger_velocity = 8.0; // Greater than
-    int balance_step = 0;
 
     private MovingAverage smoothed_pitch_velocity = new MovingAverage(10);
 }
