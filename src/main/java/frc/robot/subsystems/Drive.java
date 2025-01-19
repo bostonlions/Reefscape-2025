@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.lib.swerve.SwerveModule;
@@ -52,7 +52,7 @@ public class Drive extends SubsystemBase {
 
     private static Drive mInstance;
 
-    private boolean spinFastDuringAuto = false;
+    // private boolean spinFastDuringAuto = false;
 
     public static Drive getInstance() {
         if (mInstance == null) {
@@ -201,17 +201,17 @@ public class Drive extends SubsystemBase {
     //     });
     // }
 
-    private void updatePathFollower() {
-        if (mControlState == DriveControlState.PATH_FOLLOWING) {
-            final double now = Timer.getFPGATimestamp();
-            ChassisSpeeds output = mMotionPlanner.update(getPose(), now);
-            mPeriodicIO.des_chassis_speeds = output;
-        }
-    }
+    // private void updatePathFollower() {
+    //     if (mControlState == DriveControlState.PATH_FOLLOWING) {
+    //         final double now = Timer.getFPGATimestamp();
+    //         ChassisSpeeds output = mMotionPlanner.update(getPose(), now);
+    //         mPeriodicIO.des_chassis_speeds = output;
+    //     }
+    // }
 
-    public void setAutoSpinFast(boolean spin) {
-        spinFastDuringAuto = spin;
-    }
+    // public void setAutoSpinFast(boolean spin) {
+    //     spinFastDuringAuto = spin;
+    // }
 
     private void updateSetpoint() {
         if (mControlState == DriveControlState.FORCE_ORIENT)
@@ -286,19 +286,19 @@ public class Drive extends SubsystemBase {
             min_omega_scalar *= max_omega_step;
         }
 
-        SmartDashboard.putNumber("Accel", min_translational_scalar);
+        // SmartDashboard.putNumber("Accel", min_translational_scalar);
 
-        if (!spinFastDuringAuto) {
-            wanted_speeds = new ChassisSpeeds(
-                    prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
-                    prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar,
-                    prev_chassis_speeds.omegaRadiansPerSecond + domega * min_omega_scalar);
-        } else {
-            wanted_speeds = new ChassisSpeeds(
-                    prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
-                    prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar,
-                    -12);
-        }
+        // if (!spinFastDuringAuto) {
+        wanted_speeds = new ChassisSpeeds(
+                prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
+                prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar,
+                prev_chassis_speeds.omegaRadiansPerSecond + domega * min_omega_scalar);
+        // } else {
+        //     wanted_speeds = new ChassisSpeeds(
+        //             prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
+        //             prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar,
+        //             -12);
+        // }
 
         ModuleState[] real_module_setpoints = kKinematics.toModuleStates(wanted_speeds);
         mPeriodicIO.des_module_states = real_module_setpoints;
@@ -342,6 +342,8 @@ public class Drive extends SubsystemBase {
         smoothed_pitch_velocity.addNumber((mPeriodicIO.pitch.getDegrees() - last_pitch) / Constants.kLooperDt);
 
         /* write periodic outputs */
+
+        updateSetpoint();
 
         boolean isOpenLoop = (
             mControlState == DriveControlState.OPEN_LOOP || mControlState == DriveControlState.HEADING_CONTROL

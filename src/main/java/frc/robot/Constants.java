@@ -48,7 +48,7 @@ public class Constants {
     }
 
     // Disables extra smart dashboard outputs that slow down the robot
-    public static final boolean disableExtraTelemetry = true;
+    public static final boolean disableExtraTelemetry = false;
 
     public static final boolean isManualControlMode = false;
 
