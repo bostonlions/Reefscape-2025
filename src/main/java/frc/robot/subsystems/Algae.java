@@ -26,7 +26,7 @@ public class Algae extends SubsystemBase {
     private DigitalInput mBeamBreak;
     private CANcoder mCANcoder;
 
-    private mPeriodicIO mPeriodicIO = new mPeriodicIO();
+    private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public static Algae getInstance() {
         if (mInstance == null) {
@@ -47,7 +47,7 @@ public class Algae extends SubsystemBase {
         mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig());
     }
 
-    public static class mPeriodicIO {
+    private final class PeriodicIO {
         // TODO - 2 motors
         // Inputs
         public double timestamp = 0.0;
