@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
@@ -85,7 +86,7 @@ public class Drive extends Subsystem {
         this.mKinematicLimits = newLimits;
     }
 
-    public void feedTeleopSetpoint(ChassisSpeeds speeds) {
+    private void feedTeleopSetpoint(ChassisSpeeds speeds) {
         if (mControlState != DriveControlState.OPEN_LOOP && mControlState != DriveControlState.HEADING_CONTROL) {
             mControlState = DriveControlState.OPEN_LOOP;
         }
@@ -103,6 +104,16 @@ public class Drive extends Subsystem {
             }
         }
         mPeriodicIO.des_chassis_speeds = speeds;
+    }
+
+    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate) {
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            targetSpeed.getX(),
+            targetSpeed.getY(),
+            targetRotationRate,
+            getHeading()
+        );
+        feedTeleopSetpoint(speeds);
     }
 
     public void setHeadingControlTarget(double target_degrees) {

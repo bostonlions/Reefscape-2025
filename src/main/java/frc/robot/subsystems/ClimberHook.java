@@ -30,7 +30,6 @@ public class ClimberHook extends Subsystem {
 
     private ClimberHook() {
         mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_OPS);
-        // configs from constants
         mMotor.getConfigurator().apply(ClimberHookConstants.motorConfig());
 
         setWantNeutralBrake(true);
