@@ -193,37 +193,39 @@ public class Constants {
             public final int angleMotorID;
             public final int cancoderID;
             public final double angleOffset;
+            public final String name;
 
-            public SwerveModuleConstants(int driveMotorID, int angleMotorID, int canCoderID, double angleOffset) {
+            public SwerveModuleConstants(int driveMotorID, int angleMotorID, int canCoderID, double angleOffset, String name) {
                 this.driveMotorID = driveMotorID;
                 this.angleMotorID = angleMotorID;
                 this.cancoderID = canCoderID;
                 this.angleOffset = angleOffset;
+                this.name = name;
             }
         }
 
         // Front Left Module - Module 0
         private static final double FL_AngleOffset = 39.63;
         public static final SwerveModuleConstants FL = new SwerveModuleConstants(
-            Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, FL_AngleOffset
+            Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, FL_AngleOffset, "FL"
         );
 
         // Front Right Module - Module 1
         private static final double FR_AngleOffset = 169.62;
         public static final SwerveModuleConstants FR = new SwerveModuleConstants(
-            Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, FR_AngleOffset
+            Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, FR_AngleOffset, "FR"
         );
 
         // Back Left Module - Module 2
         private static final double BL_AngleOffset = 181.58;
         public static final SwerveModuleConstants BL = new SwerveModuleConstants(
-            Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, BL_AngleOffset
+            Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, BL_AngleOffset, "BL"
         );
 
         // Back Right Module - Module 3
         private static final double BR_AngleOffset = 278.52;
         public static final SwerveModuleConstants BR = new SwerveModuleConstants(
-            Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, BR_AngleOffset
+            Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, BR_AngleOffset, "BR"
         );
 
         public static TalonFXConfiguration driveFXConfig() {
@@ -835,6 +837,13 @@ public class Constants {
 
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
             config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            return config;
+        }
+
+        public static CANcoderConfiguration cancoderConfig() {
+            CANcoderConfiguration config = new CANcoderConfiguration();
+            config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
+            config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             return config;
         }
     }
