@@ -111,9 +111,7 @@ public class SwerveDriveOdometry {
 	 */
 	public Pose2d update(Rotation2d gyroAngle, SwerveModulePosition[] modulePositions) {
 		if (modulePositions.length != m_numModules) {
-			throw new IllegalArgumentException(
-					"Number of modules is not consistent with number of wheel locations provided in "
-							+ "constructor");
+			throw new IllegalArgumentException("Number of modules is not consistent with number of wheel locations provided in constructor");
 		}
 
 		var moduleDeltas = new SwerveModulePosition[m_numModules];

@@ -31,7 +31,7 @@ public class ClimberHook extends SubsystemBase {
 
     private ClimberHook() {
         mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_OPS);
-        mMotor.getConfigurator().apply(ClimberHookConstants.motorConfig());
+        mMotor.getConfigurator().apply(ClimberHookConstants.motorConfig);
 
         setWantNeutralBrake(true);
         mMotor.setPosition(0);
@@ -86,7 +86,7 @@ public class ClimberHook extends SubsystemBase {
             mPeriodicIO.mControlModeState = ControlModeState.MOTION_MAGIC;
         }
 
-        double rotationDemand = Conversions.degreesToRotation(degrees, ClimberHookConstants.kGearRatio);
+        double rotationDemand = Conversions.degreesToRotation(degrees, ClimberHookConstants.gearRatio);
         mPeriodicIO.demand = rotationDemand;
     }
 
@@ -127,10 +127,10 @@ public class ClimberHook extends SubsystemBase {
 
     @Override
     public void periodic() {
-        mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / ClimberHookConstants.kGearRatio;
+        mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / ClimberHookConstants.gearRatio;
         mPeriodicIO.current = mMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.velocity_rps = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / ClimberHookConstants.kGearRatio;
+        mPeriodicIO.velocity_rps = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / ClimberHookConstants.gearRatio;
     }
 
     @Override

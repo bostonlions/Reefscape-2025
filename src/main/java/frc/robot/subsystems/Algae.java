@@ -37,14 +37,14 @@ public class Algae extends SubsystemBase {
 
     private Algae() {
         mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
-        mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig());
+        mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig);
         mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
-        mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig());
+        mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig);
 
         mAngleMotor.setPosition(0);
         mBeamBreak = new DigitalInput(Ports.ALGAE_BEAMBREAK);
         mCANcoder = new CANcoder(Ports.ALGAE_CANCODER, Ports.CANBUS_OPS);
-        mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig());
+        mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
     }
 
     private final class PeriodicIO {

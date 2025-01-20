@@ -1,6 +1,6 @@
 package frc.robot.controlboard;
 
-import frc.robot.Constants;
+import frc.robot.Constants.ControllerConstants;
 
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -37,7 +37,7 @@ public class CustomXboxController {
     }
 
     public boolean getTrigger(Side side) {
-        return mController.getRawAxis(side == Side.LEFT ? 2 : 3) > Constants.kTriggerThreshold;
+        return mController.getRawAxis(side == Side.LEFT ? 2 : 3) > ControllerConstants.kTriggerThreshold;
     }
 
     public boolean getButton(Button button) {

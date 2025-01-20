@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -33,7 +32,7 @@ public class Coral extends SubsystemBase {
     private Coral() {
         mMotor = new TalonFX(Ports.CORAL_DRIVE, Ports.CANBUS_OPS);
         // configs from constants
-        mMotor.getConfigurator().apply(CoralConstants.motorConfig());
+        mMotor.getConfigurator().apply(CoralConstants.motorConfig);
 
         setWantNeutralBrake(true);
         mMotor.setPosition(0);
@@ -88,7 +87,7 @@ public class Coral extends SubsystemBase {
             mPeriodicIO.mControlModeState = ControlModeState.MOTION_MAGIC;
         }
 
-        double rotationDemand = Conversions.degreesToRotation(degrees, CoralConstants.kGearRatio);
+        double rotationDemand = Conversions.degreesToRotation(degrees, CoralConstants.gearRatio);
         mPeriodicIO.demand = rotationDemand;
     }
 
@@ -129,10 +128,10 @@ public class Coral extends SubsystemBase {
 
     @Override
     public void periodic() {
-        mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / CoralConstants.kGearRatio;
+        mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / CoralConstants.gearRatio;
         mPeriodicIO.current = mMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.velocity_rps = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / CoralConstants.kGearRatio;
+        mPeriodicIO.velocity_rps = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / CoralConstants.gearRatio;
     }
 
     @Override
