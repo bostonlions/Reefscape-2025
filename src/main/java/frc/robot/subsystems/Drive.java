@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.lib.swerve.SwerveModule;
@@ -20,7 +19,6 @@ import frc.robot.Ports;
 // import frc.robot.lib.loops.ILooper;
 // import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
-import frc.robot.lib.Util.MovingAverage;
 import frc.robot.lib.drivers.Pigeon;
 import frc.robot.lib.swerve.ChassisSpeeds;
 import frc.robot.lib.swerve.DriveMotionPlanner;
@@ -345,10 +343,7 @@ public class Drive extends SubsystemBase {
         mPeriodicIO.meas_module_states = getModuleStates();
         mPeriodicIO.meas_chassis_speeds = kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
         mPeriodicIO.heading = mPigeon.getYaw();
-        double last_pitch = mPeriodicIO.pitch.getDegrees();
         mPeriodicIO.pitch = mPigeon.getPitch();
-
-        smoothed_pitch_velocity.addNumber((mPeriodicIO.pitch.getDegrees() - last_pitch) / SwerveConstants.kLooperDt);
 
         /* write periodic outputs */
 
@@ -452,10 +447,8 @@ public class Drive extends SubsystemBase {
             return;
         }
         builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
-        builder.addDoubleProperty("Delta Pitch", smoothed_pitch_velocity::getAverage, null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
         builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);
-
         builder.addDoubleProperty("Timestamp", () -> mPeriodicIO.timestamp, null);
         builder.addDoubleProperty("Trajectory X Error", () -> mMotionPlanner.getXError(getPose().getX(), Timer.getFPGATimestamp()), null);
         builder.addDoubleProperty("Trajectory Y Error", () -> mMotionPlanner.getYError(getPose().getY(), Timer.getFPGATimestamp()), null);
@@ -473,6 +466,4 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
         builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getDegrees(), null);
     }
-
-    private MovingAverage smoothed_pitch_velocity = new MovingAverage(10);
 }

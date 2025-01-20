@@ -82,7 +82,7 @@ public class SwerveModule extends SubsystemBase {
             mPeriodicIO.targetVelocity = Util.limit(targetModuleState.speedMetersPerSecond, SwerveConstants.maxAttainableSpeed);
         }
 
-        if (Util.shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
+        if (shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
             mPeriodicIO.targetVelocity = -mPeriodicIO.targetVelocity;
             targetAngle += 180.0;
         }
@@ -142,7 +142,7 @@ public class SwerveModule extends SubsystemBase {
         /* write periodic outputs */
 
         double targetAngle = targetModuleState.angle.getDegrees();
-        if (Util.shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
+        if (shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
             mPeriodicIO.targetVelocity = -mPeriodicIO.targetVelocity;
             targetAngle += 180.0;
         }
@@ -203,6 +203,11 @@ public class SwerveModule extends SubsystemBase {
             // Brake angle motors when coasting drive
             mAngleMotor.setNeutralMode(NeutralModeValue.Brake);
         }
+    }
+
+    private final boolean shouldReverse(double goalAngle, double currentAngle) {
+        double diff = (goalAngle - currentAngle + 720.0) % 360.0;
+        return diff > 90 && diff < 270;
     }
 
     @Override
