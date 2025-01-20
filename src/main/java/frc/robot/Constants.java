@@ -109,11 +109,6 @@ public class Constants {
                 .withAbsoluteSensorDiscontinuityPoint(1.0)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
 
-        /* Controller Invert */
-        public static final boolean invertYAxis = false;
-        public static final boolean invertRAxis = false;
-        public static final boolean invertXAxis = true;
-
         public static class KinematicLimits {
             public double kMaxDriveVelocity; // m/s
             public double kMaxAccel; // m/s^2
@@ -374,6 +369,10 @@ public class Constants {
         public static final int leftYAxis = 1;
         public static final int rightXAxis = 3;
         public static final int rightYAxis = 4;
+
+        public static final boolean invertYAxis = false;
+        public static final boolean invertRAxis = false;
+        public static final boolean invertXAxis = true;
 
         // Mambo controller doesn't need any of the calibrations below
         public static final boolean isMambo = true;

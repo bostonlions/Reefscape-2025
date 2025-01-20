@@ -3,7 +3,6 @@ package frc.robot.controlboard;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
 import frc.robot.controlboard.CustomXboxController.Axis;
 import frc.robot.controlboard.CustomXboxController.Button;
@@ -60,8 +59,8 @@ public class ControlBoard {
         SmartDashboard.putNumber("Raw Y", forwardAxis);
         SmartDashboard.putNumber("Raw X", strafeAxis);
 
-        forwardAxis = SwerveConstants.invertYAxis ? forwardAxis : -forwardAxis;
-        strafeAxis = SwerveConstants.invertXAxis ? strafeAxis : -strafeAxis;
+        forwardAxis = ControllerConstants.invertYAxis ? forwardAxis : -forwardAxis;
+        strafeAxis = ControllerConstants.invertXAxis ? strafeAxis : -strafeAxis;
 
         Translation2d tAxes = new Translation2d(forwardAxis, strafeAxis);
 
@@ -87,7 +86,7 @@ public class ControlBoard {
             rotAxis = getLeftYaw();
         }
 
-        rotAxis = SwerveConstants.invertRAxis ? rotAxis : -rotAxis;
+        rotAxis = ControllerConstants.invertRAxis ? rotAxis : -rotAxis;
 
         if (Math.abs(rotAxis) < kSwerveDeadband) {
             return 0.0;
