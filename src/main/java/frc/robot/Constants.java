@@ -194,8 +194,7 @@ public class Constants {
 
     public static final class ElevatorConstants {
         public static final double gearRatio = 12;
-        // TODO: measure circumference as length of straight belt equal to number of teeth in gear?
-        public static final double wheelCircumference = Conversions.inchesToMeters(1.625) * Math.PI;
+        public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Conversions.inchesToMeters(0.25);
 
         public static final double limitTorque = 30;
