@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-
+import java.util.List;
 import java.util.Map;
 import static java.util.Map.entry;
 
@@ -198,9 +198,12 @@ public class Constants {
         public static final double wheelCircumference = Conversions.inchesToMeters(1.625) * Math.PI;
         public static final double positionError = Conversions.inchesToMeters(0.25);
 
+        public static final double limitTorque = 30;
+        public static final double limitVelocity = 0.1;
+
         // Heights in meters
         // TODO: values are placeholders
-        public enum Position { MIN, STOW, PROCESSOR, L1, L2, L3, L4, BARGE, MAX }
+        public enum Position { MIN, STOW, PROCESSOR, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.),
             entry(Position.STOW, 0.01),
@@ -210,7 +213,11 @@ public class Constants {
             entry(Position.L3, 0.5),
             entry(Position.L4, 1.1),
             entry(Position.BARGE, 1.3),
-            entry(Position.MAX, 1.3)
+            entry(Position.MAX, 1.3),
+            entry(Position.MANUAL, null)
+        );
+        public static final List<Position> positionOrder = List.of(
+            Position.STOW, Position.PROCESSOR, Position.L1, Position.L2, Position.L3, Position.L4, Position.BARGE
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()
