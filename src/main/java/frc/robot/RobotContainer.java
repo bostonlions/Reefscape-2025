@@ -4,11 +4,10 @@
 
 package frc.robot;
 
-// import edu.wpi.first.wpilibj2.command.Command;
-// import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import frc.robot.subsystems.Drive;
 import frc.robot.controlboard.ControlBoard;
@@ -46,5 +45,9 @@ public class RobotContainer {
         SmartDashboard.putData(driveSubsystem);
         for (int i = 0; i<=3; i++)
             SmartDashboard.putData(driveSubsystem.mModules[i]);
+    }
+
+    public Command getAutonomousCommand() {
+        return null;
     }
 }

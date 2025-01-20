@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.swerve.SwerveModule;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Ports;
 // import frc.robot.lib.loops.ILooper;
 // import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
@@ -63,13 +64,21 @@ public class Drive extends SubsystemBase {
 
     private Drive() {
         mModules = new SwerveModule[] {
-            new SwerveModule(0, SwerveConstants.FR),
-            new SwerveModule(1, SwerveConstants.FL),
-            new SwerveModule(2, SwerveConstants.BR),
-            new SwerveModule(3, SwerveConstants.BL)
+            new SwerveModule(0, new SwerveModule.Constants(
+                Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset, "FR"
+            )),
+            new SwerveModule(1, new SwerveModule.Constants(
+                Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset, "FL"
+            )),
+            new SwerveModule(2, new SwerveModule.Constants(
+                Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset, "BR"
+            )),
+            new SwerveModule(3, new SwerveModule.Constants(
+                Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset, "BL"
+            ))
         };
 
-        kKinematics = new SwerveDriveKinematics(SwerveConstants.locations);
+        kKinematics = new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth);
 
         mOdometry = new SwerveDriveOdometry(kKinematics, getModuleStates());
         mMotionPlanner = new DriveMotionPlanner();
@@ -217,13 +226,13 @@ public class Drive extends SubsystemBase {
         if (mControlState == DriveControlState.FORCE_ORIENT)
             return;
 
-        Pose2d robot_pose_vel = new Pose2d(mPeriodicIO.des_chassis_speeds.vxMetersPerSecond * Constants.kLooperDt,
-                mPeriodicIO.des_chassis_speeds.vyMetersPerSecond * Constants.kLooperDt,
-                Rotation2d.fromRadians(mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond * Constants.kLooperDt));
+        Pose2d robot_pose_vel = new Pose2d(mPeriodicIO.des_chassis_speeds.vxMetersPerSecond * SwerveConstants.kLooperDt,
+                mPeriodicIO.des_chassis_speeds.vyMetersPerSecond * SwerveConstants.kLooperDt,
+                Rotation2d.fromRadians(mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond * SwerveConstants.kLooperDt));
         Twist2d twist_vel = new Pose2d().log(robot_pose_vel);
         ChassisSpeeds wanted_speeds = new ChassisSpeeds(
-                twist_vel.dx / Constants.kLooperDt, twist_vel.dy / Constants.kLooperDt,
-                twist_vel.dtheta / Constants.kLooperDt);
+                twist_vel.dx / SwerveConstants.kLooperDt, twist_vel.dy / SwerveConstants.kLooperDt,
+                twist_vel.dtheta / SwerveConstants.kLooperDt);
 
         if (mControlState == DriveControlState.PATH_FOLLOWING) {
             ModuleState[] real_module_setpoints = kKinematics.toModuleStates(wanted_speeds);
@@ -261,10 +270,10 @@ public class Drive extends SubsystemBase {
         double dy = wanted_speeds.vyMetersPerSecond - prev_chassis_speeds.vyMetersPerSecond;
         double domega = wanted_speeds.omegaRadiansPerSecond - prev_chassis_speeds.omegaRadiansPerSecond;
 
-        double max_velocity_step = mKinematicLimits.kMaxAccel * Constants.kLooperDt;
+        double max_velocity_step = mKinematicLimits.kMaxAccel * SwerveConstants.kLooperDt;
         double min_translational_scalar = 1.0;
 
-        if (max_velocity_step < Double.MAX_VALUE * Constants.kLooperDt) {
+        if (max_velocity_step < Double.MAX_VALUE * SwerveConstants.kLooperDt) {
             // Check X
             double x_norm = Math.abs(dx / max_velocity_step);
             min_translational_scalar = Math.min(min_translational_scalar, x_norm);
@@ -276,10 +285,10 @@ public class Drive extends SubsystemBase {
             min_translational_scalar *= max_velocity_step;
         }
 
-        double max_omega_step = mKinematicLimits.kMaxAngularAccel * Constants.kLooperDt;
+        double max_omega_step = mKinematicLimits.kMaxAngularAccel * SwerveConstants.kLooperDt;
         double min_omega_scalar = 1.0;
 
-        if (max_omega_step < Double.MAX_VALUE * Constants.kLooperDt) {
+        if (max_omega_step < Double.MAX_VALUE * SwerveConstants.kLooperDt) {
             double omega_norm = Math.abs(domega / max_omega_step);
             min_omega_scalar = Math.min(min_omega_scalar, omega_norm);
 
@@ -339,7 +348,7 @@ public class Drive extends SubsystemBase {
         double last_pitch = mPeriodicIO.pitch.getDegrees();
         mPeriodicIO.pitch = mPigeon.getPitch();
 
-        smoothed_pitch_velocity.addNumber((mPeriodicIO.pitch.getDegrees() - last_pitch) / Constants.kLooperDt);
+        smoothed_pitch_velocity.addNumber((mPeriodicIO.pitch.getDegrees() - last_pitch) / SwerveConstants.kLooperDt);
 
         /* write periodic outputs */
 

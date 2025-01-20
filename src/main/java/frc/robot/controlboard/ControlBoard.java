@@ -2,7 +2,8 @@ package frc.robot.controlboard;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.Constants;
+import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
 import frc.robot.controlboard.CustomXboxController.Axis;
 import frc.robot.controlboard.CustomXboxController.Button;
@@ -14,7 +15,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ControlBoard {
-    private final double kSwerveDeadband = Constants.stickDeadband;
+    private final double kSwerveDeadband = ControllerConstants.stickDeadband;
 
     private final int kDpadUp = 0;
     private final int kDpadRight = 90;
@@ -48,7 +49,7 @@ public class ControlBoard {
     public Translation2d getSwerveTranslation() {
         double forwardAxis = 0;
         double strafeAxis = 0;
-        if (Constants.ControllerConstants.isMamboController) {
+        if (ControllerConstants.isMambo) {
             forwardAxis = m_driver.getRawAxis(2);
             strafeAxis = m_driver.getRawAxis(1);
         } else {
@@ -59,8 +60,8 @@ public class ControlBoard {
         SmartDashboard.putNumber("Raw Y", forwardAxis);
         SmartDashboard.putNumber("Raw X", strafeAxis);
 
-        forwardAxis = Constants.SwerveConstants.invertYAxis ? forwardAxis : -forwardAxis;
-        strafeAxis = Constants.SwerveConstants.invertXAxis ? strafeAxis : -strafeAxis;
+        forwardAxis = SwerveConstants.invertYAxis ? forwardAxis : -forwardAxis;
+        strafeAxis = SwerveConstants.invertXAxis ? strafeAxis : -strafeAxis;
 
         Translation2d tAxes = new Translation2d(forwardAxis, strafeAxis);
 
@@ -80,13 +81,13 @@ public class ControlBoard {
 
     public double getSwerveRotation() {
         double rotAxis = 0;
-        if (Constants.ControllerConstants.isMamboController) {
+        if (ControllerConstants.isMambo) {
             rotAxis = m_driver.getRawAxis(3);
         } else {
             rotAxis = getLeftYaw();
         }
 
-        rotAxis = Constants.SwerveConstants.invertRAxis ? rotAxis : -rotAxis;
+        rotAxis = SwerveConstants.invertRAxis ? rotAxis : -rotAxis;
 
         if (Math.abs(rotAxis) < kSwerveDeadband) {
             return 0.0;
@@ -315,20 +316,20 @@ public class ControlBoard {
 
     // Returns positions from -1 to 1
     private double getLeftYaw() {
-        double leftYaw = m_driver.getRawAxis(Constants.leftXAxis);
+        double leftYaw = m_driver.getRawAxis(ControllerConstants.leftXAxis);
 
         if (leftYaw != 0) {
-            leftYaw = leftYaw - Constants.ControllerConstants.ControllerLeftYawZero;
+            leftYaw = leftYaw - ControllerConstants.LeftYawZero;
         }
 
         if (leftYaw > kSwerveDeadband) {
-            leftYaw = (leftYaw / (Constants.ControllerConstants.ControllerLeftYawHigh
-                    + (Constants.ControllerConstants.isControllerOne
-                            ? -Constants.ControllerConstants.ControllerLeftYawZero
-                            : Constants.ControllerConstants.ControllerLeftYawZero)));
+            leftYaw = (leftYaw / (ControllerConstants.LeftYawHigh
+                    + (ControllerConstants.isC1
+                            ? -ControllerConstants.LeftYawZero
+                            : ControllerConstants.LeftYawZero)));
         } else if (leftYaw < -kSwerveDeadband) {
-            leftYaw = (leftYaw / (Constants.ControllerConstants.ControllerLeftYawLow
-                    + Constants.ControllerConstants.ControllerLeftYawZero));
+            leftYaw = (leftYaw / (ControllerConstants.LeftYawLow
+                    + ControllerConstants.LeftYawZero));
         }
 
         // SmartDashboard.putNumber("remote leftYaw", leftYaw);
@@ -337,22 +338,22 @@ public class ControlBoard {
 
     // Returns positions from -1 to 1
     // private double getLeftThrottle() {
-    // double leftThrottle = m_driver.getRawAxis(Constants.leftYAxis);
+    // double leftThrottle = m_driver.getRawAxis(ControllerConstants.leftYAxis);
 
     // if (leftThrottle != 0){
     // leftThrottle = leftThrottle -
-    // Constants.ControllerConstants.ControllerLeftThrottleZero;
+    // ControllerConstants.LeftThrottleZero;
     // }
 
     // if (leftThrottle > kSwerveDeadband){
     // leftThrottle = (leftThrottle /
-    // (Constants.ControllerConstants.ControllerLeftThrottleHigh +
-    // Constants.ControllerConstants.ControllerLeftThrottleZero));
+    // (ControllerConstants.LeftThrottleHigh +
+    // ControllerConstants.LeftThrottleZero));
     // }
     // else if (leftThrottle < -kSwerveDeadband){
     // leftThrottle = (leftThrottle /
-    // (Constants.ControllerConstants.ControllerLeftThrottleLow +
-    // Constants.ControllerConstants.ControllerLeftThrottleZero));
+    // (ControllerConstants.LeftThrottleLow +
+    // ControllerConstants.LeftThrottleZero));
     // }
 
     // if (leftThrottle>1){
@@ -368,20 +369,20 @@ public class ControlBoard {
     // }
 
     private double getRightThrottle() {
-        double rightThrottle = m_driver.getRawAxis(Constants.rightYAxis);
+        double rightThrottle = m_driver.getRawAxis(ControllerConstants.rightYAxis);
 
         if (rightThrottle != 0) {
-            rightThrottle = rightThrottle - Constants.ControllerConstants.ControllerRightThrottleZero;
+            rightThrottle = rightThrottle - ControllerConstants.RightThrottleZero;
         }
 
-        if (rightThrottle > (Constants.ControllerConstants.isControllerOne ? kSwerveDeadband : 0.102)) {
-            rightThrottle = (rightThrottle / (Constants.ControllerConstants.ControllerRightThrottleHigh
-                    + (Constants.ControllerConstants.isControllerOne
-                            ? -Constants.ControllerConstants.ControllerRightThrottleZero
-                            : Constants.ControllerConstants.ControllerRightThrottleZero)));
+        if (rightThrottle > (ControllerConstants.isC1 ? kSwerveDeadband : 0.102)) {
+            rightThrottle = (rightThrottle / (ControllerConstants.RightThrottleHigh
+                    + (ControllerConstants.isC1
+                            ? -ControllerConstants.RightThrottleZero
+                            : ControllerConstants.RightThrottleZero)));
         } else if (rightThrottle < -kSwerveDeadband) {
-            rightThrottle = (rightThrottle / (Constants.ControllerConstants.ControllerRightThrottleLow
-                    + Constants.ControllerConstants.ControllerRightThrottleZero));
+            rightThrottle = (rightThrottle / (ControllerConstants.RightThrottleLow
+                    + ControllerConstants.RightThrottleZero));
         }
 
         // SmartDashboard.putNumber("remote rightThrottle", rightThrottle);
@@ -389,18 +390,18 @@ public class ControlBoard {
     }
 
     private double getRightYaw() {
-        double rightYaw = m_driver.getRawAxis(Constants.rightXAxis);
+        double rightYaw = m_driver.getRawAxis(ControllerConstants.rightXAxis);
 
         if (rightYaw != 0) {
-            rightYaw = rightYaw - Constants.ControllerConstants.ControllerRightYawZero;
+            rightYaw = rightYaw - ControllerConstants.RightYawZero;
         }
 
         if (rightYaw > kSwerveDeadband) {
-            rightYaw = (rightYaw / (Constants.ControllerConstants.ControllerRightYawHigh
-                    + -Constants.ControllerConstants.ControllerRightYawZero));
+            rightYaw = (rightYaw / (ControllerConstants.RightYawHigh
+                    + -ControllerConstants.RightYawZero));
         } else if (rightYaw < -kSwerveDeadband) {
-            rightYaw = (rightYaw / (Constants.ControllerConstants.ControllerRightYawLow
-                    + Constants.ControllerConstants.ControllerRightYawZero));
+            rightYaw = (rightYaw / (ControllerConstants.RightYawLow
+                    + ControllerConstants.RightYawZero));
         }
 
         // SmartDashboard.putNumber("remote rightYaw", rightYaw);

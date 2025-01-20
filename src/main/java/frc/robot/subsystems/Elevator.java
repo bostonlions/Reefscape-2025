@@ -14,7 +14,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Ports;
 // import frc.robot.lib.loops.ILooper;
 // import frc.robot.lib.loops.Loop;
@@ -26,8 +26,8 @@ public class Elevator extends SubsystemBase {
     PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public static Elevator mInstance;
-    private final TalonFX mMaster;
-    private final TalonFX mSlave;
+    private final TalonFX mMain;
+    private final TalonFX mFollower;
 
     public static Elevator getInstance() {
         if (mInstance == null) {
@@ -37,14 +37,13 @@ public class Elevator extends SubsystemBase {
     }
 
     private Elevator() {
-        mSlave = new TalonFX(Ports.ELEVATOR_A, Ports.CANBUS_OPS);
-        mMaster = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_OPS);
+        mMain = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_OPS);
+        mMain.getConfigurator().apply(ElevatorConstants.motorConfig);
 
-        // Customize these configs from constants in the future
-        mMaster.getConfigurator().apply(Constants.ElevatorConstants.motorConfig());
-        mSlave.getConfigurator().apply(Constants.ElevatorConstants.motorConfig());
+        mFollower = new TalonFX(Ports.ELEVATOR_A, Ports.CANBUS_OPS);
+        mFollower.getConfigurator().apply(ElevatorConstants.motorConfig);
+        mFollower.setControl(new Follower(Ports.ELEVATOR_B, true));
 
-        mSlave.setControl(new Follower(Ports.ELEVATOR_B, true));
         setNeutralBrake(false);
     }
 
@@ -56,8 +55,8 @@ public class Elevator extends SubsystemBase {
 
     public void setNeutralBrake(boolean brake) {
         NeutralModeValue wantedMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-        mMaster.setNeutralMode(wantedMode);
-        mSlave.setNeutralMode(wantedMode);
+        mMain.setNeutralMode(wantedMode);
+        mFollower.setNeutralMode(wantedMode);
     }
 
     public void setWantHome(boolean home) {
@@ -167,19 +166,12 @@ public class Elevator extends SubsystemBase {
     //     };
     // }
 
-    /**
-     *
-     * @param units meters to extend elevator to
-     */
     public void setSetpointMotionMagic(double distance) {
-        // if (distance != 0.0) { //why?
-        // mNeedsToHome = true;
-        // }
         if (mPeriodicIO.mControlModeState != ControlModeState.MOTION_MAGIC) {
             mPeriodicIO.mControlModeState = ControlModeState.MOTION_MAGIC;
         }
-        double rotationDemand = Conversions.metersToRotations(distance, Constants.ElevatorConstants.kWheelCircumference,
-                Constants.ElevatorConstants.kGearRatio);
+        double rotationDemand = Conversions.metersToRotations(distance, ElevatorConstants.wheelCircumference,
+                ElevatorConstants.gearRatio);
         mPeriodicIO.demand = rotationDemand;
     }
 
@@ -205,7 +197,7 @@ public class Elevator extends SubsystemBase {
     //     // }
 
     //     // if (mHoming) { // sets it moving backward until velocity slows down
-    //     // mMaster.setControl(new VoltageOut(-4));
+    //     // mMain.setControl(new VoltageOut(-4));
     //     // if (mHomingDelay.update(Timer.getFPGATimestamp(),
     //     // Util.epsilonEquals(mPeriodicIO.velocity, 0.0, 0.1))) { // is this motor
     //     // velocity or elevator
@@ -220,14 +212,14 @@ public class Elevator extends SubsystemBase {
 
     //     if (mPeriodicIO.mControlModeState == ControlModeState.OPEN_LOOP) {
     //         if (mPeriodicIO.demand > 1 || mPeriodicIO.demand < -1) {
-    //             mMaster.setControl(new VoltageOut(mPeriodicIO.demand)); // Enable FOC in the future?
+    //             mMain.setControl(new VoltageOut(mPeriodicIO.demand)); // Enable FOC in the future?
     //         } else {
-    //             mMaster.setControl(new DutyCycleOut(mPeriodicIO.demand));
+    //             mMain.setControl(new DutyCycleOut(mPeriodicIO.demand));
     //         }
 
     //     } else if (mPeriodicIO.mControlModeState == ControlModeState.MOTION_MAGIC) {
-    //         // mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand, true, 0, 0, false, false, false));
-    //         mMaster.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand).withEnableFOC(true));
+    //         // mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand, true, 0, 0, false, false, false));
+    //         mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand).withEnableFOC(true));
     //     }
 
     //     if (mPeriodicIO.position < 0.025 && Math.abs(mPeriodicIO.torqueCurrent) > 60)
@@ -239,7 +231,7 @@ public class Elevator extends SubsystemBase {
     // }
 
     public void zeroSensors() {
-        mMaster.setPosition(0);
+        mMain.setPosition(0);
     }
 
     public void setDemandOpenLoop(double demand) {
@@ -255,7 +247,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setMotorConfig(TalonFXConfiguration config) {
-        mMaster.getConfigurator().apply(config);
+        mMain.getConfigurator().apply(config);
     }
 
     // @Log
@@ -316,7 +308,7 @@ public class Elevator extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.position, null);
         builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.position), null);
-        builder.addDoubleProperty("Elevator Motor Rotations", () -> mMaster.getRotorPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Elevator Motor Rotations", () -> mMain.getRotorPosition().getValueAsDouble(), null);
         builder.addDoubleProperty("Elevator Demand", () -> mPeriodicIO.demand, null);
         builder.addDoubleProperty("Elevator Velocity", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty("Elevator Output Volts", () -> mPeriodicIO.voltage, null);
@@ -327,11 +319,11 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        mPeriodicIO.voltage = mMaster.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.current = mMaster.getStatorCurrent().getValue().in(Units.Amps);
-        mPeriodicIO.position = Conversions.rotationsToMeters(mMaster.getRotorPosition().getValue().in(Units.Rotations),
-                Constants.ElevatorConstants.kWheelCircumference, Constants.ElevatorConstants.kGearRatio);
-        mPeriodicIO.velocity = mMaster.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
-        mPeriodicIO.torqueCurrent = mMaster.getTorqueCurrent().getValueAsDouble();
+        mPeriodicIO.voltage = mMain.getMotorVoltage().getValue().in(Units.Volts);
+        mPeriodicIO.current = mMain.getStatorCurrent().getValue().in(Units.Amps);
+        mPeriodicIO.position = Conversions.rotationsToMeters(mMain.getRotorPosition().getValue().in(Units.Rotations),
+                ElevatorConstants.wheelCircumference, ElevatorConstants.gearRatio);
+        mPeriodicIO.velocity = mMain.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
+        mPeriodicIO.torqueCurrent = mMain.getTorqueCurrent().getValueAsDouble();
     }
 }

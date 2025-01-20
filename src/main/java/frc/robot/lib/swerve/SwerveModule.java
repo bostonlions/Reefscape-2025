@@ -31,27 +31,44 @@ public class SwerveModule extends SubsystemBase {
 
     private ModuleState targetModuleState;
 
+    private static final double wheelCircumference = SwerveConstants.wheelDiameter * Math.PI;
 
-    public SwerveModule(int moduleNumber, SwerveConstants.SwerveModuleConstants moduleConstants) {
+    public SwerveModule(int moduleNumber, Constants moduleConstants) {
         this.kModuleNumber = moduleNumber;
         this.name = moduleConstants.name;
         kAngleOffset = moduleConstants.angleOffset;
 
         // Absolute encoder config
         angleEncoder = new CANcoder(moduleConstants.cancoderID, Ports.CANBUS_DRIVE);
-        angleEncoder.getConfigurator().apply(SwerveConstants.cancoderConfig());
+        angleEncoder.getConfigurator().apply(SwerveConstants.cancoderConfig);
 
         // Angle motor config
         mAngleMotor = new TalonFX(moduleConstants.angleMotorID, Ports.CANBUS_DRIVE);
-        mAngleMotor.getConfigurator().apply(SwerveConstants.angleFXConfig());
+        mAngleMotor.getConfigurator().apply(SwerveConstants.angleConfig);
         mAngleMotor.setPosition(0);
 
         // Drive motor config
         mDriveMotor = new TalonFX(moduleConstants.driveMotorID, Ports.CANBUS_DRIVE);
-        mDriveMotor.getConfigurator().apply(SwerveConstants.driveFXConfig());
+        mDriveMotor.getConfigurator().apply(SwerveConstants.driveConfig);
         mDriveMotor.setPosition(0.0);
 
         resetToAbsolute();
+    }
+
+    public static class Constants {
+        public final int driveMotorID;
+        public final int angleMotorID;
+        public final int cancoderID;
+        public final double angleOffset;
+        public final String name;
+
+        public Constants(int driveMotorID, int angleMotorID, int canCoderID, double angleOffset, String name) {
+            this.driveMotorID = driveMotorID;
+            this.angleMotorID = angleMotorID;
+            this.cancoderID = canCoderID;
+            this.angleOffset = angleOffset;
+            this.name = name;
+        }
     }
 
     public void setDesiredState(ModuleState desiredState, boolean isOpenLoop) {
@@ -81,7 +98,7 @@ public class SwerveModule extends SubsystemBase {
         } else {
             mPeriodicIO.driveControlMode = ControlModeState.Velocity;
             mPeriodicIO.driveDemand = Util.Conversions.MPSToRPS(mPeriodicIO.targetVelocity,
-                    SwerveConstants.wheelCircumference, SwerveConstants.driveGearRatio);
+                    wheelCircumference, SwerveConstants.driveGearRatio);
         }
     }
 
@@ -109,7 +126,7 @@ public class SwerveModule extends SubsystemBase {
 
         mPeriodicIO.velocity = Util.Conversions.RPSToMPS(
             mDriveMotor.getRotorVelocity().getValue().in(Units.RotationsPerSecond),
-            SwerveConstants.wheelCircumference, SwerveConstants.driveGearRatio
+            wheelCircumference, SwerveConstants.driveGearRatio
         );
 
         mPeriodicIO.rotationPosition = Util.Conversions.rotationsToDegrees(
@@ -119,7 +136,7 @@ public class SwerveModule extends SubsystemBase {
 
         mPeriodicIO.drivePosition = Util.Conversions.rotationsToMeters(
             mDriveMotor.getRotorPosition().getValue().in(Units.Rotations),
-            SwerveConstants.wheelCircumference, SwerveConstants.driveGearRatio
+            wheelCircumference, SwerveConstants.driveGearRatio
         );
 
         /* write periodic outputs */
@@ -196,6 +213,5 @@ public class SwerveModule extends SubsystemBase {
         builder.addDoubleProperty(name + " Velocity", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty(name + " Target Angle", () -> Conversions.rotationsToDegrees(mPeriodicIO.rotationDemand, SwerveConstants.angleGearRatio), null);
         builder.addDoubleProperty(name + " Target Velocity", () -> mPeriodicIO.targetVelocity, null);
-
     }
 }

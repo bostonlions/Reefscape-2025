@@ -73,6 +73,15 @@ public class SwerveDriveKinematics {
     MathSharedStore.reportUsage(MathUsageId.kKinematics_SwerveDrive, 1);
   }
 
+  public SwerveDriveKinematics(double wheelBase, double trackWidth) {
+    this(
+      new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0),
+      new Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
+      new Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
+      new Translation2d(wheelBase / 2.0, trackWidth / 2.0)
+    );
+  }
+
   /**
    * Performs inverse kinematics to return the module states from a desired chassis velocity. This
    * method is often used to convert joystick values into module speeds and angles.
