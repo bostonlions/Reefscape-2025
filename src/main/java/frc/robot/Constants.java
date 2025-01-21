@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-
+import java.util.List;
 import java.util.Map;
 import static java.util.Map.entry;
 
@@ -194,23 +194,32 @@ public class Constants {
 
     public static final class ElevatorConstants {
         public static final double gearRatio = 12;
-        // TODO: measure circumference as length of straight belt equal to number of teeth in gear?
-        public static final double wheelCircumference = Conversions.inchesToMeters(1.625) * Math.PI;
+        public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Conversions.inchesToMeters(0.25);
 
+        public static final double limitTorque = 30;
+        public static final double limitVelocity = 0.1;
+
+        public static final double heightTolerance = 0.005; // meters from target to consider movement complete
+
         // Heights in meters
-        // TODO: values are placeholders
-        public enum Position { MIN, STOW, PROCESSOR, L1, L2, L3, L4, BARGE, MAX }
+        // TODO: values are placeholders. Are LOAD, PROCESSOR, and L1 all the same?
+        public enum Position { MIN, LOAD, PROCESSOR, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.),
-            entry(Position.STOW, 0.01),
-            entry(Position.PROCESSOR, 0.1),
+            entry(Position.LOAD, 0.01),
+            entry(Position.PROCESSOR, 0.01),
             entry(Position.L1, 0.01),
             entry(Position.L2, 0.2),
             entry(Position.L3, 0.5),
             entry(Position.L4, 1.1),
             entry(Position.BARGE, 1.3),
-            entry(Position.MAX, 1.3)
+            entry(Position.MAX, 1.31),
+            entry(Position.MANUAL, null) // not targeting a set position, controlled manually from Shuffleboard
+        );
+        // These are the positions you can access with step up and down
+        public static final List<Position> positionOrder = List.of(
+            Position.LOAD, Position.PROCESSOR, Position.L1, Position.L2, Position.L3, Position.L4, Position.BARGE
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()

@@ -2,28 +2,25 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
-// import edu.wpi.first.wpilibj.Timer;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-// import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
-// import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
-// import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ElevatorConstants.Position;
+import static frc.robot.Constants.ElevatorConstants.heights;
+import static frc.robot.Constants.ElevatorConstants.positionOrder;
 import frc.robot.Ports;
-// import frc.robot.lib.loops.ILooper;
-// import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
 import frc.robot.lib.Util.Conversions;
 
 public class Elevator extends SubsystemBase {
 
-    PeriodicIO mPeriodicIO = new PeriodicIO();
+    public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public static Elevator mInstance;
     private final TalonFX mMain;
@@ -45,13 +42,8 @@ public class Elevator extends SubsystemBase {
         mFollower.setControl(new Follower(Ports.ELEVATOR_B, true));
 
         setNeutralBrake(false);
+        mPeriodicIO.moving = false;
     }
-
-    // Homing refers to moving the elevator into it's "zero" position. Needs to be
-    // done at the start of every match
-    private boolean mHoming = true;
-    //private boolean mNeedsToHome = false;
-    //private final DelayedBoolean mHomingDelay = new DelayedBoolean(Timer.getFPGATimestamp(), 0.2);
 
     public void setNeutralBrake(boolean brake) {
         NeutralModeValue wantedMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
@@ -59,271 +51,149 @@ public class Elevator extends SubsystemBase {
         mFollower.setNeutralMode(wantedMode);
     }
 
-    public void setWantHome(boolean home) {
-        mHoming = home;
-        // once homing is started, no longer needs to home
-        // if (mHoming) {
-        //     mNeedsToHome = false;
-        // }
-        // force update state
-        // writePeriodicOutputs();
-    }
-
-    // @Override
-    // public void registerEnabledLoops(ILooper mEnabledILooper) {
-    //     mEnabledILooper.register(new Loop() {
-    //         @Override
-    //         public void onStart(double timestamp) {
-    //             setNeutralBrake(true);
-    //             // in the future we might want to do this
-    //             // setSetpointMotionMagic(0.0);
-    //         }
-
-    //         @Override
-    //         public void onLoop(double timestamp) {
-    //             // constantly re-homing unless in open loop, so if it is disabled we can push it
-    //             // in and it will remember the most "in" spot
-    //             // if (atHomingLocation() && mNeedsToHome) {
-    //             // setWantHome(true);
-    //             // } else if (mPeriodicIO.mControlModeState != ControlModeState.OPEN_LOOP) {
-    //             // setWantHome(false);
-    //             // }
-    //             if (mPeriodicIO.position < 0.0) {
-    //                 zeroSensors();
-    //                 setSetpointMotionMagic(0.01);
-    //             }
-    //         }
-
-    //         @Override
-    //         public void onStop(double timestamp) {
-    //             setNeutralBrake(true);
-    //         }
-    //     });
-    // }
-
     public void zeroWhenDisabled() {
-        if (mPeriodicIO.position < 0.0) {
-            zeroSensors();
-            setSetpointMotionMagic(0.01);
+        if (mPeriodicIO.height < 0.0) {
+            markMin();
+            setTarget(positionOrder.get(0));
         }
     }
 
-    // public Request elevatorRequest(double length, boolean waitForPosition) {
-    //     return new Request() {
+    public double metersToRotations(double distance) {
+        return Conversions.metersToRotations(distance, ElevatorConstants.wheelCircumference, ElevatorConstants.gearRatio);
+    }
 
-    //         @Override
-    //         public void act() {
-    //             setSetpointMotionMagic(length);
-    //         }
-
-    //         @Override
-    //         public boolean isFinished() {
-    //             return !waitForPosition || Util.epsilonEquals(mPeriodicIO.position, length, 0.1);
-    //         }
-
-    //     };
-    // }
-
-    // public Request elevatorWaitRequest(double length) {
-    //     return new Request() {
-    //         @Override
-    //         public void act() {
-
-    //         }
-
-    //         @Override
-    //         public boolean isFinished() {
-    //             return Util.epsilonEquals(mPeriodicIO.position, length, 0.2);
-    //         }
-    //     };
-    // }
-
-    // public Request elevatorTuckWaitRequest(double length) {
-    //     return new Request() {
-    //         @Override
-    //         public void act() {
-
-    //         }
-
-    //         @Override
-    //         public boolean isFinished() {
-    //             return mPeriodicIO.position < length;
-    //         }
-    //     };
-    // }
-
-    // public Request elevatorExtendWaitRequest(double length) {
-    //     return new Request() {
-    //         @Override
-    //         public void act() {
-
-    //         }
-
-    //         @Override
-    //         public boolean isFinished() {
-    //             return mPeriodicIO.position > length;
-    //         }
-    //     };
-    // }
+    public double rotationsToMeters(double rotations) {
+        return Conversions.rotationsToMeters(rotations, ElevatorConstants.wheelCircumference, ElevatorConstants.gearRatio);
+    }
 
     public void setSetpointMotionMagic(double distance) {
-        if (mPeriodicIO.mControlModeState != ControlModeState.MOTION_MAGIC) {
-            mPeriodicIO.mControlModeState = ControlModeState.MOTION_MAGIC;
+        mPeriodicIO.demand = metersToRotations(distance);
+        mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
+    }
+
+    public void markMin() {
+        mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
+    }
+
+    public void markMax() {
+        mMain.setPosition(metersToRotations(heights.get(Position.MAX)));
+    }
+
+    public void setTarget(Position p) {
+        mPeriodicIO.targetPosition = p;
+        mPeriodicIO.targetHeight = p == Position.MANUAL ? mPeriodicIO.manualTargetHeight : heights.get(p);
+        mPeriodicIO.moving = true;
+        setNeutralBrake(true);
+        setSetpointMotionMagic(mPeriodicIO.targetHeight);
+    }
+
+    public int getClosestStepNum(boolean goingUp) {
+        if (mPeriodicIO.targetPosition == Position.MIN) {
+            return -1;
         }
-        double rotationDemand = Conversions.metersToRotations(distance, ElevatorConstants.wheelCircumference,
-                ElevatorConstants.gearRatio);
-        mPeriodicIO.demand = rotationDemand;
-    }
-
-    /**
-     *
-     * @param demand if >1 controls voltage, if <1 controls percent output
-     */
-    public void setOpenLoopDemand(double demand) {
-        if (mPeriodicIO.mControlModeState != ControlModeState.OPEN_LOOP) {
-            mPeriodicIO.mControlModeState = ControlModeState.OPEN_LOOP;
+        if (mPeriodicIO.targetPosition == Position.MAX) {
+            return positionOrder.size();
         }
-        mPeriodicIO.demand = demand;
-    }
-
-    // @Override
-    // public synchronized void writePeriodicOutputs() {
-
-    //     // if ((Math.abs(mPeriodicIO.torqueCurrent) > 30) && mPeriodicIO.velocity < 0.1
-    //     // && mPeriodicIO.position < 0) {
-    //     // mHoming = false;
-    //     // zeroSensors();
-    //     // setSetpointMotionMagic(0.01);
-    //     // }
-
-    //     // if (mHoming) { // sets it moving backward until velocity slows down
-    //     // mMain.setControl(new VoltageOut(-4));
-    //     // if (mHomingDelay.update(Timer.getFPGATimestamp(),
-    //     // Util.epsilonEquals(mPeriodicIO.velocity, 0.0, 0.1))) { // is this motor
-    //     // velocity or elevator
-    //     // // velocity
-    //     // zeroSensors();
-    //     // setSetpointMotionMagic(0.01);
-    //     // mHoming = false;
-    //     // }
-    //     // } else
-
-    //     //took out homing because it was messing up the start of autos
-
-    //     if (mPeriodicIO.mControlModeState == ControlModeState.OPEN_LOOP) {
-    //         if (mPeriodicIO.demand > 1 || mPeriodicIO.demand < -1) {
-    //             mMain.setControl(new VoltageOut(mPeriodicIO.demand)); // Enable FOC in the future?
-    //         } else {
-    //             mMain.setControl(new DutyCycleOut(mPeriodicIO.demand));
-    //         }
-
-    //     } else if (mPeriodicIO.mControlModeState == ControlModeState.MOTION_MAGIC) {
-    //         // mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand, true, 0, 0, false, false, false));
-    //         mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand).withEnableFOC(true));
-    //     }
-
-    //     if (mPeriodicIO.position < 0.025 && Math.abs(mPeriodicIO.torqueCurrent) > 60)
-    //     {
-    //         zeroSensors();
-    //         setSetpointMotionMagic(0.015);
-    //     }
-
-    // }
-
-    public void zeroSensors() {
-        mMain.setPosition(0);
-    }
-
-    public void setDemandOpenLoop(double demand) {
-        if (mPeriodicIO.mControlModeState != ControlModeState.OPEN_LOOP) {
-            mPeriodicIO.mControlModeState = ControlModeState.OPEN_LOOP;
+        if (mPeriodicIO.targetPosition == Position.MANUAL) {
+            if (goingUp) {
+                for(int i = 0; i < positionOrder.size(); i++) {
+                    if (heights.get(positionOrder.get(i)) > mPeriodicIO.manualTargetHeight) {
+                        return i - 1;
+                    }
+                }
+                return positionOrder.size();
+            }
+            else {
+                for(int i = positionOrder.size() - 1; i >= 0; i--) {
+                    if (heights.get(positionOrder.get(i)) < mPeriodicIO.manualTargetHeight) {
+                        return i + 1;
+                    }
+                }
+                return -1;
+            }
         }
-        mPeriodicIO.demand = demand;
+        return positionOrder.indexOf(mPeriodicIO.targetPosition);
     }
 
-    public boolean atHomingLocation() {
-        return mPeriodicIO.position < 0.0
-                || Util.epsilonEquals(mPeriodicIO.position, 0.0, 0.02);
+    public boolean doneMoving() {
+        return !mPeriodicIO.moving;
     }
 
-    public void setMotorConfig(TalonFXConfiguration config) {
-        mMain.getConfigurator().apply(config);
+    public void stepUp() {
+        int curStep = getClosestStepNum(true);
+        if (curStep < positionOrder.size() - 1) {
+            setTarget(positionOrder.get(curStep + 1));
+        }
     }
 
-    // @Log
-    // public double getElevatorUnits() {
-    //     return mPeriodicIO.position;
-    // }
-
-    // @Log
-    // public double getElevatorDemand() {
-    //     return mPeriodicIO.demand;
-    // }
-
-    // @Log
-    // public double getElevatorVelocity() {
-    //     return mPeriodicIO.velocity;
-    // }
-
-    // @Log
-    // public double getElevatorVolts() {
-    //     return mPeriodicIO.voltage;
-    // }
-
-    // @Log
-    // public double getElevatorCurrent() {
-    //     return mPeriodicIO.current;
-    // }
-
-    // @Log
-    // public boolean getElevatorHoming() {
-    //     return mHoming;
-    // }
-
-    // @Log
-    // public double getTimestamp() {
-    //     return mPeriodicIO.timestamp;
-    // }
+    public void stepDown() {
+        int curStep = getClosestStepNum(false);
+        if (curStep > 0) {
+            setTarget(positionOrder.get(curStep - 1));
+        }
+    }
 
     public static class PeriodicIO {
         // Inputs
         private double voltage;
         private double current;
-        private double position;
+        private double height;
         private double velocity;
         private double torqueCurrent;
-
-        private ControlModeState mControlModeState;
+        private boolean moving;
 
         // Outputs
         private double demand;
-    }
-
-    private enum ControlModeState {
-        OPEN_LOOP,
-        MOTION_MAGIC
+        private Position targetPosition;
+        private double targetHeight;
+        private double manualTargetHeight = heights.get(positionOrder.get(0));
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.position, null);
-        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.position), null);
-        builder.addDoubleProperty("Elevator Motor Rotations", () -> mMain.getRotorPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.height, null);
+        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.height), null);
+        builder.addDoubleProperty("Elevator Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
+        builder.addBooleanProperty("Elevator Moving", () -> mPeriodicIO.moving, null);
         builder.addDoubleProperty("Elevator Demand", () -> mPeriodicIO.demand, null);
         builder.addDoubleProperty("Elevator Velocity", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty("Elevator Output Volts", () -> mPeriodicIO.voltage, null);
         builder.addDoubleProperty("Elevator Current", () -> mPeriodicIO.current, null);
         builder.addDoubleProperty("Elevator Torque Current", () -> mPeriodicIO.torqueCurrent, null);
-        builder.addBooleanProperty("Elevator Homing", () -> mHoming, null);
+        builder.addBooleanProperty("Elevator Mark Min", () -> false, (v) -> {if(v) markMin();});
+        builder.addBooleanProperty("Elevator Step UP", () -> false, (v) -> {if(v) stepUp();});
+        builder.addBooleanProperty("Elevator Step DOWN", () -> false, (v) -> {if(v) stepDown();});
+        builder.addDoubleProperty("Elevator Manual Target", () -> mPeriodicIO.manualTargetHeight, (v) -> {mPeriodicIO.manualTargetHeight = v;});
+        builder.addBooleanProperty("Elevator Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
     }
 
     @Override
     public void periodic() {
         mPeriodicIO.voltage = mMain.getMotorVoltage().getValue().in(Units.Volts);
         mPeriodicIO.current = mMain.getStatorCurrent().getValue().in(Units.Amps);
-        mPeriodicIO.position = Conversions.rotationsToMeters(mMain.getRotorPosition().getValue().in(Units.Rotations),
-                ElevatorConstants.wheelCircumference, ElevatorConstants.gearRatio);
+        mPeriodicIO.height = rotationsToMeters(mMain.getRotorPosition().getValue().in(Units.Rotations));
         mPeriodicIO.velocity = mMain.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
         mPeriodicIO.torqueCurrent = mMain.getTorqueCurrent().getValueAsDouble();
+
+        // have we hit the top or bottom?
+        if ((mPeriodicIO.torqueCurrent > ElevatorConstants.limitTorque) &&
+            mPeriodicIO.velocity > -ElevatorConstants.limitVelocity
+        ) {
+            markMin();
+            setTarget(positionOrder.get(0));
+        }
+        else if ((mPeriodicIO.torqueCurrent < -ElevatorConstants.limitTorque) &&
+            mPeriodicIO.velocity < ElevatorConstants.limitVelocity
+        ) {
+            markMax();
+            setTarget(positionOrder.get(positionOrder.size() - 1));
+        }
+
+        // have we finished moving?
+        if (mPeriodicIO.moving &&
+            Util.epsilonEquals(mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance)
+        ) {
+            mPeriodicIO.moving = false;
+        }
     }
 }

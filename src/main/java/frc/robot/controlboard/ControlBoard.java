@@ -4,9 +4,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Ports;
-import frc.robot.controlboard.CustomXboxController.Axis;
-import frc.robot.controlboard.CustomXboxController.Button;
-import frc.robot.controlboard.CustomXboxController.Side;
+// import frc.robot.controlboard.CustomXboxController.Axis;
+// import frc.robot.controlboard.CustomXboxController.Button;
+// import frc.robot.controlboard.CustomXboxController.Side;
 import frc.robot.subsystems.Drive;
 import frc.robot.lib.Util;
 
@@ -225,21 +225,21 @@ public class ControlBoard {
     //     return operator.getButton(Button.A);
     // }
 
-    public boolean elevatorUp() {
-        return operator.getButton(Button.RB);
-    }
+    // public boolean elevatorUp() {
+    //     return operator.getButton(Button.RB);
+    // }
 
-    public boolean elevatorDown() {
-        return operator.getButton(Button.LB);
-    }
+    // public boolean elevatorDown() {
+    //     return operator.getButton(Button.LB);
+    // }
 
-    public boolean zeroElevator() {
-        return operator.getButton(Button.START);
-    }
+    // public boolean zeroElevator() {
+    //     return operator.getButton(Button.START);
+    // }
 
-    public double elevatorPercentOutput() {
-        return operator.getAxis(Side.RIGHT, Axis.Y);
-    }
+    // public double elevatorPercentOutput() {
+    //     return operator.getAxis(Side.RIGHT, Axis.Y);
+    // }
 
     // public double wristPercentOutput() {
     //     return operator.getAxis(Side.RIGHT, Axis.X);
