@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
@@ -14,6 +15,7 @@ import frc.robot.Constants.ElevatorConstants.Position;
 import static frc.robot.Constants.ElevatorConstants.heights;
 import static frc.robot.Constants.ElevatorConstants.positionOrder;
 import frc.robot.Ports;
+import frc.robot.lib.Util;
 import frc.robot.lib.Util.Conversions;
 
 public class Elevator extends SubsystemBase {
@@ -40,6 +42,7 @@ public class Elevator extends SubsystemBase {
         mFollower.setControl(new Follower(Ports.ELEVATOR_B, true));
 
         setNeutralBrake(false);
+        mPeriodicIO.moving = false;
     }
 
     public void setNeutralBrake(boolean brake) {
@@ -49,9 +52,9 @@ public class Elevator extends SubsystemBase {
     }
 
     public void zeroWhenDisabled() {
-        if (mPeriodicIO.position < 0.0) {
+        if (mPeriodicIO.height < 0.0) {
             markMin();
-            setTarget(Position.STOW);
+            setTarget(positionOrder.get(0));
         }
     }
 
@@ -79,30 +82,41 @@ public class Elevator extends SubsystemBase {
     public void setTarget(Position p) {
         mPeriodicIO.targetPosition = p;
         mPeriodicIO.targetHeight = p == Position.MANUAL ? mPeriodicIO.manualTargetHeight : heights.get(p);
+        mPeriodicIO.moving = true;
         setNeutralBrake(true);
         setSetpointMotionMagic(mPeriodicIO.targetHeight);
     }
 
     public int getClosestStepNum(boolean goingUp) {
-        Position p = mPeriodicIO.targetPosition;
-        double h = mPeriodicIO.position;
-        if (p == Position.MIN) { return -1; }
-        if (p == Position.MAX) { return positionOrder.size(); }
-        if (p != Position.MANUAL) {
-            return positionOrder.indexOf(p);
-        }
-        if (goingUp) {
-            for(int i = 0; i < positionOrder.size(); i++) {
-                if (heights.get(positionOrder.get(i)) > h) return i - 1;
-            }
-            return positionOrder.size();
-        }
-        else {
-            for(int i = positionOrder.size() - 1; i >= 0; i--) {
-                if (heights.get(positionOrder.get(i)) < h) return i + 1;
-            }
+        if (mPeriodicIO.targetPosition == Position.MIN) {
             return -1;
         }
+        if (mPeriodicIO.targetPosition == Position.MAX) {
+            return positionOrder.size();
+        }
+        if (mPeriodicIO.targetPosition == Position.MANUAL) {
+            if (goingUp) {
+                for(int i = 0; i < positionOrder.size(); i++) {
+                    if (heights.get(positionOrder.get(i)) > mPeriodicIO.manualTargetHeight) {
+                        return i - 1;
+                    }
+                }
+                return positionOrder.size();
+            }
+            else {
+                for(int i = positionOrder.size() - 1; i >= 0; i--) {
+                    if (heights.get(positionOrder.get(i)) < mPeriodicIO.manualTargetHeight) {
+                        return i + 1;
+                    }
+                }
+                return -1;
+            }
+        }
+        return positionOrder.indexOf(mPeriodicIO.targetPosition);
+    }
+
+    public boolean doneMoving() {
+        return !mPeriodicIO.moving;
     }
 
     public void stepUp() {
@@ -123,22 +137,24 @@ public class Elevator extends SubsystemBase {
         // Inputs
         private double voltage;
         private double current;
-        private double position;
+        private double height;
         private double velocity;
         private double torqueCurrent;
+        private boolean moving;
 
         // Outputs
         private double demand;
         private Position targetPosition;
         private double targetHeight;
-        private double manualTargetHeight = heights.get(Position.STOW);
+        private double manualTargetHeight = heights.get(positionOrder.get(0));
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.position, null);
-        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.position), null);
-        builder.addDoubleProperty("Elevator Motor Rotations", () -> metersToRotations(mPeriodicIO.position), null);
+        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.height, null);
+        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.height), null);
+        builder.addDoubleProperty("Elevator Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
+        builder.addBooleanProperty("Elevator Moving", () -> mPeriodicIO.moving, null);
         builder.addDoubleProperty("Elevator Demand", () -> mPeriodicIO.demand, null);
         builder.addDoubleProperty("Elevator Velocity", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty("Elevator Output Volts", () -> mPeriodicIO.voltage, null);
@@ -155,7 +171,7 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         mPeriodicIO.voltage = mMain.getMotorVoltage().getValue().in(Units.Volts);
         mPeriodicIO.current = mMain.getStatorCurrent().getValue().in(Units.Amps);
-        mPeriodicIO.position = rotationsToMeters(mMain.getRotorPosition().getValue().in(Units.Rotations));
+        mPeriodicIO.height = rotationsToMeters(mMain.getRotorPosition().getValue().in(Units.Rotations));
         mPeriodicIO.velocity = mMain.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
         mPeriodicIO.torqueCurrent = mMain.getTorqueCurrent().getValueAsDouble();
 
@@ -164,13 +180,20 @@ public class Elevator extends SubsystemBase {
             mPeriodicIO.velocity > -ElevatorConstants.limitVelocity
         ) {
             markMin();
-            setTarget(Position.STOW);
+            setTarget(positionOrder.get(0));
         }
         else if ((mPeriodicIO.torqueCurrent < -ElevatorConstants.limitTorque) &&
             mPeriodicIO.velocity < ElevatorConstants.limitVelocity
         ) {
             markMax();
-            setTarget(Position.BARGE);
+            setTarget(positionOrder.get(positionOrder.size() - 1));
+        }
+
+        // have we finished moving?
+        if (mPeriodicIO.moving &&
+            Util.epsilonEquals(mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance)
+        ) {
+            mPeriodicIO.moving = false;
         }
     }
 }
