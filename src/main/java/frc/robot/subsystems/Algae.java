@@ -47,6 +47,10 @@ public class Algae extends SubsystemBase {
         mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
     }
 
+    public void disable() {
+        // TODO
+    }
+
     private final class PeriodicIO {
         // TODO - 2 motors
         // Inputs
@@ -81,5 +85,7 @@ public class Algae extends SubsystemBase {
         super.initSendable(builder);
         // TODO: builder.addDoubleProperty(.....) etc
         builder.addBooleanProperty("Algae Beambreak", () -> mPeriodicIO.beambreak, null);
+        builder.setSafeState(this::disable);
+        builder.setActuator(true);
     }
 }

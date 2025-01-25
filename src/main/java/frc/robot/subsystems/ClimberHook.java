@@ -33,6 +33,10 @@ public class ClimberHook extends SubsystemBase {
         mMotor.setPosition(0);
     }
 
+    public void disable() {
+        // TODO
+    }
+
     public void setWantNeutralBrake(boolean brake) {
         NeutralModeValue mode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
         mMotor.setNeutralMode(mode);
@@ -120,5 +124,7 @@ public class ClimberHook extends SubsystemBase {
         builder.addDoubleProperty("ClimberHook Current", () -> mPeriodicIO.current, null);
         builder.addDoubleProperty("ClimberHook Manual Target", () -> mPeriodicIO.manualTargetExtension, (v) -> {mPeriodicIO.manualTargetExtension = v;});
         builder.addBooleanProperty("ClimberHook Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
+        builder.setSafeState(this::disable);
+        builder.setActuator(true);
     }
 }
