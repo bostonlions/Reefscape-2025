@@ -1,7 +1,5 @@
 package frc.robot.controlboard;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Ports;
 // import frc.robot.controlboard.CustomXboxController.Axis;
@@ -10,6 +8,8 @@ import frc.robot.Ports;
 import frc.robot.subsystems.Drive;
 import frc.robot.lib.Util;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -30,9 +30,7 @@ public class ControlBoard {
     int tagLastChased = -1;
 
     public static ControlBoard getInstance() {
-        if (mInstance == null) {
-            mInstance = new ControlBoard();
-        }
+        if (mInstance == null) mInstance = new ControlBoard();
         return mInstance;
     }
 
@@ -79,22 +77,13 @@ public class ControlBoard {
     }
 
     public double getSwerveRotation() {
-        double rotAxis = 0;
-        if (ControllerConstants.isMambo) {
-            rotAxis = m_driver.getRawAxis(3);
-        } else {
-            rotAxis = getLeftYaw();
-        }
-
+        double rotAxis = ControllerConstants.isMambo ? m_driver.getRawAxis(3) : getLeftYaw();
         rotAxis = ControllerConstants.invertRAxis ? rotAxis : -rotAxis;
 
-        if (Math.abs(rotAxis) < kSwerveDeadband) {
-            return 0.0;
-        } else {
-            return Drive.getInstance().getKinematicLimits().kMaxAngularVelocity
-                    * (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband))
-                    / (1 - kSwerveDeadband);
-        }
+        if (Math.abs(rotAxis) < kSwerveDeadband) return 0.0;
+
+        return Drive.getInstance().getKinematicLimits().kMaxAngularVelocity *
+            (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband)) / (1 - kSwerveDeadband);
     }
 
     /* right switch up */
@@ -133,7 +122,6 @@ public class ControlBoard {
             default:
                 return SwerveCardinal.NONE;
         }
-
     }
 
     /** far right switch */
@@ -370,9 +358,8 @@ public class ControlBoard {
     private double getRightThrottle() {
         double rightThrottle = m_driver.getRawAxis(ControllerConstants.rightYAxis);
 
-        if (rightThrottle != 0) {
+        if (rightThrottle != 0)
             rightThrottle = rightThrottle - ControllerConstants.RightThrottleZero;
-        }
 
         if (rightThrottle > (ControllerConstants.isC1 ? kSwerveDeadband : 0.102)) {
             rightThrottle = (rightThrottle / (ControllerConstants.RightThrottleHigh
@@ -391,9 +378,8 @@ public class ControlBoard {
     private double getRightYaw() {
         double rightYaw = m_driver.getRawAxis(ControllerConstants.rightXAxis);
 
-        if (rightYaw != 0) {
+        if (rightYaw != 0)
             rightYaw = rightYaw - ControllerConstants.RightYawZero;
-        }
 
         if (rightYaw > kSwerveDeadband) {
             rightYaw = (rightYaw / (ControllerConstants.RightYawHigh
