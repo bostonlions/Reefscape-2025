@@ -26,9 +26,7 @@ public class Elevator extends SubsystemBase {
     private final TalonFX mFollower;
 
     public static Elevator getInstance() {
-        if (mInstance == null) {
-            mInstance = new Elevator();
-        }
+        if (mInstance == null) mInstance = new Elevator();
         return mInstance;
     }
 
@@ -68,14 +66,6 @@ public class Elevator extends SubsystemBase {
         mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
     }
 
-    public void markMin() {
-        mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
-    }
-
-    public void markMax() {
-        mMain.setPosition(metersToRotations(heights.get(Position.MAX)));
-    }
-
     public void setTarget(Position p) {
         mPeriodicIO.targetPosition = p;
         mPeriodicIO.targetHeight = p == Position.MANUAL ? mPeriodicIO.manualTargetHeight : heights.get(p);
@@ -85,29 +75,17 @@ public class Elevator extends SubsystemBase {
     }
 
     public int getClosestStepNum(boolean goingUp) {
-        if (mPeriodicIO.targetPosition == Position.MIN) {
-            return -1;
-        }
-        if (mPeriodicIO.targetPosition == Position.MAX) {
-            return positionOrder.size();
-        }
+        if (mPeriodicIO.targetPosition == Position.MIN) return -1;
+        if (mPeriodicIO.targetPosition == Position.MAX) return positionOrder.size();
         if (mPeriodicIO.targetPosition == Position.MANUAL) {
             if (goingUp) {
-                for(int i = 0; i < positionOrder.size(); i++) {
-                    if (heights.get(positionOrder.get(i)) > mPeriodicIO.manualTargetHeight) {
-                        return i - 1;
-                    }
-                }
+                for(int i = 0; i < positionOrder.size(); i++)
+                    if (heights.get(positionOrder.get(i)) > mPeriodicIO.manualTargetHeight) return i - 1;
                 return positionOrder.size();
-            }
-            else {
-                for(int i = positionOrder.size() - 1; i >= 0; i--) {
-                    if (heights.get(positionOrder.get(i)) < mPeriodicIO.manualTargetHeight) {
-                        return i + 1;
-                    }
-                }
-                return -1;
-            }
+            } //else:
+            for(int i = positionOrder.size() - 1; i >= 0; i--)
+                if (heights.get(positionOrder.get(i)) < mPeriodicIO.manualTargetHeight) return i + 1;
+            return -1;
         }
         return positionOrder.indexOf(mPeriodicIO.targetPosition);
     }
@@ -118,16 +96,16 @@ public class Elevator extends SubsystemBase {
 
     public void stepUp() {
         int curStep = getClosestStepNum(true);
-        if (curStep < positionOrder.size() - 1) {
-            setTarget(positionOrder.get(curStep + 1));
-        }
+        if (curStep < positionOrder.size() - 1) setTarget(positionOrder.get(curStep + 1));
     }
 
     public void stepDown() {
         int curStep = getClosestStepNum(false);
-        if (curStep > 0) {
-            setTarget(positionOrder.get(curStep - 1));
-        }
+        if (curStep > 0) setTarget(positionOrder.get(curStep - 1));
+    }
+
+    public void markMin() {
+        mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
     }
 
     public static class PeriodicIO {
@@ -174,25 +152,24 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.velocity = mMain.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
         mPeriodicIO.torqueCurrent = mMain.getTorqueCurrent().getValueAsDouble();
 
-        // have we hit the top or bottom?
-        if ((mPeriodicIO.torqueCurrent > ElevatorConstants.limitTorque) &&
+        /* Have we hit the top or bottom? */
+        if ((mPeriodicIO.torqueCurrent < -ElevatorConstants.limitTorque) &&
             mPeriodicIO.velocity > -ElevatorConstants.limitVelocity
         ) {
             markMin();
             setTarget(positionOrder.get(0));
         }
-        else if ((mPeriodicIO.torqueCurrent < -ElevatorConstants.limitTorque) &&
+        else if ((mPeriodicIO.torqueCurrent > ElevatorConstants.limitTorque) &&
             mPeriodicIO.velocity < ElevatorConstants.limitVelocity
         ) {
-            markMax();
+            mMain.setPosition(metersToRotations(heights.get(Position.MAX))); //mark max
             setTarget(positionOrder.get(positionOrder.size() - 1));
         }
 
-        // have we finished moving?
+        /* Have we finished moving? */
         if (mPeriodicIO.moving &&
             Util.epsilonEquals(mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance)
-        ) {
+        )
             mPeriodicIO.moving = false;
-        }
     }
 }

@@ -196,10 +196,8 @@ public class Constants {
         public static final double gearRatio = 12;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Conversions.inchesToMeters(0.25);
-
         public static final double limitTorque = 30;
         public static final double limitVelocity = 0.1;
-
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
 
         // Heights in meters
@@ -243,17 +241,18 @@ public class Constants {
     }
 
     public static final class ClimberHookConstants {
-        public static final double gearRatio = 45;
+        public static final double gearRatio = 4.6;
+        public static final double limitTorque = 30;
+        public static final double limitVelocity = 0.1;
+        public static final double extensionTolerance = 0.5;
 
-        // Extensions expressed as geared-down motor rotations
-        // TODO - is this the right unit? values are placeholders
-        public enum Position { MIN, STOW, LIFTED, OUT, MAX }
+        public enum Position { MIN, IN, OUT, MAX, MANUAL }
         public static final Map<Position, Double> extensions = Map.ofEntries(
+            // values are in degrees, but aren't correct yet
             entry(Position.MIN, 0.),
-            entry(Position.STOW, 1.),
-            entry(Position.LIFTED, 10.),
-            entry(Position.OUT, 90.),
-            entry(Position.MAX, 100.)
+            entry(Position.IN, 10.),
+            entry(Position.OUT, 180.),
+            entry(Position.MAX, 200.)
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()

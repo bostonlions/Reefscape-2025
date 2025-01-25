@@ -35,9 +35,7 @@ public class Util {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < strings.size(); ++i) {
             sb.append(strings.get(i).toString());
-            if (i < strings.size() - 1) {
-                sb.append(delim);
-            }
+            if (i < strings.size() - 1) sb.append(delim);
         }
         return sb.toString();
     }

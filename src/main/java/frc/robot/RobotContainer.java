@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.ClimberHook;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.CustomXboxController.Button;
 
@@ -20,18 +21,13 @@ import frc.robot.controlboard.CustomXboxController.Button;
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
  * and commands. Since Command-based is a "declarative" paradigm, very little robot logic should
  * actually be handled in the {@link Robot} periodic methods (other than the scheduler calls);
- * Trigger->command mappings should be defined here; for defining these mappings:
- *      Schedule ExampleCommand when exampleCondition becomes true:
- *          new Trigger(exampleSubsystem::exampleCondition)
- *            .onTrue(new ExampleCommand(exampleSubsystem));
- *      Schedule exampleMethodCommand when the Xbox controller's B button is pressed,
- *      cancelling on release:
- *          driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
+ * Trigger->command mappings should be defined here
  */
 public class RobotContainer {
     private ControlBoard controller;
     private Drive drive;
     private Elevator elevator;
+    private ClimberHook climberHook;
 
     public RobotContainer() {
         controller = ControlBoard.getInstance();
@@ -39,9 +35,7 @@ public class RobotContainer {
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);
-        for (int i = 0; i<=3; i++) {
-            SmartDashboard.putData(drive.mModules[i]);
-        }
+        for (int i = 0; i<=3; i++) SmartDashboard.putData(drive.mModules[i]);
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(controller.getSwerveTranslation(), controller.getSwerveRotation()),
@@ -60,6 +54,13 @@ public class RobotContainer {
         );
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(
             new InstantCommand(elevator::markMin, elevator)
+        );
+
+        /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
+        climberHook = ClimberHook.getInstance();
+        SmartDashboard.putData(climberHook);
+        new Trigger(() -> controller.operator.getButton(Button.Y)).onTrue(
+            new InstantCommand(climberHook::toggleTarget, climberHook)
         );
     }
 
