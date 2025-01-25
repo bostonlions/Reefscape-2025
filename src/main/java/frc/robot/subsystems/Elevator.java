@@ -50,11 +50,9 @@ public class Elevator extends SubsystemBase {
         mFollower.setNeutralMode(wantedMode);
     }
 
-    public void zeroWhenDisabled() {
-        if (mPeriodicIO.height < 0.0) {
-            markMin();
-            setTarget(positionOrder.get(0));
-        }
+    public void disable() {
+        setSetpointMotionMagic(mPeriodicIO.height);
+        setNeutralBrake(false);
     }
 
     public double metersToRotations(double distance) {
@@ -164,6 +162,8 @@ public class Elevator extends SubsystemBase {
         builder.addBooleanProperty("Elevator Step DOWN", () -> false, (v) -> {if(v) stepDown();});
         builder.addDoubleProperty("Elevator Manual Target", () -> mPeriodicIO.manualTargetHeight, (v) -> {mPeriodicIO.manualTargetHeight = v;});
         builder.addBooleanProperty("Elevator Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
+        builder.setSafeState(this::disable);
+        builder.setActuator(true);
     }
 
     @Override

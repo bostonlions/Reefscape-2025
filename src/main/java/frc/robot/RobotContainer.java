@@ -51,6 +51,7 @@ public class RobotContainer {
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */
         elevator = Elevator.getInstance();
+        SmartDashboard.putData(elevator);
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(
             new FunctionalCommand(elevator::stepDown, null, null, elevator::doneMoving, elevator)
         );
@@ -60,7 +61,6 @@ public class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(
             new InstantCommand(elevator::markMin, elevator)
         );
-        SmartDashboard.putData(elevator);
     }
 
     public Command getAutonomousCommand() {

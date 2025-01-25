@@ -465,5 +465,7 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Pose X", () -> getPose().getX(), null);
         builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
         builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getDegrees(), null);
+        builder.setActuator(true);
+        builder.setSafeState(this::stopModules);
     }
 }
