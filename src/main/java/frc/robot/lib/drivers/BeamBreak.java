@@ -3,13 +3,10 @@ package frc.robot.lib.drivers;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class BeamBreak {
-
+    private final DigitalInput mBreak;
     private boolean lastStatus;
-
     private boolean tripped;
     private boolean cleared;
-
-    private final DigitalInput mBreak;
 
     public BeamBreak(int channel) {
         mBreak = new DigitalInput(channel);

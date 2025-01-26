@@ -54,16 +54,12 @@ public class Util {
 
     public static boolean allCloseTo(final List<Double> list, double value, double epsilon) {
         boolean result = true;
-        for (Double value_in : list) {
-            result &= epsilonEquals(value_in, value, epsilon);
-        }
+        for (Double value_in : list) result &= epsilonEquals(value_in, value, epsilon);
         return result;
     }
 
     public static double clamp(double value, double min, double max) {
-		if (min > max) {
-			throw new IllegalArgumentException("min must not be greater than max");
-		}
+		if (min > max) throw new IllegalArgumentException("min must not be greater than max");
 		return Math.max(min, Math.min(value, max));
 	}
 
@@ -78,29 +74,18 @@ public class Util {
             upperBound = scopeReference - lowerOffset;
             lowerBound = scopeReference - (360 + lowerOffset);
         }
-        while (newAngle < lowerBound) {
-            newAngle += 360;
-        }
-        while (newAngle > upperBound) {
-            newAngle -= 360;
-        }
-        if (newAngle - scopeReference > 180) {
-            newAngle -= 360;
-        } else if (newAngle - scopeReference < -180) {
-            newAngle += 360;
-        }
+        while (newAngle < lowerBound) newAngle += 360;
+        while (newAngle > upperBound) newAngle -= 360;
+        if (newAngle - scopeReference > 180) newAngle -= 360; else if (newAngle -
+            scopeReference < -180) newAngle += 360;
         return newAngle;
     }
 
     public static double placeIn0To360Scope(double newAngle){
         double lowerBound = 0;
         double upperBound = 360;
-        while (newAngle < lowerBound) {
-            newAngle += 360;
-        }
-        while (newAngle > upperBound) {
-            newAngle -= 360;
-        }
+        while (newAngle < lowerBound) newAngle += 360;
+        while (newAngle > upperBound) newAngle -= 360;
         return newAngle;
     }
 
@@ -110,8 +95,7 @@ public class Util {
 
     public static double scaledDeadband(double value, double maxValue, double deadband) {
         double deadbandedValue = deadBand(value, deadband);
-        if (epsilonEquals(deadbandedValue, 0.0))
-            return 0.0;
+        if (epsilonEquals(deadbandedValue, 0.0)) return 0.0;
         return Math.signum(deadbandedValue) * ((Math.abs(deadbandedValue) - deadband) / (maxValue - deadband));
     }
 

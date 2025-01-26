@@ -17,7 +17,6 @@ import frc.robot.lib.Util.Conversions;
 public class ClimberHook extends SubsystemBase {
     private static ClimberHook mInstance;
     private TalonFX mMotor;
-
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public static ClimberHook getInstance() {
@@ -55,8 +54,7 @@ public class ClimberHook extends SubsystemBase {
 
     public void toggleTarget() {
         double midpoint = (extensions.get(Position.IN) + extensions.get(Position.OUT)) / 2;
-        if (mPeriodicIO.extension > midpoint) setTarget(Position.IN);
-        else setTarget(Position.OUT);
+        if (mPeriodicIO.extension > midpoint) setTarget(Position.IN); else setTarget(Position.OUT);
     }
 
     public double getAngleDeg() {

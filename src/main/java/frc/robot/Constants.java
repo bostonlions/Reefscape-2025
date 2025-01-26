@@ -277,8 +277,10 @@ public class Constants {
 
     public static final class CoralConstants {
         public static final double gearRatio = 4;
-        public static final double intakeDemand = 0.5;
-        public static final double releaseDemand = 0.5;
+        public static final double loadSpeed = 10;
+        public static final double extraLoadRotations = 2;
+        public static final double unloadSpeed = 8;
+        public static final double extraUnloadRotations = 3;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()

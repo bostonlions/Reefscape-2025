@@ -18,10 +18,8 @@ import frc.robot.lib.Util;
 import frc.robot.lib.Util.Conversions;
 
 public class Elevator extends SubsystemBase {
-
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-
-    public static Elevator mInstance;
+    private static Elevator mInstance;
     private final TalonFX mMain;
     private final TalonFX mFollower;
 
@@ -140,6 +138,7 @@ public class Elevator extends SubsystemBase {
         builder.addBooleanProperty("Elevator Step DOWN", () -> false, (v) -> {if(v) stepDown();});
         builder.addDoubleProperty("Elevator Manual Target", () -> mPeriodicIO.manualTargetHeight, (v) -> {mPeriodicIO.manualTargetHeight = v;});
         builder.addBooleanProperty("Elevator Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
+        builder.addStringProperty("Elevator State", () -> mPeriodicIO.targetPosition.toString(), null);
         builder.setSafeState(this::disable);
         builder.setActuator(true);
     }
