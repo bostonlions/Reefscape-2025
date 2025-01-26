@@ -13,25 +13,18 @@ import com.ctre.phoenix6.hardware.TalonFX;
 // import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Ports;
-// import frc.robot.lib.loops.ILooper;
-// import frc.robot.lib.loops.Loop;
-// import frc.robot.lib.Util.Conversions;
 import frc.robot.Constants.AlgaeConstants;
 
 public class Algae extends SubsystemBase {
-
     private static Algae mInstance;
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;
     private DigitalInput mBeamBreak;
     private CANcoder mCANcoder;
-
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public static Algae getInstance() {
-        if (mInstance == null) {
-            mInstance = new Algae();
-        }
+        if (mInstance == null) mInstance = new Algae();
         return mInstance;
     }
 

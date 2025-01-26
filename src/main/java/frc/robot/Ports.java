@@ -38,7 +38,7 @@ public final class Ports {
     public static final int CLIMBER_HOOK_CANCODER = -1;
 
     public static final int CORAL_DRIVE = -1;
-    public static final int CORAL_BEAM_BREAK = -1;  // maybe one more?
+    public static final int CORAL_BEAM_BREAK = -1; // maybe one more?
 
     public static final int ALGAE_DRIVE = -1;
     public static final int ALGAE_ANGLE = -1;

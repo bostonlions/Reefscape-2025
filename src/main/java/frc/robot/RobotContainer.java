@@ -11,9 +11,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
-import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.ClimberHook;
+import frc.robot.subsystems.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.CustomXboxController.Button;
 
@@ -21,13 +19,14 @@ import frc.robot.controlboard.CustomXboxController.Button;
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
  * and commands. Since Command-based is a "declarative" paradigm, very little robot logic should
  * actually be handled in the {@link Robot} periodic methods (other than the scheduler calls);
- * Trigger->command mappings should be defined here
+ * trigger->command mappings should be defined here, using the Trigger constructor
  */
 public class RobotContainer {
     private ControlBoard controller;
     private Drive drive;
     private Elevator elevator;
     private ClimberHook climberHook;
+    private Coral coral;
 
     public RobotContainer() {
         controller = ControlBoard.getInstance();
@@ -61,6 +60,13 @@ public class RobotContainer {
         SmartDashboard.putData(climberHook);
         new Trigger(() -> controller.operator.getButton(Button.Y)).onTrue(
             new InstantCommand(climberHook::toggleTarget, climberHook)
+        );
+
+        /* CORAL SUBSYSTEM AND COMMANDS */
+        coral = Coral.getInstance();
+        SmartDashboard.putData(coral);
+        new Trigger(() -> controller.operator.getButton(Button.X)).onTrue(
+            new InstantCommand(coral::activateCoral, coral)
         );
     }
 

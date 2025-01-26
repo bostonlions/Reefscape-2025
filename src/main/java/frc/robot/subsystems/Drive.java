@@ -16,8 +16,6 @@ import frc.robot.lib.swerve.SwerveModule;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
-// import frc.robot.lib.loops.ILooper;
-// import frc.robot.lib.loops.Loop;
 import frc.robot.lib.Util;
 import frc.robot.lib.drivers.Pigeon;
 import frc.robot.lib.swerve.ChassisSpeeds;
@@ -27,6 +25,16 @@ import frc.robot.lib.swerve.SwerveDriveOdometry;
 import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public class Drive extends SubsystemBase {
+    private Pigeon mPigeon = Pigeon.getInstance();
+    public SwerveModule[] mModules;
+    private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private DriveControlState mControlState = DriveControlState.FORCE_ORIENT;
+    private final SwerveDriveOdometry mOdometry;
+    private boolean odometryReset = false;
+    private final DriveMotionPlanner mMotionPlanner;
+    private SwerveConstants.KinematicLimits mKinematicLimits = SwerveConstants.kUncappedLimits;
+    private SwerveDriveKinematics kKinematics;
+    private static Drive mInstance;
     public enum DriveControlState {
         FORCE_ORIENT,
         OPEN_LOOP,
@@ -36,27 +44,8 @@ public class Drive extends SubsystemBase {
         AUTO_BALANCE
     }
 
-    private Pigeon mPigeon = Pigeon.getInstance();
-    public SwerveModule[] mModules;
-
-    private PeriodicIO mPeriodicIO = new PeriodicIO();
-    private DriveControlState mControlState = DriveControlState.FORCE_ORIENT;
-
-    private final SwerveDriveOdometry mOdometry;
-    private boolean odometryReset = false;
-    private final DriveMotionPlanner mMotionPlanner;
-
-    private SwerveConstants.KinematicLimits mKinematicLimits = SwerveConstants.kUncappedLimits;
-    private SwerveDriveKinematics kKinematics;
-
-    private static Drive mInstance;
-
-    // private boolean spinFastDuringAuto = false;
-
     public static Drive getInstance() {
-        if (mInstance == null) {
-            mInstance = new Drive();
-        }
+        if (mInstance == null) mInstance = new Drive();
         return mInstance;
     }
 
@@ -89,9 +78,8 @@ public class Drive extends SubsystemBase {
     }
 
     private void feedTeleopSetpoint(ChassisSpeeds speeds) {
-        if (mControlState != DriveControlState.OPEN_LOOP && mControlState != DriveControlState.HEADING_CONTROL) {
-            mControlState = DriveControlState.OPEN_LOOP;
-        }
+        if (mControlState != DriveControlState.OPEN_LOOP && mControlState !=
+            DriveControlState.HEADING_CONTROL) mControlState = DriveControlState.OPEN_LOOP;
 
         if (mControlState == DriveControlState.HEADING_CONTROL) {
             if (Math.abs(speeds.omegaRadiansPerSecond) > 1.0) {
@@ -119,24 +107,19 @@ public class Drive extends SubsystemBase {
     }
 
     public void setHeadingControlTarget(double target_degrees) {
-        if (mControlState != DriveControlState.HEADING_CONTROL) {
+        if (mControlState != DriveControlState.HEADING_CONTROL)
             mControlState = DriveControlState.HEADING_CONTROL;
-        }
         mPeriodicIO.heading_setpoint = Rotation2d.fromDegrees(target_degrees);
     }
 
     public void setOpenLoop(ChassisSpeeds speeds) {
         mPeriodicIO.des_chassis_speeds = speeds;
-        if (mControlState != DriveControlState.OPEN_LOOP) {
-            mControlState = DriveControlState.OPEN_LOOP;
-        }
+        if (mControlState != DriveControlState.OPEN_LOOP) mControlState = DriveControlState.OPEN_LOOP;
     }
 
     public void setVelocity(ChassisSpeeds speeds) {
         mPeriodicIO.des_chassis_speeds = speeds;
-        if (mControlState != DriveControlState.VELOCITY) {
-            mControlState = DriveControlState.VELOCITY;
-        }
+        if (mControlState != DriveControlState.VELOCITY) mControlState = DriveControlState.VELOCITY;
     }
 
     public void setTrajectory(Trajectory trajectory, Rotation2d heading) {
@@ -153,19 +136,14 @@ public class Drive extends SubsystemBase {
     // Stops drive without orienting modules
     public synchronized void stopModules() {
         List<Rotation2d> orientations = new ArrayList<>();
-        for (ModuleState moduleState : getModuleStates()) {
-            orientations.add(moduleState.angle);
-        }
+        for (ModuleState moduleState : getModuleStates()) orientations.add(moduleState.angle);
         orientModules(orientations);
     }
 
     public synchronized void orientModules(List<Rotation2d> orientations) {
-        if (mControlState != DriveControlState.FORCE_ORIENT) {
-            mControlState = DriveControlState.FORCE_ORIENT;
-        }
-        for (int i = 0; i < mModules.length; ++i) {
-            mPeriodicIO.des_module_states[i] = ModuleState.fromSpeeds(orientations.get(i), 0.0);
-        }
+        if (mControlState != DriveControlState.FORCE_ORIENT) mControlState = DriveControlState.FORCE_ORIENT;
+        for (int i = 0; i < mModules.length; ++i) mPeriodicIO.des_module_states[i] =
+            ModuleState.fromSpeeds(orientations.get(i), 0.0);
     }
 
     // @Override
@@ -221,8 +199,7 @@ public class Drive extends SubsystemBase {
     // }
 
     private void updateSetpoint() {
-        if (mControlState == DriveControlState.FORCE_ORIENT)
-            return;
+        if (mControlState == DriveControlState.FORCE_ORIENT) return;
 
         Pose2d robot_pose_vel = new Pose2d(mPeriodicIO.des_chassis_speeds.vxMetersPerSecond * SwerveConstants.kLooperDt,
                 mPeriodicIO.des_chassis_speeds.vyMetersPerSecond * SwerveConstants.kLooperDt,
@@ -313,9 +290,7 @@ public class Drive extends SubsystemBase {
     }
 
     public void resetModulesToAbsolute() {
-        for (SwerveModule module : mModules) {
-            module.resetToAbsolute();
-        }
+        for (SwerveModule module : mModules) module.resetToAbsolute();
     }
 
     public void zeroGyro() {
@@ -328,9 +303,7 @@ public class Drive extends SubsystemBase {
     }
 
     public void setNeutralBrake(boolean brake) {
-        for (SwerveModule swerveModule : mModules) {
-            swerveModule.setDriveNeutralBrake(brake);
-        }
+        for (SwerveModule swerveModule : mModules) swerveModule.setDriveNeutralBrake(brake);
     }
 
     // TODO: does this need to be in periodic? Or should it be in the commands?
@@ -358,22 +331,17 @@ public class Drive extends SubsystemBase {
         );
         // TODO: are the above all the states? (if so we always enter the if)
         if (isOpenLoop || isNotOpenLoop) {
-            for (SwerveModule mod : mModules) {
-                mod.setDesiredState(mPeriodicIO.des_module_states[mod.moduleNumber()], isOpenLoop);
-            }
+            for (SwerveModule mod : mModules) mod.setDesiredState(mPeriodicIO.des_module_states
+                [mod.moduleNumber()], isOpenLoop);
         }
 
         /* read and write module periodic io */
-        for (SwerveModule mod : mModules) {
-            mod.periodic();
-        }
+        for (SwerveModule mod : mModules) mod.periodic();
     }
 
     public ModuleState[] getModuleStates() {
         ModuleState[] states = new ModuleState[4];
-        for (SwerveModule mod : mModules) {
-            states[mod.moduleNumber()] = mod.getState();
-        }
+        for (SwerveModule mod : mModules) states[mod.moduleNumber()] = mod.getState();
         return states;
     }
 
@@ -398,9 +366,7 @@ public class Drive extends SubsystemBase {
     }
 
     public boolean isDoneWithTrajectory() {
-        if (mControlState != DriveControlState.PATH_FOLLOWING) {
-            return false;
-        }
+        if (mControlState != DriveControlState.PATH_FOLLOWING) return false;
         return mMotionPlanner.isFinished();
     }
 
@@ -443,9 +409,8 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        if (Constants.disableExtraTelemetry) {
-            return;
-        }
+        if (Constants.disableExtraTelemetry) return;
+
         builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
         builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);
