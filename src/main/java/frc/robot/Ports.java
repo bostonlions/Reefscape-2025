@@ -1,8 +1,8 @@
 package frc.robot;
 
 public final class Ports {
-    public static final String CANBUS_DRIVE = "Skibidi";
-    public static final String CANBUS_OPS = "";
+    public static final String CANBUS_DRIVE = "Big Justice";
+    public static final String CANBUS_OPS = "Baby Gronk";
 
     public static final int DRIVER_CONTROL = 2;
     public static final int OPERATOR_CONTROL = 1;
@@ -31,17 +31,16 @@ public final class Ports {
     public static final int BR_ROTATION = 11;
     public static final int BR_CANCODER = 4;
 
-    public static final int ELEVATOR_A = -1;
-    public static final int ELEVATOR_B = -1;
+    public static final int ELEVATOR_A = 32;
+    public static final int ELEVATOR_B = 36;
 
-    public static final int CLIMBER_HOOK_DRIVE = -1;
-    public static final int CLIMBER_HOOK_CANCODER = -1;
+    public static final int CLIMBER_HOOK_DRIVE = 35;
 
-    public static final int CORAL_DRIVE = -1;
-    public static final int CORAL_BEAM_BREAK = -1; // maybe one more?
+    public static final int CORAL_DRIVE = 30;
+    public static final int CORAL_BEAM_BREAK = -1;  // 8 or 9
 
-    public static final int ALGAE_DRIVE = -1;
-    public static final int ALGAE_ANGLE = -1;
-    public static final int ALGAE_CANCODER = -1;
-    public static final int ALGAE_BEAMBREAK = -1;
+    public static final int ALGAE_DRIVE = 31;
+    public static final int ALGAE_ANGLE = 34;
+    public static final int ALGAE_CANCODER = 33;
+    public static final int ALGAE_BEAMBREAK = -1;  // 8 or 9
 }
