@@ -306,7 +306,7 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double gearRatio = 39/12.;
+        public static final double gearRatio = 59./12;
 
         public static final double extraGroundIntakeRotations = 2;
         public static final double groundIntakeSpeed = 10;
@@ -320,8 +320,8 @@ public class Constants {
         public static final double extraBargeUnloadRotations = 10;
         public static final double bargeUnloadSpeed = 10;
 
-        public static final double cancoderOffset = 0; // Set the cancoder offset to its reading in degrees
-                                                       // at exactly horizontal
+        public static final double cancoderOffset = 85.294471; // Set the cancoder offset to its reading in degrees
+                                                               // at exactly horizontal
         // Angles in degrees from horizontal
         // TODO - values are placeholders; fix 'em
         public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
@@ -339,23 +339,23 @@ public class Constants {
         );
 
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
-            .withCurrentLimits(new CurrentLimitsConfigs()
-                .withSupplyCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(20)
-                .withSupplyCurrentLowerLimit(10)
-                .withSupplyCurrentLowerTime(0.1))
-            .withSlot0(new Slot0Configs()
-                .withKP(0.6)
-                .withKI(0.0)
-                .withKD(0.0)
-                .withKV(0.0))
-            .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(140)
-                .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+            // .withCurrentLimits(new CurrentLimitsConfigs()
+            //     .withSupplyCurrentLimitEnable(true)
+            //     .withSupplyCurrentLimit(20)
+            //     .withSupplyCurrentLowerLimit(10)
+            //     .withSupplyCurrentLowerTime(0.1))
+            // .withSlot0(new Slot0Configs()
+            //     .withKP(0.6)
+            //     .withKI(0.0)
+            //     .withKD(0.0)
+            //     .withKV(0.0))
+            // .withMotionMagic(new MotionMagicConfigs()
+            //     .withMotionMagicCruiseVelocity(140)
+            //     .withMotionMagicExpo_kA(0.3)
+            //     .withMotionMagicAcceleration(300))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.CounterClockwise_Positive));
+                .withInverted(InvertedValue.Clockwise_Positive));
 
         public static TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
@@ -374,12 +374,12 @@ public class Constants {
                 .withMotionMagicAcceleration(300))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.CounterClockwise_Positive));
+                .withInverted(InvertedValue.Clockwise_Positive));
 
         public static final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
             .withMagnetSensor(new MagnetSensorConfigs()
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
-                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+                .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
     }
 
     public static final class ControllerConstants {

@@ -58,11 +58,11 @@ public class RobotContainer {
         );
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
-        climberHook = ClimberHook.getInstance();
-        SmartDashboard.putData(climberHook);
-        new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(
-            new InstantCommand(climberHook::toggleTarget, climberHook)
-        );
+        // climberHook = ClimberHook.getInstance();
+        // SmartDashboard.putData(climberHook);
+        // new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(
+        //     new InstantCommand(climberHook::toggleTarget, climberHook)
+        // );
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();

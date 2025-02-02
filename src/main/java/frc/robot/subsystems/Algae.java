@@ -70,8 +70,8 @@ public class Algae extends SubsystemBase {
     }
 
     private Algae() {
-        AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
-        AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        mCANcoder = new CANcoder(Ports.ALGAE_CANCODER, Ports.CANBUS_OPS);
+        mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
 
         mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
         mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig);
@@ -81,8 +81,8 @@ public class Algae extends SubsystemBase {
 
         mBeamBreak = new DigitalInput(Ports.ALGAE_BEAMBREAK);
 
-        mCANcoder = new CANcoder(Ports.ALGAE_CANCODER, Ports.CANBUS_OPS);
-        mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
+        AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
+        AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     }
 
     public void disable() {
@@ -90,7 +90,7 @@ public class Algae extends SubsystemBase {
     }
 
     public void setAngleSetpoint(double angle) {
-        mPeriodicIO.C_demand = (angle - AlgaeConstants.cancoderOffset)/360.;
+        mPeriodicIO.C_demand = (AlgaeConstants.gearRatio)*(angle - AlgaeConstants.cancoderOffset)/360.;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
         mDriveMotor.setControl(new Follower(Ports.ALGAE_ANGLE, true));
         mAngleMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.C_demand));
@@ -151,8 +151,8 @@ public class Algae extends SubsystemBase {
         // Outputs
         public double C_demand = 0;
         public double D_demand = 0;
-        public PositionState requestedPosition = PositionState.UP;
-        public Position targetPosition = Position.STOW_UP;
+        public PositionState requestedPosition = PositionState.DOWN;
+        public Position targetPosition = Position.STOW_DOWN;
         public double targetSpeed = 0;
         public DriveState driveState = DriveState.IDLE;
         public long stopTime;
