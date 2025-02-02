@@ -18,11 +18,10 @@ import frc.robot.lib.Util;
 import frc.robot.lib.Util.Conversions;
 
 public class SwerveModule extends SubsystemBase {
-
     private mPeriodicIO mPeriodicIO = new mPeriodicIO();
 
     private final int kModuleNumber;
-    private final String name;
+    public final String name;
     private final double kAngleOffset;
 
     private TalonFX mAngleMotor;

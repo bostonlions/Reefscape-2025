@@ -121,8 +121,8 @@ public class Elevator extends SubsystemBase {
 
         // Outputs
         private double demand;
-        private Position targetPosition;
-        private double targetHeight;
+        private Position targetPosition = Position.MIN;
+        private double targetHeight = 0.;
         private double manualTargetHeight = heights.get(positionOrder.get(0));
     }
 

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.CustomXboxController.Button;
+import frc.robot.lib.swerve.SwerveModule;
 
 /**
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
@@ -34,7 +35,7 @@ public class RobotContainer {
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);
-        for (int i = 0; i<=3; i++) SmartDashboard.putData(drive.mModules[i]);
+        for (SwerveModule sm: drive.mModules) SmartDashboard.putData("SwerveModule_" + sm.name, sm);
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(controller.getSwerveTranslation(), controller.getSwerveRotation()),
@@ -46,10 +47,10 @@ public class RobotContainer {
         elevator = Elevator.getInstance();
         SmartDashboard.putData(elevator);
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(
-            new FunctionalCommand(elevator::stepDown, null, null, elevator::doneMoving, elevator)
+            new FunctionalCommand(elevator::stepDown, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(
-            new FunctionalCommand(elevator::stepUp, null, null, elevator::doneMoving, elevator)
+            new FunctionalCommand(elevator::stepUp, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(
             new InstantCommand(elevator::markMin, elevator)

@@ -4,7 +4,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+// import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -43,21 +45,23 @@ public class Coral extends SubsystemBase {
         mMotor.setNeutralMode(mode);
     }
 
-    public void setSetpointMotionMagic(double speed) {
-        mPeriodicIO.demand = speed * CoralConstants.gearRatio;
-        mMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.demand));
+    public void setSetpoint(double speed) {
+        mPeriodicIO.demand = speed; // * CoralConstants.gearRatio;
+        // mMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.demand));
+        if (speed == 0) mMotor.setControl(new NeutralOut());
+        else mMotor.setControl(new DutyCycleOut(speed));
     }
 
     /** To start or interrupt a load or unload upon a button push */
     public void activateCoral() {
         if (mPeriodicIO.state == State.IDLE) {
-            setSetpointMotionMagic(CoralConstants.loadSpeed);
+            setSetpoint(CoralConstants.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
         } else if (mPeriodicIO.state == State.LOADED) {
-            setSetpointMotionMagic(CoralConstants.unloadSpeed);
+            setSetpoint(CoralConstants.unloadSpeed);
             mPeriodicIO.state = State.UNLOADING_WITH_CORAL;
         } else {
-            setSetpointMotionMagic(0);
+            setSetpoint(0);
             mPeriodicIO.state = mBeamBreak.get() ? State.LOADED : State.IDLE;
         }
     }
@@ -103,7 +107,7 @@ public class Coral extends SubsystemBase {
                 if (CoralConstants.extraLoadRotations > 0) break; // we wanna check the
             case LOADING_WITH_CORAL:                              // next case without waiting for next periodic loop just if no wait time after the load
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
-                    setSetpointMotionMagic(0);
+                    setSetpoint(0);
                     mPeriodicIO.state = State.LOADED;
                 } break;
             case UNLOADING_WITH_CORAL:
@@ -115,7 +119,7 @@ public class Coral extends SubsystemBase {
                 if (CoralConstants.extraUnloadRotations > 0) break;
             case UNLOADING_NO_CORAL:
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
-                    setSetpointMotionMagic(0);
+                    setSetpoint(0);
                     mPeriodicIO.state = State.IDLE;
                 } break;
         }
