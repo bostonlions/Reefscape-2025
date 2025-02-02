@@ -74,13 +74,13 @@ public class RobotContainer {
         algae = Algae.getInstance();
         SmartDashboard.putData(algae);
         new Trigger(() -> controller.operator.getButton(Button.A)).onTrue(
-            new InstantCommand(() -> algae.request(Algae.RequestState.DOWN), algae)
+            new InstantCommand(() -> algae.setPosition(Algae.PositionState.DOWN), algae)
         );
         new Trigger(() -> controller.operator.getButton(Button.Y)).onTrue(
-            new InstantCommand(() -> algae.request(Algae.RequestState.UP), algae)
+            new InstantCommand(() -> algae.setPosition(Algae.PositionState.UP), algae)
         );
         new Trigger(() -> controller.operator.getButton(Button.B)).onTrue(
-            new InstantCommand(() -> algae.request(Algae.RequestState.RELEASE), algae)
+            new InstantCommand(algae :: toggleDrive, algae)
         );
     }
 

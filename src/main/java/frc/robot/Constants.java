@@ -318,13 +318,16 @@ public class Constants {
                                                        // at exactly horizontal
         // Angles in degrees from horizontal
         // TODO - values are placeholders; fix 'em
-        public enum Position { MIN, STOW, PROCESSOR, GROUND_INTAKE, REEF, BARGE, MAX }
+        public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
         public static final Map<Position, Double> angles = Map.ofEntries(
             entry(Position.MIN, -100.),
-            entry(Position.STOW, -90.),
-            entry(Position.PROCESSOR, -75.),
+            entry(Position.STOW_DOWN, -90.),
             entry(Position.GROUND_INTAKE, -70.),
+            entry(Position.LOADED_DOWN, -80.),
+            entry(Position.PROCESSOR, -75.),
+            entry(Position.STOW_UP, 100.),
             entry(Position.REEF, 90.),
+            entry(Position.LOADED_UP, 95.),
             entry(Position.BARGE, 90.),
             entry(Position.MAX, 120.)
         );
