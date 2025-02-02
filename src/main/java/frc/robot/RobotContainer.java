@@ -27,6 +27,7 @@ public class RobotContainer {
     private Elevator elevator;
     private ClimberHook climberHook;
     private Coral coral;
+    private Algae algae;
 
     public RobotContainer() {
         controller = ControlBoard.getInstance();
@@ -58,7 +59,7 @@ public class RobotContainer {
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
         SmartDashboard.putData(climberHook);
-        new Trigger(() -> controller.operator.getButton(Button.Y)).onTrue(
+        new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(
             new InstantCommand(climberHook::toggleTarget, climberHook)
         );
 
@@ -67,6 +68,19 @@ public class RobotContainer {
         SmartDashboard.putData(coral);
         new Trigger(() -> controller.operator.getButton(Button.X)).onTrue(
             new InstantCommand(coral::activateCoral, coral)
+        );
+
+        /* ALGAE SUBSYSTEM AND COMMANDS */
+        algae = Algae.getInstance();
+        SmartDashboard.putData(algae);
+        new Trigger(() -> controller.operator.getButton(Button.A)).onTrue(
+            new InstantCommand(() -> algae.request(Algae.RequestState.DOWN), algae)
+        );
+        new Trigger(() -> controller.operator.getButton(Button.Y)).onTrue(
+            new InstantCommand(() -> algae.request(Algae.RequestState.UP), algae)
+        );
+        new Trigger(() -> controller.operator.getButton(Button.B)).onTrue(
+            new InstantCommand(() -> algae.request(Algae.RequestState.RELEASE), algae)
         );
     }
 
