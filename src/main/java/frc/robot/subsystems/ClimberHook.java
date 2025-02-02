@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -26,14 +28,22 @@ public class ClimberHook extends SubsystemBase {
 
     private ClimberHook() {
         mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_OPS);
-        mMotor.getConfigurator().apply(ClimberHookConstants.motorConfig);
+        setConfig(ClimberHookConstants.motorConfig);
 
         setWantNeutralBrake(true);
-        mMotor.setPosition(0);
+        setZero();
+    }
+
+    private void setConfig(TalonFXConfiguration config) {
+        mMotor.getConfigurator().apply(config);
     }
 
     public void disable() {
         // TODO
+    }
+
+    public void setZero() {
+        mMotor.setPosition(0);
     }
 
     public void setWantNeutralBrake(boolean brake) {
@@ -42,12 +52,16 @@ public class ClimberHook extends SubsystemBase {
     }
 
     public void setSetpointMotionMagic(double degrees) {
-        double rotationDemand = Conversions.degreesToRotation(degrees, ClimberHookConstants.gearRatio);
-        mPeriodicIO.demand = rotationDemand;
+        mPeriodicIO.demand = Conversions.degreesToRotation(degrees, ClimberHookConstants.gearRatio);
+        mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
     }
 
     public void setTarget(Position p) {
         mPeriodicIO.targetExtension = p == Position.MANUAL ? mPeriodicIO.manualTargetExtension : extensions.get(p);
+        ClimberHookConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = (
+            p == Position.OUT ? ClimberHookConstants.fastSpeed : ClimberHookConstants.slowSpeed
+        );
+        setConfig(ClimberHookConstants.motorConfig);
         setWantNeutralBrake(true);
         setSetpointMotionMagic(mPeriodicIO.targetExtension);
     }
@@ -81,8 +95,9 @@ public class ClimberHook extends SubsystemBase {
 
     @Override
     public void periodic() {
-        mPeriodicIO.extension = mMotor.getRotorPosition().getValue().in(Units.Degrees) /
-            ClimberHookConstants.gearRatio;
+        mPeriodicIO.extension = Conversions.rotationsToDegrees(
+            mMotor.getRotorPosition().getValueAsDouble(), ClimberHookConstants.gearRatio
+        );
         mPeriodicIO.current = mMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
         mPeriodicIO.velocity = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) /
@@ -122,6 +137,7 @@ public class ClimberHook extends SubsystemBase {
         builder.addBooleanProperty("Climberhook Toggle", () -> false, (v) -> {if(v) toggleTarget();});
         builder.addDoubleProperty("ClimberHook Manual Target", () -> mPeriodicIO.manualTargetExtension, (v) -> {mPeriodicIO.manualTargetExtension = v;});
         builder.addBooleanProperty("ClimberHook Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
+        builder.addBooleanProperty("ClimberHook Set Zero", () -> false, (v) -> {if(v) setZero();});
         builder.setSafeState(this::disable);
         builder.setActuator(true);
     }

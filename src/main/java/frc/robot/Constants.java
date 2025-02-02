@@ -59,8 +59,10 @@ public class Constants {
         public static final double angleGearRatio = 150./7; // 21.4285714
 
         /* Swerve Profiling Values */
-        public static final double maxSpeed = 4.8; // meters per second MAX : 5.02 m/s
-        public static final double maxAngularVelocity = 8.0;
+        public static final double maxSpeed = 2.; // was 4.8. meters per second MAX : 5.02 m/s
+        public static final double maxAccel = 1.;
+        public static final double maxAngularVelocity = 2.; //was 8.0
+        public static final double maxAngularAccel = 1.;
 
         // Max out at 85% to make sure speeds are attainable (4.6 mps)
         public static final double maxAttainableSpeed = maxSpeed * 0.85;
@@ -126,7 +128,8 @@ public class Constants {
         }
 
         public static final KinematicLimits kUncappedLimits = new KinematicLimits(
-            maxSpeed, Double.MAX_VALUE, maxAngularVelocity, Double.MAX_VALUE
+            // maxSpeed, Double.MAX_VALUE, maxAngularVelocity, Double.MAX_VALUE
+            maxSpeed, maxAccel, maxAngularVelocity, maxAngularAccel
         );
 
         // public static final KinematicLimits kScoringLimits = new KinematicLimits(
@@ -148,10 +151,10 @@ public class Constants {
         // - Make sure all the wheels are in line, then record canCoder offset values (in degrees)
         //   from shuffleboard
 
-        public static final double FL_AngleOffset = 0.931641*360;
-        public static final double FR_AngleOffset = 0.248535*360;
-        public static final double BL_AngleOffset = 0.531494*360;
-        public static final double BR_AngleOffset = 0.203125*360;
+        public static final double FL_AngleOffset = 335.3027;
+        public static final double FR_AngleOffset = 89.1211;
+        public static final double BL_AngleOffset = 191.3379;
+        public static final double BR_AngleOffset = 73.2129;
     }
 
     // For DriveMotionPlanner - what is snap?
@@ -193,7 +196,7 @@ public class Constants {
     /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class ElevatorConstants {
-        public static final double gearRatio = 12;
+        public static final double gearRatio = 9.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Conversions.inchesToMeters(0.25);
         public static final double limitTorque = 30;
@@ -205,15 +208,15 @@ public class Constants {
         public enum Position { MIN, LOAD, PROCESSOR, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.),
-            entry(Position.LOAD, 0.01),
+            entry(Position.LOAD, 0.001),
             entry(Position.PROCESSOR, 0.01),
             entry(Position.L1, 0.01),
             entry(Position.L2, 0.2),
             entry(Position.L3, 0.5),
-            entry(Position.L4, 1.1),
-            entry(Position.BARGE, 1.3),
-            entry(Position.MAX, 1.31),
-            entry(Position.MANUAL, null) // not targeting a set position, controlled manually from Shuffleboard
+            entry(Position.L4, 1.3),
+            entry(Position.BARGE, 1.43),
+            entry(Position.MAX, 1.431),
+            entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
         );
         // These are the positions you can access with step up and down
         public static final List<Position> positionOrder = List.of(
@@ -232,19 +235,22 @@ public class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(140)
+                .withMotionMagicCruiseVelocity(14)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+                .withMotionMagicAcceleration(30))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
     }
 
     public static final class ClimberHookConstants {
-        public static final double gearRatio = 4.6;
-        public static final double limitTorque = 30;
+        public static final double gearRatio = 4.6*25;
+        public static final double limitTorque = 100.;
         public static final double limitVelocity = 0.1;
         public static final double extensionTolerance = 0.5;
+
+        public static final double fastSpeed = 100;
+        public static final double slowSpeed = 10;
 
         public enum Position { MIN, IN, OUT, MAX, MANUAL }
         public static final Map<Position, Double> extensions = Map.ofEntries(
@@ -258,8 +264,8 @@ public class Constants {
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
                 .withSupplyCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(20)
-                .withSupplyCurrentLowerLimit(10)
+                .withSupplyCurrentLimit(40)
+                .withSupplyCurrentLowerLimit(30)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
                 .withKP(0.6)
@@ -277,10 +283,10 @@ public class Constants {
 
     public static final class CoralConstants {
         public static final double gearRatio = 4;
-        public static final double loadSpeed = 10;
-        public static final double extraLoadRotations = 2;
-        public static final double unloadSpeed = 8;
-        public static final double extraUnloadRotations = 3;
+        public static final double loadSpeed = 0.5;
+        public static final double extraLoadRotations = 0;
+        public static final double unloadSpeed = 0.5;
+        public static final double extraUnloadRotations = 0;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
