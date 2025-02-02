@@ -430,6 +430,10 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Pose X", () -> getPose().getX(), null);
         builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
         builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getDegrees(), null);
+        builder.addDoubleProperty("Velocity Limit m/s", () -> mKinematicLimits.kMaxDriveVelocity, (v) -> mKinematicLimits.kMaxDriveVelocity = v);
+        builder.addDoubleProperty("Omega Limit rad/s", () -> mKinematicLimits.kMaxAngularVelocity, (v) -> mKinematicLimits.kMaxAngularVelocity = v);
+        builder.addDoubleProperty("Acceleration Limit m/s2", () -> mKinematicLimits.kMaxAccel, (v) -> mKinematicLimits.kMaxAccel = v);
+        builder.addDoubleProperty("Angular Accel. Limit rad/s2", () -> mKinematicLimits.kMaxAngularAccel, (v) -> mKinematicLimits.kMaxAngularAccel = v);
         builder.setActuator(true);
         builder.setSafeState(this::stopModules);
     }
