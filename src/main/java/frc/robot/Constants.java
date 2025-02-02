@@ -29,12 +29,9 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.lib.Util.Conversions;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
+ * The Constants class provides a convenient place for teams to hold robot-wide constants.
+ * This class should not be used for any other purpose. All constants should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
- * constants are needed, to reduce verbosity.
  */
 
 public class Constants {
@@ -309,26 +306,34 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double angleGearRatio = 45;
-        public static final double driveGearRatio = 4;
+        public static final double gearRatio = 39/12.;
 
-        public static final double groundIntakeDemand = 0.5;
-        public static final double reefIntakeDemand = 0.5;
-        public static final double processorReleaseDemand = 0.5;
-        public static final double bargeReleaseDemand = -0.5;
+        public static final double extraGroundIntakeRotations = 2;
+        public static final double groundIntakeSpeed = 10;
 
-        // Set the cancoder offset to its reading in degrees at exactly horizontal
-        public static final double cancoderOffset = 0;
+        public static final double extraReefIntakeRotations = 2;
+        public static final double reefIntakeSpeed = 10;
 
-        // Angles - in degrees from horizontal
-        // TODO - values are placeholders
-        public enum Position { MIN, STOW, PROCESSOR, GROUND_INTAKE, REEF, BARGE, MAX }
-        public static final Map<Position, Double> extensions = Map.ofEntries(
+        public static final double extraProcessorUnloadRotations = 10;
+        public static final double processorUnloadSpeed = 10;
+
+        public static final double extraBargeUnloadRotations = 10;
+        public static final double bargeUnloadSpeed = 10;
+
+        public static final double cancoderOffset = 0; // Set the cancoder offset to its reading in degrees
+                                                       // at exactly horizontal
+        // Angles in degrees from horizontal
+        // TODO - values are placeholders; fix 'em
+        public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
+        public static final Map<Position, Double> angles = Map.ofEntries(
             entry(Position.MIN, -100.),
-            entry(Position.STOW, -90.),
-            entry(Position.PROCESSOR, -75.),
+            entry(Position.STOW_DOWN, -90.),
             entry(Position.GROUND_INTAKE, -70.),
+            entry(Position.LOADED_DOWN, -80.),
+            entry(Position.PROCESSOR, -75.),
+            entry(Position.STOW_UP, 100.),
             entry(Position.REEF, 90.),
+            entry(Position.LOADED_UP, 95.),
             entry(Position.BARGE, 90.),
             entry(Position.MAX, 120.)
         );

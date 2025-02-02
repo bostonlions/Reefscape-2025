@@ -104,8 +104,9 @@ public class Coral extends SubsystemBase {
                         (CoralConstants.extraLoadRotations / CoralConstants.loadSpeed));
                     mPeriodicIO.state = State.LOADING_WITH_CORAL;
                 }
-                if (CoralConstants.extraLoadRotations > 0) break; // we wanna check the
-            case LOADING_WITH_CORAL:                              // next case without waiting for next periodic loop just if no wait time after the load
+                if (CoralConstants.extraLoadRotations > 0) break; // we wanna check the next case without
+                // waiting for next periodic loop, just if no wait time after the load
+            case LOADING_WITH_CORAL:
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     setSetpoint(0);
                     mPeriodicIO.state = State.LOADED;
