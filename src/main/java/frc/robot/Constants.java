@@ -249,7 +249,7 @@ public class Constants {
         public static final double limitVelocity = 0.1;
         public static final double extensionTolerance = 0.5;
 
-        public static final double fastSpeed = 100; //test
+        public static final double fastSpeed = 100;
         public static final double slowSpeed = 10;
 
         public enum Position { MIN, IN, OUT, MAX, MANUAL }
