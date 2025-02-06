@@ -57,8 +57,8 @@ public class Coral extends SubsystemBase {
         // For testing just start if running until disabled
         //setSetpoint(CoralConstants.loadSpeed);
         System.out.println("activateCoral - mPeriodicIO.state: " + mPeriodicIO.state); // a helpful tool for debugging
-        
-         
+
+
         if (mPeriodicIO.state == State.IDLE) {
             setSetpoint(CoralConstants.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
@@ -69,7 +69,7 @@ public class Coral extends SubsystemBase {
             setSetpoint(0);
             mPeriodicIO.state = mBeamBreak.get() ? State.LOADED : State.IDLE;
         }
-        
+
     }
 
     public double getAngleDeg() {
@@ -105,43 +105,45 @@ public class Coral extends SubsystemBase {
                 break;
 
             case LOADING_NO_CORAL:
-
-            System.out.println("periodic - mBeamBreak: " + mBeamBreak.get());
+                System.out.println("periodic - mBeamBreak: " + mBeamBreak.get());
 
                 if (mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (CoralConstants.extraLoadRotations / CoralConstants.loadSpeed));
                     mPeriodicIO.state = State.LOADING_WITH_CORAL;
                 }
+
                 System.out.println("LOADING_NO_CORAL - mPeriodicIO.stopTime: " + mPeriodicIO.stopTime);
                 System.out.println("LOADING_NO_CORAL - CoralConstants.extraLoadRotations: " + CoralConstants.extraLoadRotations);
                 System.out.println("LOADING_NO_CORAL - CoralConstants.loadSpeed: " + CoralConstants.loadSpeed);
-                //break;
 
                 if (CoralConstants.extraLoadRotations > 0) break; // we wanna check the next case without
                 // waiting for next periodic loop, just if no wait time after the load
             case LOADING_WITH_CORAL:
-            System.out.println("LOADING_WITH_CORAL - mPeriodicIO.stopTime: " + mPeriodicIO.stopTime);
-            System.out.println("LOADING_WITH_CORAL - System.currentTimeMillis(): " + System.currentTimeMillis());
+                System.out.println("LOADING_WITH_CORAL - mPeriodicIO.stopTime: " + mPeriodicIO.stopTime);
+                System.out.println("LOADING_WITH_CORAL - System.currentTimeMillis(): " + System.currentTimeMillis());
 
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     setSetpoint(0);
                     mPeriodicIO.state = State.LOADED;
-                } break;
+                }
+                break;
             case UNLOADING_WITH_CORAL:
-            System.out.println("UNLOADING_WITH_CORAL periodic - mBeamBreak: " + mBeamBreak.get());
+                System.out.println("UNLOADING_WITH_CORAL periodic - mBeamBreak: " + mBeamBreak.get());
 
                 if (!mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (CoralConstants.extraUnloadRotations / CoralConstants.unloadSpeed));
                     mPeriodicIO.state = State.UNLOADING_NO_CORAL;
                 }
-                if (CoralConstants.extraUnloadRotations > 0) break;
+                if (CoralConstants.extraUnloadRotations > 0) break; // we wanna check the next case without
+                // waiting for next periodic loop, just if no wait time after the unload
             case UNLOADING_NO_CORAL:
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     setSetpoint(0);
                     mPeriodicIO.state = State.IDLE;
-                } break;
+                }
+                break;
         }
 
         mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / CoralConstants.gearRatio;
