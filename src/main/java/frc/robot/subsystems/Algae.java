@@ -6,6 +6,7 @@ import static java.util.Map.entry;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.controls.Follower;
@@ -161,6 +162,7 @@ public class Algae extends SubsystemBase {
 
     @Override
     public void periodic() {
+
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
         switch (mPeriodicIO.driveState) {
             case INTAKE_NO_ALGAE:
@@ -240,6 +242,8 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Drive motor voltage", () -> mPeriodicIO.D_output_voltage, null);
         builder.addDoubleProperty("Drive motor speed", () -> mPeriodicIO.D_velocity_rps, null);
         builder.addDoubleProperty("Drive motor demand", () -> mPeriodicIO.D_demand, null);
+        // Would love to be able to display this (see SwerveModuke.java)
+        //builder.addDoubleProperty(" CANCODER Position", () -> mCANcoder.getCanCoder(), null);
         builder.addStringProperty("Target PositionState", () -> mPeriodicIO.requestedPosition.toString(), null);
         builder.addStringProperty("Target DriveState", () -> mPeriodicIO.driveState.toString(), null);
         builder.addStringProperty("Target Position", () -> mPeriodicIO.targetPosition.toString(), null);
@@ -250,5 +254,6 @@ public class Algae extends SubsystemBase {
         builder.addBooleanProperty("Manual Go", () -> false, (v) -> {if (v) setAngleSetpoint(mPeriodicIO.manualAngle); });
         builder.setSafeState(this::disable);
         builder.setActuator(true);
+        //mCANcoder.getPosition()
     }
 }

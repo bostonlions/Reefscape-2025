@@ -56,9 +56,9 @@ public class Constants {
         public static final double angleGearRatio = 150./7; // 21.4285714
 
         /* Swerve Profiling Values */
-        public static final double maxSpeed = 2.; // was 4.8. meters per second MAX : 5.02 m/s
+        public static final double maxSpeed = 4.8; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
         public static final double maxAccel = 1.;
-        public static final double maxAngularVelocity = 2.; //was 8.0
+        public static final double maxAngularVelocity = 8.0; //was 8.0 toggled to 2.0
         public static final double maxAngularAccel = 1.;
 
         // Max out at 85% to make sure speeds are attainable (4.6 mps)
@@ -281,9 +281,9 @@ public class Constants {
     public static final class CoralConstants {
         public static final double gearRatio = 4;
         public static final double loadSpeed = 0.5;
-        public static final double extraLoadRotations = 0;
+        public static final double extraLoadRotations = 0.01; // if this is 0 we never break from case statement
         public static final double unloadSpeed = 0.5;
-        public static final double extraUnloadRotations = 0;
+        public static final double extraUnloadRotations = 0.1;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
@@ -383,6 +383,10 @@ public class Constants {
     }
 
     public static final class ControllerConstants {
+        // Max says trimming joystick input by a percent is the best way to limit speed
+        // that way the autonomous system doesn't get messed up
+        public static final double kInputClippingPercent = 0.3; // set to 1 for  100% of joystick range
+
         public static final double kTriggerThreshold = 0.2;
 
         public static final double stickDeadband = 0.05;
