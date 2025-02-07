@@ -29,12 +29,9 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.lib.Util.Conversions;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
+ * The Constants class provides a convenient place for teams to hold robot-wide constants.
+ * This class should not be used for any other purpose. All constants should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
- * constants are needed, to reduce verbosity.
  */
 
 public class Constants {
@@ -59,9 +56,9 @@ public class Constants {
         public static final double angleGearRatio = 150./7; // 21.4285714
 
         /* Swerve Profiling Values */
-        public static final double maxSpeed = 2.; // was 4.8. meters per second MAX : 5.02 m/s
+        public static final double maxSpeed = 4.8; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
         public static final double maxAccel = 1.;
-        public static final double maxAngularVelocity = 2.; //was 8.0
+        public static final double maxAngularVelocity = 8.0; //was 8.0 toggled to 2.0
         public static final double maxAngularAccel = 1.;
 
         // Max out at 85% to make sure speeds are attainable (4.6 mps)
@@ -210,10 +207,10 @@ public class Constants {
             entry(Position.MIN, 0.),
             entry(Position.LOAD, 0.001),
             entry(Position.PROCESSOR, 0.01),
-            entry(Position.L1, 0.01),
-            entry(Position.L2, 0.2),
-            entry(Position.L3, 0.5),
-            entry(Position.L4, 1.3),
+            entry(Position.L1, 0.06),
+            entry(Position.L2, 0.32),
+            entry(Position.L3, 0.725),
+            entry(Position.L4, 1.4),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
@@ -284,9 +281,9 @@ public class Constants {
     public static final class CoralConstants {
         public static final double gearRatio = 4;
         public static final double loadSpeed = 0.5;
-        public static final double extraLoadRotations = 0;
+        public static final double extraLoadRotations = 0.01; // if this is 0 we never break from case statement
         public static final double unloadSpeed = 0.5;
-        public static final double extraUnloadRotations = 0;
+        public static final double extraUnloadRotations = 0.1;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
@@ -309,48 +306,56 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double angleGearRatio = 45;
-        public static final double driveGearRatio = 4;
+        public static final double gearRatio = 59./12;
 
-        public static final double groundIntakeDemand = 0.5;
-        public static final double reefIntakeDemand = 0.5;
-        public static final double processorReleaseDemand = 0.5;
-        public static final double bargeReleaseDemand = -0.5;
+        public static final double extraGroundIntakeRotations = 2;
+        public static final double groundIntakeSpeed = 10;
 
-        // Set the cancoder offset to its reading in degrees at exactly horizontal
-        public static final double cancoderOffset = 0;
+        public static final double extraReefIntakeRotations = 2;
+        public static final double reefIntakeSpeed = 10;
 
-        // Angles - in degrees from horizontal
-        // TODO - values are placeholders
-        public enum Position { MIN, STOW, PROCESSOR, GROUND_INTAKE, REEF, BARGE, MAX }
-        public static final Map<Position, Double> extensions = Map.ofEntries(
+        public static final double extraProcessorUnloadRotations = 10;
+        public static final double processorUnloadSpeed = 10;
+
+        public static final double extraBargeUnloadRotations = 10;
+        public static final double bargeUnloadSpeed = 10;
+
+        public static final double cancoderOffset = 85.294471; // Set the cancoder offset to its reading in degrees
+                                                               // at exactly horizontal
+        // Angles in degrees from horizontal
+        // TODO - values are placeholders; fix 'em
+        public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
+        public static final Map<Position, Double> angles = Map.ofEntries(
             entry(Position.MIN, -100.),
-            entry(Position.STOW, -90.),
-            entry(Position.PROCESSOR, -75.),
+            entry(Position.STOW_DOWN, -90.),
             entry(Position.GROUND_INTAKE, -70.),
+            entry(Position.LOADED_DOWN, -80.),
+            entry(Position.PROCESSOR, -75.),
+            entry(Position.STOW_UP, 100.),
             entry(Position.REEF, 90.),
+            entry(Position.LOADED_UP, 95.),
             entry(Position.BARGE, 90.),
             entry(Position.MAX, 120.)
         );
 
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
-            .withCurrentLimits(new CurrentLimitsConfigs()
-                .withSupplyCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(20)
-                .withSupplyCurrentLowerLimit(10)
-                .withSupplyCurrentLowerTime(0.1))
-            .withSlot0(new Slot0Configs()
-                .withKP(0.6)
-                .withKI(0.0)
-                .withKD(0.0)
-                .withKV(0.0))
-            .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(140)
-                .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+            // .withCurrentLimits(new CurrentLimitsConfigs()
+            //     .withSupplyCurrentLimitEnable(true)
+            //     .withSupplyCurrentLimit(20)
+            //     .withSupplyCurrentLowerLimit(10)
+            //     .withSupplyCurrentLowerTime(0.1))
+            // .withSlot0(new Slot0Configs()
+            //     .withKP(0.6)
+            //     .withKI(0.0)
+            //     .withKD(0.0)
+            //     .withKV(0.0))
+            // .withMotionMagic(new MotionMagicConfigs()
+            //     .withMotionMagicCruiseVelocity(140)
+            //     .withMotionMagicExpo_kA(0.3)
+            //     .withMotionMagicAcceleration(300))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.CounterClockwise_Positive));
+                .withInverted(InvertedValue.Clockwise_Positive));
 
         public static TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
@@ -369,15 +374,19 @@ public class Constants {
                 .withMotionMagicAcceleration(300))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.CounterClockwise_Positive));
+                .withInverted(InvertedValue.Clockwise_Positive));
 
         public static final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
             .withMagnetSensor(new MagnetSensorConfigs()
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
-                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+                .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
     }
 
     public static final class ControllerConstants {
+        // Max says trimming joystick input by a percent is the best way to limit speed
+        // that way the autonomous system doesn't get messed up
+        public static final double kInputClippingPercent = 0.3; // set to 1 for  100% of joystick range
+
         public static final double kTriggerThreshold = 0.2;
 
         public static final double stickDeadband = 0.05;

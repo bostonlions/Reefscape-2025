@@ -70,6 +70,8 @@ public class Drive extends SubsystemBase {
         mOdometry = new SwerveDriveOdometry(kKinematics, getModuleStates());
         mMotionPlanner = new DriveMotionPlanner();
 
+        setNeutralBrake(true);
+
         mPigeon.setYaw(0.0);
     }
 

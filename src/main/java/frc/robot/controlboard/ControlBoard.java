@@ -54,6 +54,10 @@ public class ControlBoard {
             strafeAxis = getRightYaw();
         }
 
+        // Max suggested best speed control is just to limit throttle range
+        forwardAxis = forwardAxis * ControllerConstants.kInputClippingPercent;
+        strafeAxis = strafeAxis * ControllerConstants.kInputClippingPercent;
+
         SmartDashboard.putNumber("Raw Y", forwardAxis);
         SmartDashboard.putNumber("Raw X", strafeAxis);
 
@@ -79,6 +83,9 @@ public class ControlBoard {
     public double getSwerveRotation() {
         double rotAxis = ControllerConstants.isMambo ? m_driver.getRawAxis(3) : getLeftYaw();
         rotAxis = ControllerConstants.invertRAxis ? rotAxis : -rotAxis;
+
+        // Max Suggested trying this as a way to limit speeds while learning
+        rotAxis = rotAxis * ControllerConstants.kInputClippingPercent;
 
         if (Math.abs(rotAxis) < kSwerveDeadband) return 0.0;
 
