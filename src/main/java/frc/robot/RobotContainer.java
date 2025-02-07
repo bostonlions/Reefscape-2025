@@ -26,7 +26,7 @@ public class RobotContainer {
     private ControlBoard controller;
     private Drive drive;
     private Elevator elevator;
-    private ClimberHook climberHook;
+    // private ClimberHook climberHook;
     private Coral coral;
     private Algae algae;
 
