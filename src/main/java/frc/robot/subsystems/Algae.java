@@ -5,7 +5,6 @@ import static java.util.Map.entry;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.controls.Follower;
@@ -16,6 +15,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import frc.robot.Ports;
+import frc.robot.lib.drivers.BeamBreak;
 import frc.robot.lib.Util;
 import frc.robot.Constants.AlgaeConstants;
 import frc.robot.Constants.AlgaeConstants.Position;
@@ -25,7 +25,7 @@ public class Algae extends SubsystemBase {
     private static Algae mInstance;
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;
-    private DigitalInput mBeamBreak;
+    private BeamBreak mBeamBreak;
     private CANcoder mCANcoder;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     public enum PositionState { UP, DOWN }
@@ -80,7 +80,7 @@ public class Algae extends SubsystemBase {
         mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
         mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig);
 
-        mBeamBreak = new DigitalInput(Ports.ALGAE_BEAMBREAK);
+        mBeamBreak = new BeamBreak(Ports.ALGAE_BEAMBREAK);
 
         AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
         AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
@@ -252,6 +252,5 @@ public class Algae extends SubsystemBase {
         builder.addBooleanProperty("Manual Go", () -> false, (v) -> {if (v) setAngleSetpoint(mPeriodicIO.manualAngle); });
         builder.setSafeState(this::disable);
         builder.setActuator(true);
-        //mCANcoder.getPosition()
     }
 }
