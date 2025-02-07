@@ -195,9 +195,9 @@ public class SwerveModule extends SubsystemBase {
     public void setDriveNeutralBrake(boolean wantBrake) {
         if (wantBrake) {
             mDriveMotor.setNeutralMode(NeutralModeValue.Brake);
+            // TODO does this also want to be Brake?
             mAngleMotor.setNeutralMode(NeutralModeValue.Coast);
         } else {
-
             mDriveMotor.setNeutralMode(NeutralModeValue.Coast);
             // Brake angle motors when coasting drive
             mAngleMotor.setNeutralMode(NeutralModeValue.Brake);
