@@ -4,6 +4,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -30,14 +31,17 @@ public class Elevator extends SubsystemBase {
 
     private Elevator() {
         mMain = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_OPS);
-        mMain.getConfigurator().apply(ElevatorConstants.motorConfig);
-
         mFollower = new TalonFX(Ports.ELEVATOR_A, Ports.CANBUS_OPS);
-        mFollower.getConfigurator().apply(ElevatorConstants.motorConfig);
-        mFollower.setControl(new Follower(Ports.ELEVATOR_B, true));
+        setMotorConfig(ElevatorConstants.motorConfig);
 
         setNeutralBrake(false);
         mPeriodicIO.moving = false;
+    }
+
+    private void setMotorConfig(TalonFXConfiguration config) {
+        mMain.getConfigurator().apply(config);
+        mFollower.getConfigurator().apply(config);
+        mFollower.setControl(new Follower(Ports.ELEVATOR_B, true));
     }
 
     public void setNeutralBrake(boolean brake) {
@@ -139,6 +143,21 @@ public class Elevator extends SubsystemBase {
         builder.addDoubleProperty("Elevator Manual Target", () -> mPeriodicIO.manualTargetHeight, (v) -> {mPeriodicIO.manualTargetHeight = v;});
         builder.addBooleanProperty("Elevator Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
         builder.addStringProperty("Elevator State", () -> mPeriodicIO.targetPosition.toString(), null);
+        builder.addDoubleProperty(
+            "Speed limit rps",
+            () -> ElevatorConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity,
+            (v) -> {
+                ElevatorConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = v;
+                setMotorConfig(ElevatorConstants.motorConfig);
+            }
+        );
+        builder.addDoubleProperty(
+            "Accel. limit rps2",
+            () -> ElevatorConstants.motorConfig.MotionMagic.MotionMagicAcceleration,
+            (v) -> {
+                ElevatorConstants.motorConfig.MotionMagic.MotionMagicAcceleration = v;
+                setMotorConfig(ElevatorConstants.motorConfig);
+            });
         builder.setSafeState(this::disable);
         builder.setActuator(true);
     }
