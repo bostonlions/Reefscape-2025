@@ -323,8 +323,6 @@ public class Constants {
         // Set the cancoder offset to its reading in degrees at exactly horizontal
         public static final double cancoderOffset = -144.759;
         
-        // Angles in degrees from horizontal
-        // TODO - values are placeholders; fix 'em
         public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
 
         // Angles in degrees from horizontal:
