@@ -1,11 +1,7 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -163,7 +159,7 @@ public class Elevator extends SubsystemBase {
                 setMotorConfig(ElevatorConstants.motorConfig);
             });
         builder.setSafeState(this::disable);
-        builder.setActuator(true);
+        builder.setActuator(true);    
     }
 
     @Override
@@ -191,21 +187,6 @@ public class Elevator extends SubsystemBase {
         /* Have we finished moving? */
         if (mPeriodicIO.moving &&
             Util.epsilonEquals(mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance)
-        ) {
-            mPeriodicIO.moving = false;
-        }
-
-        /* Dashboard actions */
-        if (targetGo.getBoolean(false)) {
-            mPeriodicIO.manualTargetHeight = Util.limit(targetEntry.getDouble(0), heights.get(Position.MIN), heights.get(Position.MAX));
-            setTarget(Position.MANUAL);
-            targetGo.setBoolean(false);
-        }
+        ) mPeriodicIO.moving = false;
     }
-
-    private ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
-    private GenericEntry targetEntry = tab.add("Manual Target", 0)
-        .withWidget(BuiltInWidgets.kTextView)
-        .getEntry();
-    private GenericEntry targetGo = tab.add("Manual Go", false).getEntry();
 }

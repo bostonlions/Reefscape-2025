@@ -94,7 +94,7 @@ public class Algae extends SubsystemBase {
     }
 
     public void setAngleSetpoint(double angle) {
-        mPeriodicIO.C_demand = (AlgaeConstants.gearRatio)*(angle - AlgaeConstants.cancoderOffset)/360.;
+        mPeriodicIO.C_demand = /*(AlgaeConstants.gearRatio)**/(angle + AlgaeConstants.cancoderOffset)/360.;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
         mDriveMotor.setControl(new Follower(Ports.ALGAE_ANGLE, true));
         mAngleMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.C_demand));
@@ -244,7 +244,8 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Drive motor voltage", () -> mPeriodicIO.D_output_voltage, null);
         builder.addDoubleProperty("Drive motor speed", () -> mPeriodicIO.D_velocity_rps, null);
         builder.addDoubleProperty("Drive motor demand", () -> mPeriodicIO.D_demand, null);
-        builder.addDoubleProperty("CANCODER Position", () -> Util.placeIn0To360Scope(mCANcoder.getAbsolutePosition().getValueAsDouble()*360), null);
+        builder.addDoubleProperty("CANCODER Position", () -> Util.placeInAppropriate0To360Scope(0, mCANcoder.getAbsolutePosition().getValueAsDouble()*360-AlgaeConstants.cancoderOffset), null);
+        builder.addDoubleProperty("CANCODER Raw Position", () -> mCANcoder.getAbsolutePosition().getValueAsDouble()*360, null);
         builder.addStringProperty("Target PositionState", () -> mPeriodicIO.requestedPosition.toString(), null);
         builder.addStringProperty("Target DriveState", () -> mPeriodicIO.driveState.toString(), null);
         builder.addStringProperty("Target Position", () -> mPeriodicIO.targetPosition.toString(), null);

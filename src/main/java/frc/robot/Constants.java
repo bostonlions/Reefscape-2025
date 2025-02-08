@@ -308,20 +308,21 @@ public class Constants {
     public static final class AlgaeConstants {
         public static final double gearRatio = 59./12;
 
-        public static final double extraGroundIntakeRotations = 2;
-        public static final double groundIntakeSpeed = 10;
+        public static final double extraGroundIntakeRotations = 2.;
+        public static final double groundIntakeSpeed = 10.;
 
-        public static final double extraReefIntakeRotations = 2;
-        public static final double reefIntakeSpeed = 10;
+        public static final double extraReefIntakeRotations = 2.;
+        public static final double reefIntakeSpeed = 10.;
 
-        public static final double extraProcessorUnloadRotations = 10;
-        public static final double processorUnloadSpeed = 10;
+        public static final double extraProcessorUnloadRotations = 10.;
+        public static final double processorUnloadSpeed = 10.;
 
-        public static final double extraBargeUnloadRotations = 10;
-        public static final double bargeUnloadSpeed = 10;
+        public static final double extraBargeUnloadRotations = 10.;
+        public static final double bargeUnloadSpeed = 10.;
 
-        public static final double cancoderOffset = 85.294471; // Set the cancoder offset to its reading in degrees
-                                                               // at exactly horizontal
+        // Set the cancoder offset to its reading in degrees at exactly horizontal
+        public static final double cancoderOffset = -144.759;
+        
         // Angles in degrees from horizontal
         // TODO - values are placeholders; fix 'em
         public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
@@ -385,7 +386,7 @@ public class Constants {
         public static final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
             .withMagnetSensor(new MagnetSensorConfigs()
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
-                .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
     }
 
     public static final class ControllerConstants {

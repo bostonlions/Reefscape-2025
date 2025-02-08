@@ -28,6 +28,7 @@ import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public class Drive extends SubsystemBase {
     private SendableChooser<Boolean> zeroGyroChooser = new SendableChooser<Boolean>();
+
     private Pigeon mPigeon = Pigeon.getInstance();
     public SwerveModule[] mModules;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -38,14 +39,7 @@ public class Drive extends SubsystemBase {
     private SwerveConstants.KinematicLimits mKinematicLimits = SwerveConstants.kUncappedLimits;
     private SwerveDriveKinematics kKinematics;
     private static Drive mInstance;
-    public enum DriveControlState {
-        FORCE_ORIENT,
-        OPEN_LOOP,
-        HEADING_CONTROL,
-        VELOCITY,
-        PATH_FOLLOWING,
-        AUTO_BALANCE
-    }
+    public enum DriveControlState { FORCE_ORIENT, OPEN_LOOP, HEADING_CONTROL, VELOCITY, PATH_FOLLOWING, AUTO_BALANCE }
 
     public static Drive getInstance() {
         if (mInstance == null) mInstance = new Drive();
@@ -77,6 +71,7 @@ public class Drive extends SubsystemBase {
 
         mPigeon.setYaw(0.0);
 
+        /* smart dashboard choosers setup */
         zeroGyroChooser.setDefaultOption("False", Boolean.valueOf(false)); // valueOf functions as a boolean object constuctor
         zeroGyroChooser.addOption("True", Boolean.valueOf(true));
         SmartDashboard.putData("Zero Gyro", zeroGyroChooser);
@@ -238,8 +233,7 @@ public class Drive extends SubsystemBase {
                     * mKinematicLimits.kMaxDriveVelocity;
         }
 
-        ModuleState[] prev_module_states = mPeriodicIO.des_module_states.clone(); // Get last setpoint to get
-                                                                                  // differentials
+        ModuleState[] prev_module_states = mPeriodicIO.des_module_states.clone(); // Get last setpoint to get differentials
         ChassisSpeeds prev_chassis_speeds = kKinematics.toChassisSpeeds(prev_module_states);
         ModuleState[] target_module_states = kKinematics.toModuleStates(wanted_speeds);
 
@@ -295,7 +289,6 @@ public class Drive extends SubsystemBase {
 
         ModuleState[] real_module_setpoints = kKinematics.toModuleStates(wanted_speeds);
         mPeriodicIO.des_module_states = real_module_setpoints;
-
     }
 
     public void resetModulesToAbsolute() {
@@ -312,15 +305,13 @@ public class Drive extends SubsystemBase {
     }
 
     public void setNeutralBrake(boolean brake) {
-        for (SwerveModule swerveModule : mModules) swerveModule.setDriveNeutralBrake(brake);
+        for (SwerveModule sm: mModules) sm.setDriveNeutralBrake(brake);
     }
 
     // TODO: does this need to be in periodic? Or should it be in the commands?
     @Override
     public void periodic() {
-
         /* read periodic inputs */
-
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
         mPeriodicIO.meas_module_states = getModuleStates();
         mPeriodicIO.meas_chassis_speeds = kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
@@ -328,9 +319,7 @@ public class Drive extends SubsystemBase {
         mPeriodicIO.pitch = mPigeon.getPitch();
 
         /* write periodic outputs */
-
         updateSetpoint();
-
         boolean isOpenLoop = (
             mControlState == DriveControlState.OPEN_LOOP || mControlState == DriveControlState.HEADING_CONTROL
         );
@@ -345,16 +334,14 @@ public class Drive extends SubsystemBase {
         }
 
         /* read and write module periodic io */
-        for (SwerveModule mod : mModules) mod.periodic();
+        for (SwerveModule mod: mModules) mod.periodic();
 
-        /* read zero gyro option from dashboard and zero gyro if option is true */
-        if (zeroGyroChooser.getSelected()) mPeriodicIO.zeroRequested = true; else mPeriodicIO.zeroRequested = false;
-        if (mPeriodicIO.zeroRequested) zeroGyro();
+        if (zeroGyroChooser.getSelected()) zeroGyro(); // zero gyro if requested
     }
 
     public ModuleState[] getModuleStates() {
         ModuleState[] states = new ModuleState[4];
-        for (SwerveModule mod : mModules) states[mod.moduleNumber()] = mod.getState();
+        for (SwerveModule mod: mModules) states[mod.moduleNumber()] = mod.getState();
         return states;
     }
 
@@ -418,11 +405,10 @@ public class Drive extends SubsystemBase {
         };
         Pose2d path_setpoint = new Pose2d();
         Rotation2d heading_setpoint = new Rotation2d();
-        boolean zeroRequested;
     }
 
     public void setConfigs() {
-        for (SwerveModule mod : mModules) mod.setConfigs();
+        for (SwerveModule mod: mModules) mod.setConfigs();
     }
 
     @Override
@@ -452,7 +438,6 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Omega Limit rad_s", () -> mKinematicLimits.kMaxAngularVelocity, (v) -> mKinematicLimits.kMaxAngularVelocity = v);
         builder.addDoubleProperty("Acceleration Limit m_s2", () -> mKinematicLimits.kMaxAccel, (v) -> mKinematicLimits.kMaxAccel = v);
         builder.addDoubleProperty("Angular Accel. Limit rad_s2", () -> mKinematicLimits.kMaxAngularAccel, (v) -> mKinematicLimits.kMaxAngularAccel = v);
-        builder.addDoubleProperty("Zero Gyro", () -> mPeriodicIO.zeroRequested ? 1. : 0., (v) -> {if(v>0.) {zeroGyro(); mPeriodicIO.zeroRequested = false;}});
         builder.addDoubleProperty("Drive kP", () -> SwerveConstants.driveConfig.Slot0.kP, (v) -> {SwerveConstants.driveConfig.Slot0.kP = v; setConfigs();});
         builder.addDoubleProperty("Drive kI", () -> SwerveConstants.driveConfig.Slot0.kI, (v) -> {SwerveConstants.driveConfig.Slot0.kI = v; setConfigs();});
         builder.addDoubleProperty("Drive kD", () -> SwerveConstants.driveConfig.Slot0.kD, (v) -> {SwerveConstants.driveConfig.Slot0.kD = v; setConfigs();});
