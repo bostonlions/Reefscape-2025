@@ -10,13 +10,10 @@ import frc.robot.Constants;
 import frc.robot.Ports;
 
 public class Pigeon {
-
     private static Pigeon mInstance;
 
     public static Pigeon getInstance() {
-        if (mInstance == null) {
-            mInstance = new Pigeon(Ports.PIGEON);
-        }
+        if (mInstance == null) mInstance = new Pigeon(Ports.PIGEON);
         return mInstance;
     }
 
@@ -36,9 +33,7 @@ public class Pigeon {
 
     public Rotation2d getYaw() {
         Rotation2d angle = getUnadjustedYaw().rotateBy(yawAdjustmentAngle.unaryMinus());
-        if (inverted) {
-            return angle.unaryMinus();
-        }
+        if (inverted) return angle.unaryMinus();
         return Rotation2d.fromDegrees(angle.getDegrees()); //not 0-360?
     }
 
@@ -73,7 +68,6 @@ public class Pigeon {
      *
      * @param angleDeg New yaw in degrees
      */
-
     public void setPitch(double angleDeg) {
         pitchAdjustmentAngle = getUnadjustedPitch().rotateBy(Rotation2d.fromDegrees(angleDeg).unaryMinus());
     }
