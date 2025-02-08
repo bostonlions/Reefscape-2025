@@ -32,6 +32,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         controller = ControlBoard.getInstance();
+        SmartDashboard.putData(controller);
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
