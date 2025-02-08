@@ -72,18 +72,21 @@ public class Algae extends SubsystemBase {
 
     private Algae() {
         mCANcoder = new CANcoder(Ports.ALGAE_CANCODER, Ports.CANBUS_OPS);
-        mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
-
         mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
+        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
+        mBeamBreak = new BeamBreak(Ports.ALGAE_BEAMBREAK);
+        setConfigs(true);
+    }
+
+    private void setConfigs(boolean setCANcoderRelatedConfigs) {
+        mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig);
         mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig);
 
-        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
-        mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig);
-
-        mBeamBreak = new BeamBreak(Ports.ALGAE_BEAMBREAK);
-
-        AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
-        AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        if (setCANcoderRelatedConfigs) {
+            mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
+            AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
+            AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        }
     }
 
     public void disable() {
@@ -248,8 +251,119 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Target speed", () -> mPeriodicIO.targetSpeed, null);
         builder.addBooleanProperty("Flip up-down", () -> false, (v) -> {if (v) setPosition(mPeriodicIO.requestedPosition == PositionState.UP ? PositionState.DOWN : PositionState.UP);});
         builder.addBooleanProperty("Activate Algae", () -> false, (v) -> {if (v) toggleDrive(); });
-        builder.addDoubleProperty("Manual Angle", () -> mPeriodicIO.manualAngle, (v) -> {mPeriodicIO.manualAngle = v;});
-        builder.addBooleanProperty("Manual Go", () -> false, (v) -> {if (v) setAngleSetpoint(mPeriodicIO.manualAngle); });
+        builder.addDoubleProperty("Manual Angle", () -> mPeriodicIO.manualAngle, (v) -> {mPeriodicIO.manualAngle = v; setAngleSetpoint(mPeriodicIO.manualAngle);});
+        builder.addDoubleProperty(
+            "Angle Motor kP",
+            () -> AlgaeConstants.angleMotorConfig.Slot0.kP,
+            (v) -> {
+                AlgaeConstants.angleMotorConfig.Slot0.kP = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Angle Motor kI",
+            () -> AlgaeConstants.angleMotorConfig.Slot0.kI,
+            (v) -> {
+                AlgaeConstants.angleMotorConfig.Slot0.kI = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Angle Motor kD",
+            () -> AlgaeConstants.angleMotorConfig.Slot0.kD,
+            (v) -> {
+                AlgaeConstants.angleMotorConfig.Slot0.kD = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Angle Motor kG",
+            () -> AlgaeConstants.angleMotorConfig.Slot0.kG,
+            (v) -> {
+                AlgaeConstants.angleMotorConfig.Slot0.kG = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Angle Motor kS",
+            () -> AlgaeConstants.angleMotorConfig.Slot0.kS,
+            (v) -> {
+                AlgaeConstants.angleMotorConfig.Slot0.kS = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Angle Motor kV",
+            () -> AlgaeConstants.angleMotorConfig.Slot0.kV,
+            (v) -> {
+                AlgaeConstants.angleMotorConfig.Slot0.kV = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Angle Motor kA",
+            () -> AlgaeConstants.angleMotorConfig.Slot0.kA,
+            (v) -> {
+                AlgaeConstants.angleMotorConfig.Slot0.kA = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Drive Motor kP",
+            () -> AlgaeConstants.driveMotorConfig.Slot0.kP,
+            (v) -> {
+                AlgaeConstants.driveMotorConfig.Slot0.kP = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Drive Motor kI",
+            () -> AlgaeConstants.driveMotorConfig.Slot0.kI,
+            (v) -> {
+                AlgaeConstants.driveMotorConfig.Slot0.kI = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Drive Motor kD",
+            () -> AlgaeConstants.driveMotorConfig.Slot0.kD,
+            (v) -> {
+                AlgaeConstants.driveMotorConfig.Slot0.kD = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Drive Motor kG",
+            () -> AlgaeConstants.driveMotorConfig.Slot0.kG,
+            (v) -> {
+                AlgaeConstants.driveMotorConfig.Slot0.kG = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Drive Motor kS",
+            () -> AlgaeConstants.driveMotorConfig.Slot0.kS,
+            (v) -> {
+                AlgaeConstants.driveMotorConfig.Slot0.kS = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Drive Motor kV",
+            () -> AlgaeConstants.driveMotorConfig.Slot0.kV,
+            (v) -> {
+                AlgaeConstants.driveMotorConfig.Slot0.kV = v;
+                setConfigs(false);
+            }
+        );
+        builder.addDoubleProperty(
+            "Drive Motor kA",
+            () -> AlgaeConstants.driveMotorConfig.Slot0.kA,
+            (v) -> {
+                AlgaeConstants.driveMotorConfig.Slot0.kA = v;
+                setConfigs(false);
+            }
+        );
         builder.setSafeState(this::disable);
         builder.setActuator(true);
     }

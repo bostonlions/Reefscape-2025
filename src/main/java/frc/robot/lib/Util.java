@@ -1,12 +1,10 @@
 package frc.robot.lib;
 
-/** Contains basic functions that are used often. */
 public class Util {
     public static final double kEpsilon = 1e-12;
 
     private Util() {};
 
-    /** Limits @param v to @param maxMagnitude */
     public static double limit(double v, double maxMagnitude) {
         return limit(v, -maxMagnitude, maxMagnitude);
     }
@@ -19,7 +17,6 @@ public class Util {
         return inRange(v, -maxMagnitude, maxMagnitude);
     }
 
-    /** Checks if @param v is within the range @param min to @param max both exclusive. */
     public static boolean inRange(double v, double min, double max) {
         return v > min && v < max;
     }
@@ -58,20 +55,10 @@ public class Util {
     public final class Conversions {
         private Conversions() {};
 
-        /**
-         * @param rotations Number of rotations
-         * @param gearRatio Gear Ratio between motor and Mechanism
-         * @return Degrees of Rotation of Mechanism
-         */
         public static double rotationsToDegrees(double rotations, double gearRatio) {
             return rotations * 360. / gearRatio;
         }
 
-        /**
-         * @param degrees   Degrees of rotation of Mechanism
-         * @param gearRatio Gear Ratio between motor and Mechanism
-         * @return
-         */
         public static double degreesToRotation(double degrees, double gearRatio) {
             return degrees * gearRatio / 360.;
         }
