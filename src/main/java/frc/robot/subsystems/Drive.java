@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -25,6 +27,7 @@ import frc.robot.lib.swerve.SwerveDriveOdometry;
 import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public class Drive extends SubsystemBase {
+    private SendableChooser<Boolean> zeroGyroChooser = new SendableChooser<Boolean>();
     private Pigeon mPigeon = Pigeon.getInstance();
     public SwerveModule[] mModules;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -73,6 +76,10 @@ public class Drive extends SubsystemBase {
         setNeutralBrake(true);
 
         mPigeon.setYaw(0.0);
+
+        zeroGyroChooser.setDefaultOption("False", Boolean.valueOf(false)); // valueOf functions as a boolean object constuctor
+        zeroGyroChooser.addOption("True", Boolean.valueOf(true));
+        SmartDashboard.putData("Zero Gyro", zeroGyroChooser);
     }
 
     public void setKinematicLimits(SwerveConstants.KinematicLimits newLimits) {
@@ -339,6 +346,10 @@ public class Drive extends SubsystemBase {
 
         /* read and write module periodic io */
         for (SwerveModule mod : mModules) mod.periodic();
+
+        /* read zero gyro option from dashboard and zero gyro if option is true */
+        if (zeroGyroChooser.getSelected()) mPeriodicIO.zeroRequested = true; else mPeriodicIO.zeroRequested = false;
+        if (mPeriodicIO.zeroRequested) zeroGyro();
     }
 
     public ModuleState[] getModuleStates() {
@@ -417,7 +428,6 @@ public class Drive extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         if (Constants.disableExtraTelemetry) return;
-
         double driveKVFactor = Util.Conversions.MPSToRPS(SwerveConstants.maxSpeed, SwerveConstants.wheelDiameter * Math.PI, SwerveConstants.driveGearRatio);
         builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
@@ -442,7 +452,7 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Omega Limit rad_s", () -> mKinematicLimits.kMaxAngularVelocity, (v) -> mKinematicLimits.kMaxAngularVelocity = v);
         builder.addDoubleProperty("Acceleration Limit m_s2", () -> mKinematicLimits.kMaxAccel, (v) -> mKinematicLimits.kMaxAccel = v);
         builder.addDoubleProperty("Angular Accel. Limit rad_s2", () -> mKinematicLimits.kMaxAngularAccel, (v) -> mKinematicLimits.kMaxAngularAccel = v);
-        builder.addBooleanProperty("Zero Gyro", () -> mPeriodicIO.zeroRequested, (v) -> {if(v) {zeroGyro(); mPeriodicIO.zeroRequested = false;}});
+        builder.addDoubleProperty("Zero Gyro", () -> mPeriodicIO.zeroRequested ? 1. : 0., (v) -> {if(v>0.) {zeroGyro(); mPeriodicIO.zeroRequested = false;}});
         builder.addDoubleProperty("Drive kP", () -> SwerveConstants.driveConfig.Slot0.kP, (v) -> {SwerveConstants.driveConfig.Slot0.kP = v; setConfigs();});
         builder.addDoubleProperty("Drive kI", () -> SwerveConstants.driveConfig.Slot0.kI, (v) -> {SwerveConstants.driveConfig.Slot0.kI = v; setConfigs();});
         builder.addDoubleProperty("Drive kD", () -> SwerveConstants.driveConfig.Slot0.kD, (v) -> {SwerveConstants.driveConfig.Slot0.kD = v; setConfigs();});
