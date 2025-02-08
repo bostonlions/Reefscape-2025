@@ -407,6 +407,7 @@ public class Drive extends SubsystemBase {
         };
         Pose2d path_setpoint = new Pose2d();
         Rotation2d heading_setpoint = new Rotation2d();
+        boolean zeroRequested;
     }
 
     public void setConfigs() {
@@ -430,18 +431,18 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Trajectory Heading", mMotionPlanner::getRotationalTarget, null);
         builder.addDoubleProperty("Measured Velocity X", () -> mPeriodicIO.meas_chassis_speeds.vxMetersPerSecond, null);
         builder.addDoubleProperty("Measured Velocity Y", () -> mPeriodicIO.meas_chassis_speeds.vyMetersPerSecond, null);
-        builder.addDoubleProperty("Measured Omega rad/s", () -> mPeriodicIO.meas_chassis_speeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Measured Omega rad÷s", () -> mPeriodicIO.meas_chassis_speeds.omegaRadiansPerSecond, null);
         builder.addDoubleProperty("Target Velocity X", () -> mPeriodicIO.des_chassis_speeds.vxMetersPerSecond, null);
         builder.addDoubleProperty("Target Velocity Y", () -> mPeriodicIO.des_chassis_speeds.vyMetersPerSecond, null);
-        builder.addDoubleProperty("Target Omega rad/s", () -> mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Target Omega rad÷s", () -> mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond, null);
         builder.addDoubleProperty("Pose X", () -> getPose().getX(), null);
         builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
         builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getDegrees(), null);
-        builder.addDoubleProperty("Velocity Limit m/s", () -> mKinematicLimits.kMaxDriveVelocity, (v) -> mKinematicLimits.kMaxDriveVelocity = v);
-        builder.addDoubleProperty("Omega Limit rad/s", () -> mKinematicLimits.kMaxAngularVelocity, (v) -> mKinematicLimits.kMaxAngularVelocity = v);
-        builder.addDoubleProperty("Acceleration Limit m/s2", () -> mKinematicLimits.kMaxAccel, (v) -> mKinematicLimits.kMaxAccel = v);
-        builder.addDoubleProperty("Angular Accel. Limit rad/s2", () -> mKinematicLimits.kMaxAngularAccel, (v) -> mKinematicLimits.kMaxAngularAccel = v);
-        builder.addBooleanProperty("Zero Gyro", () -> false, (v) -> {if(v) zeroGyro();});
+        builder.addDoubleProperty("Velocity Limit m÷s", () -> mKinematicLimits.kMaxDriveVelocity, (v) -> mKinematicLimits.kMaxDriveVelocity = v);
+        builder.addDoubleProperty("Omega Limit rad÷s", () -> mKinematicLimits.kMaxAngularVelocity, (v) -> mKinematicLimits.kMaxAngularVelocity = v);
+        builder.addDoubleProperty("Acceleration Limit m÷s2", () -> mKinematicLimits.kMaxAccel, (v) -> mKinematicLimits.kMaxAccel = v);
+        builder.addDoubleProperty("Angular Accel. Limit rad÷s2", () -> mKinematicLimits.kMaxAngularAccel, (v) -> mKinematicLimits.kMaxAngularAccel = v);
+        builder.addBooleanProperty("Zero Gyro", () -> mPeriodicIO.zeroRequested, (v) -> {if(v) {zeroGyro(); mPeriodicIO.zeroRequested = false;}});
         builder.addDoubleProperty("Drive kP", () -> SwerveConstants.driveConfig.Slot0.kP, (v) -> {SwerveConstants.driveConfig.Slot0.kP = v; setConfigs();});
         builder.addDoubleProperty("Drive kI", () -> SwerveConstants.driveConfig.Slot0.kI, (v) -> {SwerveConstants.driveConfig.Slot0.kI = v; setConfigs();});
         builder.addDoubleProperty("Drive kD", () -> SwerveConstants.driveConfig.Slot0.kD, (v) -> {SwerveConstants.driveConfig.Slot0.kD = v; setConfigs();});
