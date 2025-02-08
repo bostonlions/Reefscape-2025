@@ -322,20 +322,20 @@ public class Constants {
 
         public static final double cancoderOffset = 85.294471; // Set the cancoder offset to its reading in degrees
                                                                // at exactly horizontal
-        // Angles in degrees from horizontal
-        // TODO - values are placeholders; fix 'em
         public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
+
+        // Angles in degrees from horizontal:
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -100.),
-            entry(Position.STOW_DOWN, -90.),
-            entry(Position.GROUND_INTAKE, -70.),
-            entry(Position.LOADED_DOWN, -80.),
-            entry(Position.PROCESSOR, -75.),
-            entry(Position.STOW_UP, 100.),
-            entry(Position.REEF, 90.),
-            entry(Position.LOADED_UP, 95.),
-            entry(Position.BARGE, 90.),
-            entry(Position.MAX, 120.)
+            entry(Position.MIN, -96.8),
+            entry(Position.STOW_DOWN, -95.27),
+            entry(Position.PROCESSOR, -82.26),
+            entry(Position.LOADED_DOWN, -74.17),
+            entry(Position.GROUND_INTAKE, -70.66),
+            entry(Position.REEF, 53.97),
+            entry(Position.BARGE, 60.56),
+            entry(Position.LOADED_UP, 89.83),
+            entry(Position.STOW_UP, 114.26),
+            entry(Position.MAX, 123.42)
         );
 
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
