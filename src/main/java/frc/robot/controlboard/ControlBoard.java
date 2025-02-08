@@ -10,16 +10,19 @@ import frc.robot.lib.Util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class ControlBoard {
+public class ControlBoard implements Sendable {
     private final double kSwerveDeadband = ControllerConstants.stickDeadband;
 
     private final int kDpadUp = 0;
     private final int kDpadRight = 90;
     private final int kDpadDown = 180;
     private final int kDpadLeft = 270;
+    private double speedFactor;
 
     // private boolean leftBumperBoolean = false;
     // private boolean passNoteAllignBoolean = false;
@@ -34,12 +37,13 @@ public class ControlBoard {
         return mInstance;
     }
 
-    private final GenericHID m_driver;
+    public final GenericHID driver;
     public final CustomXboxController operator;
 
     private ControlBoard() {
-        m_driver = new GenericHID(Ports.DRIVER_CONTROL);
+        driver = new GenericHID(Ports.DRIVER_CONTROL);
         operator = new CustomXboxController(Ports.OPERATOR_CONTROL);
+        speedFactor = ControllerConstants.kInputClipping;
     }
 
     /* DRIVER METHODS */
@@ -47,16 +51,15 @@ public class ControlBoard {
         double forwardAxis = 0;
         double strafeAxis = 0;
         if (ControllerConstants.isMambo) {
-            forwardAxis = m_driver.getRawAxis(2);
-            strafeAxis = m_driver.getRawAxis(1);
+            forwardAxis = driver.getRawAxis(2);
+            strafeAxis = driver.getRawAxis(1);
         } else {
             forwardAxis = getRightThrottle();
             strafeAxis = getRightYaw();
         }
 
-        // Max suggested best speed control is just to limit throttle range
-        forwardAxis = forwardAxis * ControllerConstants.kInputClippingPercent;
-        strafeAxis = strafeAxis * ControllerConstants.kInputClippingPercent;
+        forwardAxis = forwardAxis * speedFactor;
+        strafeAxis = strafeAxis * speedFactor;
 
         SmartDashboard.putNumber("Raw Y", forwardAxis);
         SmartDashboard.putNumber("Raw X", strafeAxis);
@@ -81,11 +84,10 @@ public class ControlBoard {
     }
 
     public double getSwerveRotation() {
-        double rotAxis = ControllerConstants.isMambo ? m_driver.getRawAxis(3) : getLeftYaw();
+        double rotAxis = ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw();
         rotAxis = ControllerConstants.invertRAxis ? rotAxis : -rotAxis;
 
-        // Max Suggested trying this as a way to limit speeds while learning
-        rotAxis = rotAxis * ControllerConstants.kInputClippingPercent;
+        rotAxis = rotAxis * speedFactor;
 
         if (Math.abs(rotAxis) < kSwerveDeadband) return 0.0;
 
@@ -95,17 +97,17 @@ public class ControlBoard {
 
     /* right switch up */
     public boolean zeroGyro() {
-        // SmartDashboard.putBoolean("Zero Gyro", m_driver.getRawButton(2));
-        return m_driver.getRawButton(2);// (m_driver.getRawAxis(6)<-0.3);
+        // SmartDashboard.putBoolean("Zero Gyro", driver.getRawButton(2));
+        return driver.getRawButton(2);// (driver.getRawAxis(6)<-0.3);
     }
 
     public enum SwerveCardinal {
         NONE(0),
 
-        FORWARDS(0),
+        FORWARD(0),
         LEFT(270),
         RIGHT(90),
-        BACKWARDS(180);
+        BACKWARD(180);
 
         public final double degrees;
 
@@ -119,13 +121,13 @@ public class ControlBoard {
 
         switch (operator.getController().getPOV()) {
             case kDpadUp:
-                return SwerveCardinal.FORWARDS;
+                return SwerveCardinal.FORWARD;
             case kDpadLeft:
                 return SwerveCardinal.RIGHT;
             case kDpadRight:
                 return SwerveCardinal.LEFT;
             case kDpadDown:
-                return SwerveCardinal.BACKWARDS;
+                return SwerveCardinal.BACKWARD;
             default:
                 return SwerveCardinal.NONE;
         }
@@ -134,13 +136,13 @@ public class ControlBoard {
     /** far right switch */
     public boolean snapToTarget() { // DISABLED
         return false;
-        // m_driver.getRawAxis(4)<-0.25 || autoSnap;
+        // driver.getRawAxis(4)<-0.25 || autoSnap;
 
-        // if (m_driver.getRawAxis(4)<-0.25 && leftSwitchReset){
+        // if (driver.getRawAxis(4)<-0.25 && leftSwitchReset){
         // leftSwitchReset = false;
         // return true;
         // }
-        // else if(!(m_driver.getRawAxis(4)<-0.25)){
+        // else if(!(driver.getRawAxis(4)<-0.25)){
         // leftSwitchReset = true;
         // }
         // return false;
@@ -151,12 +153,12 @@ public class ControlBoard {
     }
 
     // public boolean farLeftSwitchUp(){//DISABLED
-    // return false; //m_driver.getRawAxis(4)<-0.25;
+    // return false; //driver.getRawAxis(4)<-0.25;
     // }
 
     /** right bumper */
     // public boolean allignWithHumanPlayer() {
-    //     if (leftBumperBoolean != m_driver.getRawButton(1)) {
+    //     if (leftBumperBoolean != driver.getRawButton(1)) {
     //         leftBumperBoolean = !leftBumperBoolean;
     //         return true;
     //     }
@@ -166,9 +168,9 @@ public class ControlBoard {
     // }
 
     // public boolean passNoteFromMidAllign() { // triggers once every click up
-    //     if (!(m_driver.getRawAxis(6) < -0.25)) {
+    //     if (!(driver.getRawAxis(6) < -0.25)) {
     //         passNoteAllignBoolean = true;
-    //     } else if (m_driver.getRawAxis(6) < -0.25 && passNoteAllignBoolean) {
+    //     } else if (driver.getRawAxis(6) < -0.25 && passNoteAllignBoolean) {
     //         passNoteAllignBoolean = false;
     //         return true;
     //     }
@@ -176,14 +178,14 @@ public class ControlBoard {
     // }
 
     // public boolean passNoteFromMid() {
-    //     return (m_driver.getRawAxis(6) < -0.25);
+    //     return (driver.getRawAxis(6) < -0.25);
     // }
 
     // Far right switch
     // public boolean shootFromPodiumAllign() { // triggers once every click up
-    //     if (!(m_driver.getRawAxis(4) < -0.25)) {
+    //     if (!(driver.getRawAxis(4) < -0.25)) {
     //         podiumAllignBoolean = true;
-    //     } else if (m_driver.getRawAxis(4) < -0.25 && podiumAllignBoolean) {
+    //     } else if (driver.getRawAxis(4) < -0.25 && podiumAllignBoolean) {
     //         podiumAllignBoolean = false;
     //         return true;
     //     }
@@ -191,13 +193,13 @@ public class ControlBoard {
     // }
 
     // public boolean farLeftSwitchUp(){
-    //    return (m_driver.getRawAxis(4)<-0.25);
+    //    return (driver.getRawAxis(4)<-0.25);
     // }
 
     // public boolean shootFromOppositePodiumAllign() { // triggers once every click up
-    //     if (!(m_driver.getRawAxis(5) < -0.25)) {
+    //     if (!(driver.getRawAxis(5) < -0.25)) {
     //         podiumAllignBoolean = true;
-    //     } else if (m_driver.getRawAxis(5) < -0.25 && podiumAllignBoolean) {
+    //     } else if (driver.getRawAxis(5) < -0.25 && podiumAllignBoolean) {
     //         podiumAllignBoolean = false;
     //         return true;
     //     }
@@ -205,7 +207,7 @@ public class ControlBoard {
     // }
 
     // public boolean shootFromPodium() {
-    //     return (m_driver.getRawAxis(4) < -0.25)||(m_driver.getRawAxis(5) < -0.25);
+    //     return (driver.getRawAxis(4) < -0.25)||(driver.getRawAxis(5) < -0.25);
     // }
 
     // public double pivotPercentOutput() {
@@ -250,7 +252,7 @@ public class ControlBoard {
 
     // Align swerve drive with target
     // public boolean getWantChase() {
-    //     return false;// (m_driver.getRawButton(9)||(operator.getButton(Button.Y))||(operator.getButton(Button.B))||(operator.getButton(Button.A))||(operator.getButton(Button.X)));
+    //     return false;// (driver.getRawButton(9)||(operator.getButton(Button.Y))||(operator.getButton(Button.B))||(operator.getButton(Button.A))||(operator.getButton(Button.X)));
     // }
 
     // public int tagToChase() {
@@ -272,7 +274,7 @@ public class ControlBoard {
     // }
 
     // public boolean chaseNearest() {
-    //     return m_driver.getRawButton(9);
+    //     return driver.getRawButton(9);
     // }
 
     // public boolean chaseTag1() {
@@ -293,8 +295,8 @@ public class ControlBoard {
 
     // // Locks wheels in X formation
     public boolean getBrake() {
-        SmartDashboard.putNumber("Get Brake", m_driver.getRawAxis(4));
-        return false;// (m_driver.getRawAxis(4)<-0.3); //m_driver.getRawButton(4); //far left switch
+        SmartDashboard.putNumber("Get Brake", driver.getRawAxis(4));
+        return false;// (driver.getRawAxis(4)<-0.3); //driver.getRawButton(4); //far left switch
     }
 
     // // Intake Controls
@@ -310,7 +312,7 @@ public class ControlBoard {
 
     // Returns positions from -1 to 1
     private double getLeftYaw() {
-        double leftYaw = m_driver.getRawAxis(ControllerConstants.leftXAxis);
+        double leftYaw = driver.getRawAxis(ControllerConstants.leftXAxis);
 
         if (leftYaw != 0) {
             leftYaw = leftYaw - ControllerConstants.LeftYawZero;
@@ -332,7 +334,7 @@ public class ControlBoard {
 
     // Returns positions from -1 to 1
     // private double getLeftThrottle() {
-    // double leftThrottle = m_driver.getRawAxis(ControllerConstants.leftYAxis);
+    // double leftThrottle = driver.getRawAxis(ControllerConstants.leftYAxis);
 
     // if (leftThrottle != 0){
     // leftThrottle = leftThrottle -
@@ -363,7 +365,7 @@ public class ControlBoard {
     // }
 
     private double getRightThrottle() {
-        double rightThrottle = m_driver.getRawAxis(ControllerConstants.rightYAxis);
+        double rightThrottle = driver.getRawAxis(ControllerConstants.rightYAxis);
 
         if (rightThrottle != 0)
             rightThrottle = rightThrottle - ControllerConstants.RightThrottleZero;
@@ -383,7 +385,7 @@ public class ControlBoard {
     }
 
     private double getRightYaw() {
-        double rightYaw = m_driver.getRawAxis(ControllerConstants.rightXAxis);
+        double rightYaw = driver.getRawAxis(ControllerConstants.rightXAxis);
 
         if (rightYaw != 0)
             rightYaw = rightYaw - ControllerConstants.RightYawZero;
@@ -398,5 +400,10 @@ public class ControlBoard {
 
         // SmartDashboard.putNumber("remote rightYaw", rightYaw);
         return Util.limit(rightYaw, 1);
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty("Speed Factor", () -> speedFactor, (v) -> {if (v <= 1. && v > 0.) speedFactor = v;});
     }
 }

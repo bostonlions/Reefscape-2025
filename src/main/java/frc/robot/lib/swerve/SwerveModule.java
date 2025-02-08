@@ -37,21 +37,20 @@ public class SwerveModule extends SubsystemBase {
         this.name = moduleConstants.name;
         kAngleOffset = moduleConstants.angleOffset;
 
-        // Absolute encoder config
         angleEncoder = new CANcoder(moduleConstants.cancoderID, Ports.CANBUS_DRIVE);
-        angleEncoder.getConfigurator().apply(SwerveConstants.cancoderConfig);
-
-        // Angle motor config
         mAngleMotor = new TalonFX(moduleConstants.angleMotorID, Ports.CANBUS_DRIVE);
-        mAngleMotor.getConfigurator().apply(SwerveConstants.angleConfig);
-        mAngleMotor.setPosition(0);
-
-        // Drive motor config
         mDriveMotor = new TalonFX(moduleConstants.driveMotorID, Ports.CANBUS_DRIVE);
-        mDriveMotor.getConfigurator().apply(SwerveConstants.driveConfig);
-        mDriveMotor.setPosition(0.0);
 
+        setConfigs();
+        mAngleMotor.setPosition(0);
+        mDriveMotor.setPosition(0.0);
         resetToAbsolute();
+    }
+
+    public void setConfigs() {
+        angleEncoder.getConfigurator().apply(SwerveConstants.cancoderConfig);
+        mAngleMotor.getConfigurator().apply(SwerveConstants.angleConfig);
+        mDriveMotor.getConfigurator().apply(SwerveConstants.driveConfig);
     }
 
     public static class Constants {

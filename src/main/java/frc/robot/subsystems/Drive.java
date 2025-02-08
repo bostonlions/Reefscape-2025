@@ -409,10 +409,15 @@ public class Drive extends SubsystemBase {
         Rotation2d heading_setpoint = new Rotation2d();
     }
 
+    public void setConfigs() {
+        for (SwerveModule mod : mModules) mod.setConfigs();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         if (Constants.disableExtraTelemetry) return;
 
+        double driveKVFactor = Util.Conversions.MPSToRPS(SwerveConstants.maxSpeed, SwerveConstants.wheelDiameter * Math.PI, SwerveConstants.driveGearRatio);
         builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
         builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);
@@ -436,6 +441,15 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Omega Limit rad/s", () -> mKinematicLimits.kMaxAngularVelocity, (v) -> mKinematicLimits.kMaxAngularVelocity = v);
         builder.addDoubleProperty("Acceleration Limit m/s2", () -> mKinematicLimits.kMaxAccel, (v) -> mKinematicLimits.kMaxAccel = v);
         builder.addDoubleProperty("Angular Accel. Limit rad/s2", () -> mKinematicLimits.kMaxAngularAccel, (v) -> mKinematicLimits.kMaxAngularAccel = v);
+        builder.addBooleanProperty("Zero Gyro", () -> false, (v) -> {if(v) zeroGyro();});
+        builder.addDoubleProperty("Drive kP", () -> SwerveConstants.driveConfig.Slot0.kP, (v) -> {SwerveConstants.driveConfig.Slot0.kP = v; setConfigs();});
+        builder.addDoubleProperty("Drive kI", () -> SwerveConstants.driveConfig.Slot0.kI, (v) -> {SwerveConstants.driveConfig.Slot0.kI = v; setConfigs();});
+        builder.addDoubleProperty("Drive kD", () -> SwerveConstants.driveConfig.Slot0.kD, (v) -> {SwerveConstants.driveConfig.Slot0.kD = v; setConfigs();});
+        builder.addDoubleProperty("Drive kV", () -> SwerveConstants.driveConfig.Slot0.kV * driveKVFactor, (v) -> {SwerveConstants.driveConfig.Slot0.kD = v / driveKVFactor; setConfigs();});
+        builder.addDoubleProperty("Angle kP", () -> SwerveConstants.angleConfig.Slot0.kP, (v) -> {SwerveConstants.angleConfig.Slot0.kP = v; setConfigs();});
+        builder.addDoubleProperty("Angle kI", () -> SwerveConstants.angleConfig.Slot0.kI, (v) -> {SwerveConstants.angleConfig.Slot0.kI = v; setConfigs();});
+        builder.addDoubleProperty("Angle kD", () -> SwerveConstants.angleConfig.Slot0.kD, (v) -> {SwerveConstants.angleConfig.Slot0.kD = v; setConfigs();});
+        builder.addDoubleProperty("Angle kV", () -> SwerveConstants.angleConfig.Slot0.kV, (v) -> {SwerveConstants.angleConfig.Slot0.kD = v; setConfigs();});
         builder.setActuator(true);
         builder.setSafeState(this::stopModules);
     }

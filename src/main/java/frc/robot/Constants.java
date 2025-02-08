@@ -385,7 +385,7 @@ public class Constants {
     public static final class ControllerConstants {
         // Max says trimming joystick input by a percent is the best way to limit speed
         // that way the autonomous system doesn't get messed up
-        public static final double kInputClippingPercent = 0.3; // set to 1 for  100% of joystick range
+        public static final double kInputClipping = 0.3; // set to 1 for  100% of joystick range
 
         public static final double kTriggerThreshold = 0.2;
 
