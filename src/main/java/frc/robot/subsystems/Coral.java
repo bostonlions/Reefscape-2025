@@ -65,10 +65,10 @@ public class Coral extends SubsystemBase {
 
 
         if (mPeriodicIO.state == State.IDLE) {
-            setSetpoint(CoralConstants.loadSpeed);
+            setSetpoint(mPeriodicIO.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
         } else if (mPeriodicIO.state == State.LOADED) {
-            setSetpoint(CoralConstants.unloadSpeed);
+            setSetpoint(mPeriodicIO.unloadSpeed);
             mPeriodicIO.state = State.UNLOADING_WITH_CORAL;
         } else {
             setSetpoint(0);
@@ -195,13 +195,13 @@ public class Coral extends SubsystemBase {
             "Coral",
             "Extra load rot",
             () -> mPeriodicIO.extraLoadRotations,
-            (up) -> {mPeriodicIO.extraLoadRotations += (up ? 0.1 : -0.1);}
+            (up) -> {mPeriodicIO.extraLoadRotations = Math.max(0, mPeriodicIO.extraLoadRotations + (up ? 0.1 : -0.1));}
         );
         trimmer.add(
             "Coral",
             "Extra unload rot",
             () -> mPeriodicIO.extraUnloadRotations,
-            (up) -> {mPeriodicIO.extraUnloadRotations += (up ? 0.1 : -0.1);}
+            (up) -> {mPeriodicIO.extraUnloadRotations = Math.max(0, mPeriodicIO.extraUnloadRotations + (up ? 0.1 : -0.1));}
         );
     }
 }
