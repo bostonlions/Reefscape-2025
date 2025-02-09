@@ -159,7 +159,7 @@ public class Elevator extends SubsystemBase {
                 setMotorConfig(ElevatorConstants.motorConfig);
             });
         builder.setSafeState(this::disable);
-        builder.setActuator(true);
+        builder.setActuator(true);    
     }
 
     @Override
@@ -187,7 +187,6 @@ public class Elevator extends SubsystemBase {
         /* Have we finished moving? */
         if (mPeriodicIO.moving &&
             Util.epsilonEquals(mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance)
-        )
-            mPeriodicIO.moving = false;
+        ) mPeriodicIO.moving = false;
     }
 }

@@ -71,22 +71,22 @@ public class Algae extends SubsystemBase {
     }
 
     private Algae() {
-        mCANcoder = new CANcoder(Ports.ALGAE_CANCODER, Ports.CANBUS_OPS);
-        mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
-        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
         mBeamBreak = new BeamBreak(Ports.ALGAE_BEAMBREAK);
-        setConfigs(true);
-    }
 
-    private void setConfigs(boolean setCANcoderRelatedConfigs) {
-        mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig);
+        mCANcoder = new CANcoder(Ports.ALGAE_CANCODER, Ports.CANBUS_OPS);
+        mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
+
+        mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
         mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig);
+        mDriveMotor.setPosition(0);
 
-        if (setCANcoderRelatedConfigs) {
-            mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
-            AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
-            AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        }
+        mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
+        AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
+        AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        AlgaeConstants.angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
+        AlgaeConstants.angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.gearRatio;
+        mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig);
+        // mAngleMotor.setPosition(mCANcoder.getAbsolutePosition().getValueAsDouble());
     }
 
     public void disable() {
@@ -94,9 +94,9 @@ public class Algae extends SubsystemBase {
     }
 
     public void setAngleSetpoint(double angle) {
-        mPeriodicIO.C_demand = (AlgaeConstants.gearRatio)*(angle - AlgaeConstants.cancoderOffset)/360.;
+        mPeriodicIO.C_demand = (angle + AlgaeConstants.cancoderOffset)/360;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
-        mDriveMotor.setControl(new Follower(Ports.ALGAE_ANGLE, true));
+        // mDriveMotor.setControl(new Follower(Ports.ALGAE_ANGLE, true));
         mAngleMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.C_demand));
     }
 
@@ -244,7 +244,8 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Drive motor voltage", () -> mPeriodicIO.D_output_voltage, null);
         builder.addDoubleProperty("Drive motor speed", () -> mPeriodicIO.D_velocity_rps, null);
         builder.addDoubleProperty("Drive motor demand", () -> mPeriodicIO.D_demand, null);
-        builder.addDoubleProperty("CANCODER Position", () -> Util.placeIn0To360Scope(mCANcoder.getAbsolutePosition().getValueAsDouble()*360), null);
+        builder.addDoubleProperty("CANCODER Position", () -> Util.placeInAppropriate0To360Scope(0, mCANcoder.getAbsolutePosition().getValueAsDouble()*360-AlgaeConstants.cancoderOffset), null);
+        builder.addDoubleProperty("CANCODER Raw Position", () -> mCANcoder.getAbsolutePosition().getValueAsDouble()*360, null);
         builder.addStringProperty("Target PositionState", () -> mPeriodicIO.requestedPosition.toString(), null);
         builder.addStringProperty("Target DriveState", () -> mPeriodicIO.driveState.toString(), null);
         builder.addStringProperty("Target Position", () -> mPeriodicIO.targetPosition.toString(), null);
@@ -252,118 +253,118 @@ public class Algae extends SubsystemBase {
         builder.addBooleanProperty("Flip up-down", () -> false, (v) -> {if (v) setPosition(mPeriodicIO.requestedPosition == PositionState.UP ? PositionState.DOWN : PositionState.UP);});
         builder.addBooleanProperty("Activate Algae", () -> false, (v) -> {if (v) toggleDrive(); });
         builder.addDoubleProperty("Manual Angle", () -> mPeriodicIO.manualAngle, (v) -> {mPeriodicIO.manualAngle = v; setAngleSetpoint(mPeriodicIO.manualAngle);});
-        builder.addDoubleProperty(
-            "Angle Motor kP",
-            () -> AlgaeConstants.angleMotorConfig.Slot0.kP,
-            (v) -> {
-                AlgaeConstants.angleMotorConfig.Slot0.kP = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Angle Motor kI",
-            () -> AlgaeConstants.angleMotorConfig.Slot0.kI,
-            (v) -> {
-                AlgaeConstants.angleMotorConfig.Slot0.kI = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Angle Motor kD",
-            () -> AlgaeConstants.angleMotorConfig.Slot0.kD,
-            (v) -> {
-                AlgaeConstants.angleMotorConfig.Slot0.kD = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Angle Motor kG",
-            () -> AlgaeConstants.angleMotorConfig.Slot0.kG,
-            (v) -> {
-                AlgaeConstants.angleMotorConfig.Slot0.kG = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Angle Motor kS",
-            () -> AlgaeConstants.angleMotorConfig.Slot0.kS,
-            (v) -> {
-                AlgaeConstants.angleMotorConfig.Slot0.kS = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Angle Motor kV",
-            () -> AlgaeConstants.angleMotorConfig.Slot0.kV,
-            (v) -> {
-                AlgaeConstants.angleMotorConfig.Slot0.kV = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Angle Motor kA",
-            () -> AlgaeConstants.angleMotorConfig.Slot0.kA,
-            (v) -> {
-                AlgaeConstants.angleMotorConfig.Slot0.kA = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Drive Motor kP",
-            () -> AlgaeConstants.driveMotorConfig.Slot0.kP,
-            (v) -> {
-                AlgaeConstants.driveMotorConfig.Slot0.kP = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Drive Motor kI",
-            () -> AlgaeConstants.driveMotorConfig.Slot0.kI,
-            (v) -> {
-                AlgaeConstants.driveMotorConfig.Slot0.kI = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Drive Motor kD",
-            () -> AlgaeConstants.driveMotorConfig.Slot0.kD,
-            (v) -> {
-                AlgaeConstants.driveMotorConfig.Slot0.kD = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Drive Motor kG",
-            () -> AlgaeConstants.driveMotorConfig.Slot0.kG,
-            (v) -> {
-                AlgaeConstants.driveMotorConfig.Slot0.kG = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Drive Motor kS",
-            () -> AlgaeConstants.driveMotorConfig.Slot0.kS,
-            (v) -> {
-                AlgaeConstants.driveMotorConfig.Slot0.kS = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Drive Motor kV",
-            () -> AlgaeConstants.driveMotorConfig.Slot0.kV,
-            (v) -> {
-                AlgaeConstants.driveMotorConfig.Slot0.kV = v;
-                setConfigs(false);
-            }
-        );
-        builder.addDoubleProperty(
-            "Drive Motor kA",
-            () -> AlgaeConstants.driveMotorConfig.Slot0.kA,
-            (v) -> {
-                AlgaeConstants.driveMotorConfig.Slot0.kA = v;
-                setConfigs(false);
-            }
-        );
+        // builder.addDoubleProperty(
+        //     "Angle Motor kP",
+        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kP,
+        //     (v) -> {
+        //         AlgaeConstants.angleMotorConfig.Slot0.kP = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Angle Motor kI",
+        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kI,
+        //     (v) -> {
+        //         AlgaeConstants.angleMotorConfig.Slot0.kI = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Angle Motor kD",
+        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kD,
+        //     (v) -> {
+        //         AlgaeConstants.angleMotorConfig.Slot0.kD = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Angle Motor kG",
+        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kG,
+        //     (v) -> {
+        //         AlgaeConstants.angleMotorConfig.Slot0.kG = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Angle Motor kS",
+        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kS,
+        //     (v) -> {
+        //         AlgaeConstants.angleMotorConfig.Slot0.kS = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Angle Motor kV",
+        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kV,
+        //     (v) -> {
+        //         AlgaeConstants.angleMotorConfig.Slot0.kV = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Angle Motor kA",
+        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kA,
+        //     (v) -> {
+        //         AlgaeConstants.angleMotorConfig.Slot0.kA = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Drive Motor kP",
+        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kP,
+        //     (v) -> {
+        //         AlgaeConstants.driveMotorConfig.Slot0.kP = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Drive Motor kI",
+        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kI,
+        //     (v) -> {
+        //         AlgaeConstants.driveMotorConfig.Slot0.kI = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Drive Motor kD",
+        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kD,
+        //     (v) -> {
+        //         AlgaeConstants.driveMotorConfig.Slot0.kD = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Drive Motor kG",
+        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kG,
+        //     (v) -> {
+        //         AlgaeConstants.driveMotorConfig.Slot0.kG = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Drive Motor kS",
+        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kS,
+        //     (v) -> {
+        //         AlgaeConstants.driveMotorConfig.Slot0.kS = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Drive Motor kV",
+        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kV,
+        //     (v) -> {
+        //         AlgaeConstants.driveMotorConfig.Slot0.kV = v;
+        //         setConfigs(false);
+        //     }
+        // );
+        // builder.addDoubleProperty(
+        //     "Drive Motor kA",
+        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kA,
+        //     (v) -> {
+        //         AlgaeConstants.driveMotorConfig.Slot0.kA = v;
+        //         setConfigs(false);
+        //     }
+        // );
         builder.setSafeState(this::disable);
         builder.setActuator(true);
     }
