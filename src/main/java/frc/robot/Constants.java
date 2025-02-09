@@ -28,23 +28,14 @@ import edu.wpi.first.math.util.Units;
 
 import frc.robot.lib.Util.Conversions;
 
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide constants.
- * This class should not be used for any other purpose. All constants should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- */
-
 public class Constants {
-    // Disables extra smart dashboard outputs that slow down the robot
-    public static final boolean disableExtraTelemetry = false;
-
     public static final class SwerveConstants {
         // robot loop time - but only used now by swerve
         public static final double kLooperDt = 0.02;
 
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
 
-        /* Drivetrain Constants */
+        // Drivetrain Constants
         public static final double trackWidth = Units.inchesToMeters(24.25);
         public static final double wheelBase = Units.inchesToMeters(24.25);
 
@@ -108,7 +99,7 @@ public class Constants {
                 .withAbsoluteSensorDiscontinuityPoint(1.0)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
 
-        public static class KinematicLimits {
+        public static final class KinematicLimits {
             public double kMaxDriveVelocity; // m/s
             public double kMaxAccel; // m/s^2
             public double kMaxAngularVelocity; // rad/s
@@ -156,11 +147,11 @@ public class Constants {
 
     // For DriveMotionPlanner - what is snap?
     public static final class SnapConstants {
-        public static final double kP = 6.0;
+        public static final double kP = 6.;
         public static final double kI = 0.5;
         public static final double kD = 0.2;
         public static final double snapTimeout = 0.25;
-        public static final double snapEpsilon = 1.0;
+        public static final double snapEpsilon = 1.;
     }
 
     // For DriveMotionPlanner
@@ -168,17 +159,17 @@ public class Constants {
         public static final double kPXController = 6.7;
         public static final double kPYController = 6.7;
 
-        public static final double kDXController = 0.0;
-        public static final double kDYController = 0.0;
+        public static final double kDXController = 0.;
+        public static final double kDYController = 0.;
 
         public static final double kPThetaController = 2.75; // was 2, changed to 4 -- faster it turns = more wheels slip
 
         // Constraint for the motion profilied robot angle controller (Radians)
-        public static final double kMaxAngularSpeed = 2.0 * Math.PI;
-        public static final double kMaxAngularAccel = 2.0 * Math.PI * kMaxAngularSpeed;
+        public static final double kMaxAngularSpeed = 2 * Math.PI;
+        public static final double kMaxAngularAccel = 2 * Math.PI * kMaxAngularSpeed;
 
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-                kMaxAngularSpeed, kMaxAngularAccel);
+            kMaxAngularSpeed, kMaxAngularAccel);
 
         // Static factory for creating trajectory configs
         public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
@@ -189,8 +180,6 @@ public class Constants {
             return config;
         }
     }
-
-    /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class ElevatorConstants {
         public static final double gearRatio = 9.;
@@ -279,7 +268,7 @@ public class Constants {
     }
 
     public static final class CoralConstants {
-        public static final double gearRatio = 4;
+        public static final double gearRatio = 4.;
         public static final double loadSpeed = 0.5;
         public static final double extraLoadRotations = 0.01; // if this is 0 we never break from case statement
         public static final double unloadSpeed = 0.5;
@@ -322,8 +311,10 @@ public class Constants {
 
         // Set the cancoder offset to its reading in degrees at exactly horizontal
         public static final double cancoderOffset = -144.759;
-        
-        public enum Position { MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX }
+
+        public enum Position {
+            MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
+        }
 
         // Angles in degrees from horizontal:
         public static final Map<Position, Double> angles = Map.ofEntries(

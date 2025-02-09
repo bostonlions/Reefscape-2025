@@ -1,10 +1,6 @@
 package frc.robot.lib;
 
-public class Util {
-    public static final double kEpsilon = 1e-12;
-
-    private Util() {};
-
+public final class Util {
     public static double limit(double v, double maxMagnitude) {
         return limit(v, -maxMagnitude, maxMagnitude);
     }
@@ -26,7 +22,7 @@ public class Util {
     }
 
     public static boolean epsilonEquals(double a, double b) {
-        return epsilonEquals(a, b, kEpsilon);
+        return epsilonEquals(a, b, 1e-12);
     }
 
     public static boolean epsilonEquals(int a, int b, int epsilon) {
@@ -43,18 +39,16 @@ public class Util {
     }
 
     public static double deadBand(double val, double deadband) {
-        return (Math.abs(val) > Math.abs(deadband)) ? val : 0.0;
+        return (Math.abs(val) > Math.abs(deadband)) ? val : 0.;
     }
 
     public static double scaledDeadband(double value, double maxValue, double deadband) {
         double deadbandedValue = deadBand(value, deadband);
-        if (epsilonEquals(deadbandedValue, 0.0)) return 0.0;
+        if (epsilonEquals(deadbandedValue, 0.)) return 0.;
         return Math.signum(deadbandedValue) * ((Math.abs(deadbandedValue) - deadband) / (maxValue - deadband));
     }
 
     public final class Conversions {
-        private Conversions() {};
-
         public static double rotationsToDegrees(double rotations, double gearRatio) {
             return rotations * 360. / gearRatio;
         }

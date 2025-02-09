@@ -80,7 +80,7 @@ public class Coral extends SubsystemBase {
         return mPeriodicIO.current;
     }
 
-    public static class PeriodicIO {
+    private static final class PeriodicIO {
         // Inputs
         public double position_degrees = 0.0;
         public double velocity_rps = 0.0;
@@ -154,7 +154,10 @@ public class Coral extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
+        builder.setSmartDashboardType("Coral");
+        builder.setSafeState(this::disable);
+        builder.setActuator(true);
+
         builder.addDoubleProperty("Coral Angle (degrees)", () -> mPeriodicIO.position_degrees, null);
         builder.addDoubleProperty("Coral Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
         builder.addDoubleProperty("Coral Demand", () -> mPeriodicIO.demand, null);
@@ -162,8 +165,5 @@ public class Coral extends SubsystemBase {
         builder.addDoubleProperty("Coral Volts", () -> mPeriodicIO.output_voltage, null);
         builder.addDoubleProperty("Coral Current", () -> mPeriodicIO.current, null);
         builder.addStringProperty("Coral State", () -> mPeriodicIO.state.toString(), null);
-        builder.addBooleanProperty("Activate Coral", () -> false, (v) -> {if(v) activateCoral();});
-        builder.setSafeState(this::disable);
-        builder.setActuator(true);
     }
 }

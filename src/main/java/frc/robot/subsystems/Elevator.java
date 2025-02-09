@@ -110,7 +110,7 @@ public class Elevator extends SubsystemBase {
         mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
     }
 
-    public static class PeriodicIO {
+    private static final class PeriodicIO {
         // Inputs
         private double voltage;
         private double current;
@@ -124,42 +124,6 @@ public class Elevator extends SubsystemBase {
         private Position targetPosition = Position.MIN;
         private double targetHeight = 0.;
         private double manualTargetHeight = heights.get(positionOrder.get(0));
-    }
-
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.height, null);
-        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.height), null);
-        builder.addDoubleProperty("Elevator Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
-        builder.addBooleanProperty("Elevator Moving", () -> mPeriodicIO.moving, null);
-        builder.addDoubleProperty("Elevator Demand", () -> mPeriodicIO.demand, null);
-        builder.addDoubleProperty("Elevator Velocity", () -> mPeriodicIO.velocity, null);
-        builder.addDoubleProperty("Elevator Output Volts", () -> mPeriodicIO.voltage, null);
-        builder.addDoubleProperty("Elevator Current", () -> mPeriodicIO.current, null);
-        builder.addDoubleProperty("Elevator Torque Current", () -> mPeriodicIO.torqueCurrent, null);
-        builder.addBooleanProperty("Elevator Mark Min", () -> false, (v) -> {if(v) markMin();});
-        builder.addBooleanProperty("Elevator Step UP", () -> false, (v) -> {if(v) stepUp();});
-        builder.addBooleanProperty("Elevator Step DOWN", () -> false, (v) -> {if(v) stepDown();});
-        builder.addDoubleProperty("Elevator Manual Target", () -> mPeriodicIO.manualTargetHeight, (v) -> {mPeriodicIO.manualTargetHeight = v;});
-        builder.addBooleanProperty("Elevator Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
-        builder.addStringProperty("Elevator State", () -> mPeriodicIO.targetPosition.toString(), null);
-        builder.addDoubleProperty(
-            "Speed limit rps",
-            () -> ElevatorConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity,
-            (v) -> {
-                ElevatorConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = v;
-                setMotorConfig(ElevatorConstants.motorConfig);
-            }
-        );
-        builder.addDoubleProperty(
-            "Accel. limit rps2",
-            () -> ElevatorConstants.motorConfig.MotionMagic.MotionMagicAcceleration,
-            (v) -> {
-                ElevatorConstants.motorConfig.MotionMagic.MotionMagicAcceleration = v;
-                setMotorConfig(ElevatorConstants.motorConfig);
-            });
-        builder.setSafeState(this::disable);
-        builder.setActuator(true);    
     }
 
     @Override
@@ -188,5 +152,23 @@ public class Elevator extends SubsystemBase {
         if (mPeriodicIO.moving &&
             Util.epsilonEquals(mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance)
         ) mPeriodicIO.moving = false;
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("Elevator");
+        builder.setSafeState(this::disable);
+        builder.setActuator(true);
+
+        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.height, null);
+        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.height), null);
+        builder.addDoubleProperty("Elevator Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
+        builder.addBooleanProperty("Elevator Moving", () -> mPeriodicIO.moving, null);
+        builder.addDoubleProperty("Elevator Demand", () -> mPeriodicIO.demand, null);
+        builder.addDoubleProperty("Elevator Velocity", () -> mPeriodicIO.velocity, null);
+        builder.addDoubleProperty("Elevator Output Volts", () -> mPeriodicIO.voltage, null);
+        builder.addDoubleProperty("Elevator Current", () -> mPeriodicIO.current, null);
+        builder.addDoubleProperty("Elevator Torque Current", () -> mPeriodicIO.torqueCurrent, null);
+        builder.addStringProperty("Elevator State", () -> mPeriodicIO.targetPosition.toString(), null);
     }
 }

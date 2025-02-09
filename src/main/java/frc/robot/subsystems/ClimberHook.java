@@ -79,7 +79,7 @@ public class ClimberHook extends SubsystemBase {
         return mPeriodicIO.current;
     }
 
-    public static class PeriodicIO {
+    private static final class PeriodicIO {
         // Inputs
         private double extension;
         private double current;
@@ -127,18 +127,15 @@ public class ClimberHook extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
+        builder.setSmartDashboardType("ClimberHook");
+        builder.setSafeState(this::disable);
+        builder.setActuator(true);
+
         builder.addDoubleProperty("ClimberHook Angle (degrees)", () -> mPeriodicIO.extension, null);
         builder.addDoubleProperty("ClimberHook Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
         builder.addDoubleProperty("ClimberHook Demand", () -> mPeriodicIO.demand, null);
         builder.addDoubleProperty("ClimberHook Velocity rad_s", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty("ClimberHook Volts", () -> mPeriodicIO.output_voltage, null);
         builder.addDoubleProperty("ClimberHook Current", () -> mPeriodicIO.current, null);
-        builder.addBooleanProperty("Climberhook Toggle", () -> false, (v) -> {if(v) toggleTarget();});
-        builder.addDoubleProperty("ClimberHook Manual Target", () -> mPeriodicIO.manualTargetExtension, (v) -> {mPeriodicIO.manualTargetExtension = v;});
-        builder.addBooleanProperty("ClimberHook Manual Go", () -> false, (v) -> {if(v) setTarget(Position.MANUAL);});
-        builder.addBooleanProperty("ClimberHook Set Zero", () -> false, (v) -> {if(v) setZero();});
-        builder.setSafeState(this::disable);
-        builder.setActuator(true);
     }
 }

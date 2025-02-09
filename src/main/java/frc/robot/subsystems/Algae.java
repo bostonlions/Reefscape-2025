@@ -139,7 +139,7 @@ public class Algae extends SubsystemBase {
         if (mPeriodicIO.targetSpeed != 0) setDriveSpeed(mPeriodicIO.targetSpeed);
     }
 
-    private final class PeriodicIO {
+    private static final class PeriodicIO {
         // Inputs - cancoder motor
         public double C_position_degrees = 0.0;
         public double C_velocity_rps = 0.0;
@@ -233,7 +233,10 @@ public class Algae extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
+        builder.setSmartDashboardType("Algae");
+        builder.setSafeState(this::disable);
+        builder.setActuator(true);
+
         builder.addDoubleProperty("Angle motor degrees", () -> mPeriodicIO.C_position_degrees, null);
         builder.addDoubleProperty("Angle motor current", () -> mPeriodicIO.C_current, null);
         builder.addDoubleProperty("Angle motor voltage", () -> mPeriodicIO.C_output_voltage, null);
@@ -250,122 +253,5 @@ public class Algae extends SubsystemBase {
         builder.addStringProperty("Target DriveState", () -> mPeriodicIO.driveState.toString(), null);
         builder.addStringProperty("Target Position", () -> mPeriodicIO.targetPosition.toString(), null);
         builder.addDoubleProperty("Target speed", () -> mPeriodicIO.targetSpeed, null);
-        builder.addBooleanProperty("Flip up-down", () -> false, (v) -> {if (v) setPosition(mPeriodicIO.requestedPosition == PositionState.UP ? PositionState.DOWN : PositionState.UP);});
-        builder.addBooleanProperty("Activate Algae", () -> false, (v) -> {if (v) toggleDrive(); });
-        builder.addDoubleProperty("Manual Angle", () -> mPeriodicIO.manualAngle, (v) -> {mPeriodicIO.manualAngle = v; setAngleSetpoint(mPeriodicIO.manualAngle);});
-        // builder.addDoubleProperty(
-        //     "Angle Motor kP",
-        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kP,
-        //     (v) -> {
-        //         AlgaeConstants.angleMotorConfig.Slot0.kP = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Angle Motor kI",
-        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kI,
-        //     (v) -> {
-        //         AlgaeConstants.angleMotorConfig.Slot0.kI = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Angle Motor kD",
-        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kD,
-        //     (v) -> {
-        //         AlgaeConstants.angleMotorConfig.Slot0.kD = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Angle Motor kG",
-        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kG,
-        //     (v) -> {
-        //         AlgaeConstants.angleMotorConfig.Slot0.kG = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Angle Motor kS",
-        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kS,
-        //     (v) -> {
-        //         AlgaeConstants.angleMotorConfig.Slot0.kS = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Angle Motor kV",
-        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kV,
-        //     (v) -> {
-        //         AlgaeConstants.angleMotorConfig.Slot0.kV = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Angle Motor kA",
-        //     () -> AlgaeConstants.angleMotorConfig.Slot0.kA,
-        //     (v) -> {
-        //         AlgaeConstants.angleMotorConfig.Slot0.kA = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Drive Motor kP",
-        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kP,
-        //     (v) -> {
-        //         AlgaeConstants.driveMotorConfig.Slot0.kP = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Drive Motor kI",
-        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kI,
-        //     (v) -> {
-        //         AlgaeConstants.driveMotorConfig.Slot0.kI = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Drive Motor kD",
-        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kD,
-        //     (v) -> {
-        //         AlgaeConstants.driveMotorConfig.Slot0.kD = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Drive Motor kG",
-        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kG,
-        //     (v) -> {
-        //         AlgaeConstants.driveMotorConfig.Slot0.kG = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Drive Motor kS",
-        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kS,
-        //     (v) -> {
-        //         AlgaeConstants.driveMotorConfig.Slot0.kS = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Drive Motor kV",
-        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kV,
-        //     (v) -> {
-        //         AlgaeConstants.driveMotorConfig.Slot0.kV = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        // builder.addDoubleProperty(
-        //     "Drive Motor kA",
-        //     () -> AlgaeConstants.driveMotorConfig.Slot0.kA,
-        //     (v) -> {
-        //         AlgaeConstants.driveMotorConfig.Slot0.kA = v;
-        //         setConfigs(false);
-        //     }
-        // );
-        builder.setSafeState(this::disable);
-        builder.setActuator(true);
     }
 }
