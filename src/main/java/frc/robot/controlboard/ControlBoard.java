@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class ControlBoard {
     private static ControlBoard mInstance = null;
     public final CustomXboxController operator;
-    private final GenericHID driver;
+    public final GenericHID driver;
     private final double speedFactor;
     private final double kSwerveDeadband;
     private final int kDpadUp = 0;
@@ -81,12 +81,6 @@ public class ControlBoard {
         if (Math.abs(rotAxis) < kSwerveDeadband) return 0.0;
         return Drive.getInstance().getKinematicLimits().kMaxAngularVelocity *
             (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband)) / (1 - kSwerveDeadband);
-    }
-
-    /* right switch up */
-    public boolean zeroGyro() {
-        // SmartDashboard.putBoolean("Zero Gyro", driver.getRawButton(2));
-        return driver.getRawButton(2);// (driver.getRawAxis(6)<-0.3);
     }
 
     public enum SwerveCardinal {

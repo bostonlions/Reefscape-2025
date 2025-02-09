@@ -42,6 +42,10 @@ public class RobotContainer {
                 drive
             )
         );
+        // Right switch up
+        new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
+            new InstantCommand(drive::zeroGyro)
+        );
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */
         elevator = Elevator.getInstance();
