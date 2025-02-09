@@ -221,9 +221,9 @@ public class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(14)
+                .withMotionMagicCruiseVelocity(60)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(30))
+                .withMotionMagicAcceleration(90))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
