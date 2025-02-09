@@ -91,6 +91,7 @@ public class RobotContainer {
 
         /* TRIMMER - all subsystems can add items to be adjusted */
         trimmer = Trimmer.getInstance();
+        SmartDashboard.putData(trimmer);
         new Trigger(() -> (controller.operator.getController().getPOV() == 270)).onTrue(
             new InstantCommand(trimmer::nextSubsystem, trimmer)
         );
