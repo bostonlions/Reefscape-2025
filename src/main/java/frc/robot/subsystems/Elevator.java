@@ -14,6 +14,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Position;
 import static frc.robot.Constants.ElevatorConstants.heights;
 import static frc.robot.Constants.ElevatorConstants.positionOrder;
+import static frc.robot.Constants.ElevatorConstants.motorConfig;
 import frc.robot.Ports;
 import frc.robot.lib.Util;
 import frc.robot.lib.Util.Conversions;
@@ -32,10 +33,11 @@ public class Elevator extends SubsystemBase {
     private Elevator() {
         mMain = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_OPS);
         mFollower = new TalonFX(Ports.ELEVATOR_A, Ports.CANBUS_OPS);
-        setMotorConfig(ElevatorConstants.motorConfig);
+        setMotorConfig(motorConfig);
 
         setNeutralBrake(false);
         mPeriodicIO.moving = false;
+        initTrimmer();
     }
 
     private void setMotorConfig(TalonFXConfiguration config) {
@@ -170,5 +172,27 @@ public class Elevator extends SubsystemBase {
         builder.addDoubleProperty("Elevator Current", () -> mPeriodicIO.current, null);
         builder.addDoubleProperty("Elevator Torque Current", () -> mPeriodicIO.torqueCurrent, null);
         builder.addStringProperty("Elevator State", () -> mPeriodicIO.targetPosition.toString(), null);
+    }
+
+    public void initTrimmer() {
+        Trimmer trimmer = Trimmer.getInstance();
+        trimmer.add(
+            "Elevator",
+            "Up-Down 1cm",
+            () -> mPeriodicIO.targetHeight,
+            (up) -> {mPeriodicIO.manualTargetHeight = mPeriodicIO.targetHeight + (up ? 0.01 : -0.01); setTarget(Position.MANUAL);}
+        );
+        trimmer.add(
+            "Elevator",
+            "Speed",
+            () -> motorConfig.MotionMagic.MotionMagicCruiseVelocity,
+            (up) -> {motorConfig.MotionMagic.MotionMagicCruiseVelocity = Trimmer.increment(motorConfig.MotionMagic.MotionMagicCruiseVelocity, 1, 0.2, up); setMotorConfig(motorConfig);}
+        );
+        trimmer.add(
+            "Elevator",
+            "Accel",
+            () -> motorConfig.MotionMagic.MotionMagicAcceleration,
+            (up) -> {motorConfig.MotionMagic.MotionMagicAcceleration = Trimmer.increment(motorConfig.MotionMagic.MotionMagicAcceleration, 1, 0.2, up); setMotorConfig(motorConfig);}
+        );
     }
 }

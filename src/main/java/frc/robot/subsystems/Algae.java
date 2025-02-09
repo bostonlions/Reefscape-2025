@@ -7,7 +7,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import com.ctre.phoenix6.controls.Follower;
+// import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -19,6 +19,9 @@ import frc.robot.lib.drivers.BeamBreak;
 import frc.robot.lib.Util;
 import frc.robot.Constants.AlgaeConstants;
 import frc.robot.Constants.AlgaeConstants.Position;
+
+import static frc.robot.Constants.AlgaeConstants.angleMotorConfig;
+import static frc.robot.Constants.AlgaeConstants.driveMotorConfig;
 import static frc.robot.Constants.AlgaeConstants.angles;
 
 public class Algae extends SubsystemBase {
@@ -77,16 +80,21 @@ public class Algae extends SubsystemBase {
         mCANcoder.getConfigurator().apply(AlgaeConstants.cancoderConfig);
 
         mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
-        mDriveMotor.getConfigurator().apply(AlgaeConstants.driveMotorConfig);
-        mDriveMotor.setPosition(0);
 
         mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
-        AlgaeConstants.angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
-        AlgaeConstants.angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        AlgaeConstants.angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
-        AlgaeConstants.angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.gearRatio;
-        mAngleMotor.getConfigurator().apply(AlgaeConstants.angleMotorConfig);
+        angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
+        angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
+        angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.gearRatio;
         // mAngleMotor.setPosition(mCANcoder.getAbsolutePosition().getValueAsDouble());
+        setConfigs();
+        initTrimmer();
+    }
+
+    public void setConfigs() {
+        mDriveMotor.getConfigurator().apply(driveMotorConfig);
+        mDriveMotor.setPosition(0);
+        mAngleMotor.getConfigurator().apply(angleMotorConfig);
     }
 
     public void disable() {
@@ -94,6 +102,7 @@ public class Algae extends SubsystemBase {
     }
 
     public void setAngleSetpoint(double angle) {
+        mPeriodicIO.angleSetpoint = angle;
         mPeriodicIO.C_demand = (angle + AlgaeConstants.cancoderOffset)/360;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
         // mDriveMotor.setControl(new Follower(Ports.ALGAE_ANGLE, true));
@@ -160,7 +169,7 @@ public class Algae extends SubsystemBase {
         public double targetSpeed = 0;
         public DriveState driveState = DriveState.IDLE;
         public long stopTime;
-        public double manualAngle = 0;
+        public double angleSetpoint = 0;
     }
 
     @Override
@@ -249,9 +258,82 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Drive motor demand", () -> mPeriodicIO.D_demand, null);
         builder.addDoubleProperty("CANCODER Position", () -> Util.placeInAppropriate0To360Scope(0, mCANcoder.getAbsolutePosition().getValueAsDouble()*360-AlgaeConstants.cancoderOffset), null);
         builder.addDoubleProperty("CANCODER Raw Position", () -> mCANcoder.getAbsolutePosition().getValueAsDouble()*360, null);
+        builder.addDoubleProperty("Angle setpoint", () -> mPeriodicIO.angleSetpoint, null);
         builder.addStringProperty("Target PositionState", () -> mPeriodicIO.requestedPosition.toString(), null);
         builder.addStringProperty("Target DriveState", () -> mPeriodicIO.driveState.toString(), null);
         builder.addStringProperty("Target Position", () -> mPeriodicIO.targetPosition.toString(), null);
         builder.addDoubleProperty("Target speed", () -> mPeriodicIO.targetSpeed, null);
+    }
+
+    public void initTrimmer() {
+        Trimmer trimmer = Trimmer.getInstance();
+        trimmer.add(
+            "Algae",
+            "Angle+-2",
+            () -> mPeriodicIO.angleSetpoint,
+            (up) -> {setAngleSetpoint(mPeriodicIO.angleSetpoint + (up ? 2 : -2));}
+        );
+
+        trimmer.add(
+            "Algae",
+            "Angle kP",
+            () -> angleMotorConfig.Slot0.kP,
+            (up) -> {angleMotorConfig.Slot0.kP = Trimmer.increment(angleMotorConfig.Slot0.kP, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Angle kI",
+            () -> angleMotorConfig.Slot0.kI,
+            (up) -> {angleMotorConfig.Slot0.kI = Trimmer.increment(angleMotorConfig.Slot0.kI, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Angle kD",
+            () -> angleMotorConfig.Slot0.kD,
+            (up) -> {angleMotorConfig.Slot0.kD = Trimmer.increment(angleMotorConfig.Slot0.kD, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Angle Velocity",
+            () -> angleMotorConfig.MotionMagic.MotionMagicCruiseVelocity,
+            (up) -> {angleMotorConfig.MotionMagic.MotionMagicCruiseVelocity = Trimmer.increment(angleMotorConfig.MotionMagic.MotionMagicCruiseVelocity, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Angle Accel",
+            () -> angleMotorConfig.MotionMagic.MotionMagicAcceleration,
+            (up) -> {angleMotorConfig.MotionMagic.MotionMagicAcceleration = Trimmer.increment(angleMotorConfig.MotionMagic.MotionMagicAcceleration, 0.01, 0.2, up); setConfigs();}
+        );
+
+        trimmer.add(
+            "Algae",
+            "Drive kP",
+            () -> driveMotorConfig.Slot0.kP,
+            (up) -> {driveMotorConfig.Slot0.kP = Trimmer.increment(driveMotorConfig.Slot0.kP, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Drive kI",
+            () -> driveMotorConfig.Slot0.kI,
+            (up) -> {driveMotorConfig.Slot0.kI = Trimmer.increment(driveMotorConfig.Slot0.kI, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Drive kD",
+            () -> driveMotorConfig.Slot0.kD,
+            (up) -> {driveMotorConfig.Slot0.kD = Trimmer.increment(driveMotorConfig.Slot0.kD, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Drive Velocity",
+            () -> driveMotorConfig.MotionMagic.MotionMagicCruiseVelocity,
+            (up) -> {driveMotorConfig.MotionMagic.MotionMagicCruiseVelocity = Trimmer.increment(driveMotorConfig.MotionMagic.MotionMagicCruiseVelocity, 0.01, 0.2, up); setConfigs();}
+        );
+        trimmer.add(
+            "Algae",
+            "Drive Accel",
+            () -> driveMotorConfig.MotionMagic.MotionMagicAcceleration,
+            (up) -> {driveMotorConfig.MotionMagic.MotionMagicAcceleration = Trimmer.increment(driveMotorConfig.MotionMagic.MotionMagicAcceleration, 0.01, 0.2, up); setConfigs();}
+        );
     }
 }

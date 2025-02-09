@@ -286,16 +286,16 @@ public class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(140)
+                .withMotionMagicCruiseVelocity(0.5)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+                .withMotionMagicAcceleration(1.))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
     }
 
     public static final class AlgaeConstants {
-        public static final double gearRatio = 59./12;
+        public static final double gearRatio = 59./12;  // TODO drive and angle have different gears
 
         public static final double extraGroundIntakeRotations = 1.;
         public static final double groundIntakeSpeed = 1.;
