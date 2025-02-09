@@ -308,17 +308,17 @@ public class Constants {
     public static final class AlgaeConstants {
         public static final double gearRatio = 59./12;
 
-        public static final double extraGroundIntakeRotations = 2.;
-        public static final double groundIntakeSpeed = 10.;
+        public static final double extraGroundIntakeRotations = 1.;
+        public static final double groundIntakeSpeed = 1.;
 
-        public static final double extraReefIntakeRotations = 2.;
-        public static final double reefIntakeSpeed = 10.;
+        public static final double extraReefIntakeRotations = 1.;
+        public static final double reefIntakeSpeed = 1.;
 
-        public static final double extraProcessorUnloadRotations = 10.;
-        public static final double processorUnloadSpeed = 10.;
+        public static final double extraProcessorUnloadRotations = 1.;
+        public static final double processorUnloadSpeed = 1.;
 
-        public static final double extraBargeUnloadRotations = 10.;
-        public static final double bargeUnloadSpeed = 10.;
+        public static final double extraBargeUnloadRotations = 1.;
+        public static final double bargeUnloadSpeed = 1.;
 
         // Set the cancoder offset to its reading in degrees at exactly horizontal
         public static final double cancoderOffset = -144.759;
@@ -332,21 +332,21 @@ public class Constants {
             entry(Position.PROCESSOR, -82.26),
             entry(Position.LOADED_DOWN, -74.17),
             entry(Position.GROUND_INTAKE, -70.66),
-            entry(Position.REEF, 53.97),
-            entry(Position.BARGE, 60.56),
-            entry(Position.LOADED_UP, 89.83),
-            entry(Position.STOW_UP, 114.26),
+            entry(Position.REEF, 45.), // was 53.97
+            entry(Position.BARGE, 52.), // was 60.56
+            entry(Position.LOADED_UP, 80.), // was 89.83
+            entry(Position.STOW_UP, 100.), // was 114.26
             entry(Position.MAX, 123.42)
         );
 
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
                 .withSupplyCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(20)
-                .withSupplyCurrentLowerLimit(10)
+                .withSupplyCurrentLimit(20.)
+                .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.6)
+                .withKP(0.06)
                 .withKI(0.)
                 .withKD(0.)
                 .withKV(0.)
@@ -354,9 +354,9 @@ public class Constants {
                 .withKS(0.)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(140)
-                .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+                .withMotionMagicCruiseVelocity(1.4)
+                .withMotionMagicExpo_kA(0.03)
+                .withMotionMagicAcceleration(3.))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
@@ -364,8 +364,8 @@ public class Constants {
         public static TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
                 .withSupplyCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(20)
-                .withSupplyCurrentLowerLimit(10)
+                .withSupplyCurrentLimit(20.)
+                .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
                 .withKP(0.6)
@@ -376,12 +376,12 @@ public class Constants {
                 .withKS(0.)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(140)
+                .withMotionMagicCruiseVelocity(.6)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+                .withMotionMagicAcceleration(1.))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.Clockwise_Positive));
+                .withInverted(InvertedValue.CounterClockwise_Positive));
 
         public static final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
             .withMagnetSensor(new MagnetSensorConfigs()

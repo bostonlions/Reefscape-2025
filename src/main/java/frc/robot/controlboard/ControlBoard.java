@@ -17,28 +17,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ControlBoard implements Sendable {
     private final double kSwerveDeadband = ControllerConstants.stickDeadband;
-
+    private static ControlBoard mInstance = null;
     private final int kDpadUp = 0;
     private final int kDpadRight = 90;
     private final int kDpadDown = 180;
     private final int kDpadLeft = 270;
     private double speedFactor;
-
+    public final GenericHID driver;
+    public final CustomXboxController operator;
     // private boolean leftBumperBoolean = false;
     // private boolean passNoteAllignBoolean = false;
     // private boolean podiumAllignBoolean = false;
-
-    private static ControlBoard mInstance = null;
-
-    int tagLastChased = -1;
+    // int tagLastChased = -1;
 
     public static ControlBoard getInstance() {
         if (mInstance == null) mInstance = new ControlBoard();
         return mInstance;
     }
-
-    public final GenericHID driver;
-    public final CustomXboxController operator;
 
     private ControlBoard() {
         driver = new GenericHID(Ports.DRIVER_CONTROL);
@@ -69,28 +64,23 @@ public class ControlBoard implements Sendable {
 
         Translation2d tAxes = new Translation2d(forwardAxis, strafeAxis);
 
-        if (Math.abs(tAxes.getNorm()) < kSwerveDeadband) {
-            return new Translation2d();
-        } else {
+        if (Math.abs(tAxes.getNorm()) < kSwerveDeadband) return new Translation2d(); else {
             Rotation2d deadband_direction = new Rotation2d(tAxes.getX(), tAxes.getY());
             Translation2d deadband_vector = new Translation2d(kSwerveDeadband, deadband_direction);
 
             double scaled_x = Util.scaledDeadband(forwardAxis, 1.0, Math.abs(deadband_vector.getX()));
             double scaled_y = Util.scaledDeadband(strafeAxis, 1.0, Math.abs(deadband_vector.getY()));
             return new Translation2d(scaled_x, scaled_y)
-                    .times(Drive.getInstance().getKinematicLimits().kMaxDriveVelocity);
+                .times(Drive.getInstance().getKinematicLimits().kMaxDriveVelocity);
         }
-
     }
 
     public double getSwerveRotation() {
         double rotAxis = ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw();
         rotAxis = ControllerConstants.invertRAxis ? rotAxis : -rotAxis;
-
         rotAxis = rotAxis * speedFactor;
-
+        
         if (Math.abs(rotAxis) < kSwerveDeadband) return 0.0;
-
         return Drive.getInstance().getKinematicLimits().kMaxAngularVelocity *
             (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband)) / (1 - kSwerveDeadband);
     }
@@ -293,7 +283,7 @@ public class ControlBoard implements Sendable {
     //     return (operator.getButton(Button.X));
     // }
 
-    // // Locks wheels in X formation
+    // Locks wheels in X formation
     public boolean getBrake() {
         SmartDashboard.putNumber("Get Brake", driver.getRawAxis(4));
         return false;// (driver.getRawAxis(4)<-0.3); //driver.getRawButton(4); //far left switch
@@ -314,9 +304,7 @@ public class ControlBoard implements Sendable {
     private double getLeftYaw() {
         double leftYaw = driver.getRawAxis(ControllerConstants.leftXAxis);
 
-        if (leftYaw != 0) {
-            leftYaw = leftYaw - ControllerConstants.LeftYawZero;
-        }
+        if (leftYaw != 0) leftYaw -= ControllerConstants.LeftYawZero;
 
         if (leftYaw > kSwerveDeadband) {
             leftYaw = (leftYaw / (ControllerConstants.LeftYawHigh
