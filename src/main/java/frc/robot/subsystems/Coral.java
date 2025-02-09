@@ -34,6 +34,11 @@ public class Coral extends SubsystemBase {
         setWantNeutralBrake(true);
         mMotor.setPosition(0);
         mBeamBreak = new BeamBreak(Ports.CORAL_BEAM_BREAK);
+        mPeriodicIO.loadSpeed = CoralConstants.loadSpeed;
+        mPeriodicIO.unloadSpeed = CoralConstants.unloadSpeed;
+        mPeriodicIO.extraLoadRotations = CoralConstants.extraLoadRotations;
+        mPeriodicIO.extraUnloadRotations = CoralConstants.extraUnloadRotations;
+        initTrimmer();
     }
 
     public void disable() {
@@ -91,6 +96,11 @@ public class Coral extends SubsystemBase {
         public double demand = 0;
         public long stopTime;
         public State state = State.LOADED;
+
+        public double loadSpeed;
+        public double unloadSpeed;
+        public double extraLoadRotations;
+        public double extraUnloadRotations;
     }
 
     @Override
@@ -165,5 +175,33 @@ public class Coral extends SubsystemBase {
         builder.addDoubleProperty("Coral Volts", () -> mPeriodicIO.output_voltage, null);
         builder.addDoubleProperty("Coral Current", () -> mPeriodicIO.current, null);
         builder.addStringProperty("Coral State", () -> mPeriodicIO.state.toString(), null);
+    }
+
+    public void initTrimmer() {
+        Trimmer trimmer = Trimmer.getInstance();
+        trimmer.add(
+            "Coral",
+            "Load speed",
+            () -> mPeriodicIO.loadSpeed,
+            (up) -> {mPeriodicIO.loadSpeed = Trimmer.increment(mPeriodicIO.loadSpeed, 0.01, 0.2, up);}
+        );
+        trimmer.add(
+            "Coral",
+            "Unload speed",
+            () -> mPeriodicIO.unloadSpeed,
+            (up) -> {mPeriodicIO.unloadSpeed = Trimmer.increment(mPeriodicIO.unloadSpeed, 0.01, 0.2, up);}
+        );
+        trimmer.add(
+            "Coral",
+            "Extra load rot",
+            () -> mPeriodicIO.extraLoadRotations,
+            (up) -> {mPeriodicIO.extraLoadRotations += (up ? 0.1 : -0.1);}
+        );
+        trimmer.add(
+            "Coral",
+            "Extra unload rot",
+            () -> mPeriodicIO.extraUnloadRotations,
+            (up) -> {mPeriodicIO.extraUnloadRotations += (up ? 0.1 : -0.1);}
+        );
     }
 }
