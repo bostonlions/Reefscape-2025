@@ -193,13 +193,13 @@ public class Coral extends SubsystemBase {
             "Coral",
             "Extra load rot",
             () -> mPeriodicIO.extraLoadRotations,
-            (up) -> {mPeriodicIO.extraLoadRotations = Math.max(0, mPeriodicIO.extraLoadRotations + (up ? 0.1 : -0.1));}
+            (up) -> {mPeriodicIO.extraLoadRotations = Math.max(0, mPeriodicIO.extraLoadRotations + (up ? 0.01 : -0.01));}
         );
         trimmer.add(
             "Coral",
             "Extra unload rot",
             () -> mPeriodicIO.extraUnloadRotations,
-            (up) -> {mPeriodicIO.extraUnloadRotations = Math.max(0, mPeriodicIO.extraUnloadRotations + (up ? 0.1 : -0.1));}
+            (up) -> {mPeriodicIO.extraUnloadRotations = Math.max(0, mPeriodicIO.extraUnloadRotations + (up ? 0.01 : -0.01));}
         );
     }
 }
