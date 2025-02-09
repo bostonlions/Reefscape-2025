@@ -86,8 +86,8 @@ public class Algae extends SubsystemBase {
         angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
         angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.gearRatio;
-        // mAngleMotor.setPosition(mCANcoder.getAbsolutePosition().getValueAsDouble());
         setConfigs();
+        mAngleMotor.setPosition(mCANcoder.getAbsolutePosition().getValueAsDouble());
         initTrimmer();
     }
 
