@@ -59,16 +59,14 @@ public class Coral extends SubsystemBase {
 
     /** To start or interrupt a load or unload upon a button push */
     public void activateCoral() {
-        // For testing just start if running until disabled
-        //setSetpoint(CoralConstants.loadSpeed);
         System.out.println("activateCoral - mPeriodicIO.state: " + mPeriodicIO.state); // a helpful tool for debugging
 
 
         if (mPeriodicIO.state == State.IDLE) {
-            setSetpoint(CoralConstants.loadSpeed);
+            setSetpoint(mPeriodicIO.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
         } else if (mPeriodicIO.state == State.LOADED) {
-            setSetpoint(CoralConstants.unloadSpeed);
+            setSetpoint(mPeriodicIO.unloadSpeed);
             mPeriodicIO.state = State.UNLOADING_WITH_CORAL;
         } else {
             setSetpoint(0);
@@ -119,16 +117,16 @@ public class Coral extends SubsystemBase {
 
                 if (mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
-                        (CoralConstants.extraLoadRotations / CoralConstants.loadSpeed));
+                        (mPeriodicIO.extraLoadRotations / mPeriodicIO.loadSpeed));
                     mPeriodicIO.state = State.LOADING_WITH_CORAL;
                 }
 
-                System.out.println("LOADING_NO_CORAL - mPeriodicIO.stopTime: " + mPeriodicIO.stopTime);
-                System.out.println("LOADING_NO_CORAL - CoralConstants.extraLoadRotations: " + CoralConstants.extraLoadRotations);
-                System.out.println("LOADING_NO_CORAL - CoralConstants.loadSpeed: " + CoralConstants.loadSpeed);
+                System.out.println("LOADING_NO_CORAL - stopTime: " + mPeriodicIO.stopTime);
+                System.out.println("LOADING_NO_CORAL - extraLoadRotations: " + mPeriodicIO.extraLoadRotations);
+                System.out.println("LOADING_NO_CORAL - loadSpeed: " + mPeriodicIO.loadSpeed);
 
-                if (CoralConstants.extraLoadRotations > 0) break; // we wanna check the next case without
-                // waiting for next periodic loop, just if no wait time after the load
+                // continue without waiting for next periodic loop, if no wait time after the load
+                if (mPeriodicIO.extraLoadRotations > 0) break;
             case LOADING_WITH_CORAL:
                 System.out.println("LOADING_WITH_CORAL - mPeriodicIO.stopTime: " + mPeriodicIO.stopTime);
                 System.out.println("LOADING_WITH_CORAL - System.currentTimeMillis(): " + System.currentTimeMillis());
@@ -143,11 +141,11 @@ public class Coral extends SubsystemBase {
 
                 if (!mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
-                        (CoralConstants.extraUnloadRotations / CoralConstants.unloadSpeed));
+                        (mPeriodicIO.extraUnloadRotations / mPeriodicIO.unloadSpeed));
                     mPeriodicIO.state = State.UNLOADING_NO_CORAL;
                 }
-                if (CoralConstants.extraUnloadRotations > 0) break; // we wanna check the next case without
-                // waiting for next periodic loop, just if no wait time after the unload
+                // continue without waiting for next periodic loop, if no wait time after the unload
+                if (mPeriodicIO.extraUnloadRotations > 0) break;
             case UNLOADING_NO_CORAL:
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     setSetpoint(0);
@@ -195,13 +193,13 @@ public class Coral extends SubsystemBase {
             "Coral",
             "Extra load rot",
             () -> mPeriodicIO.extraLoadRotations,
-            (up) -> {mPeriodicIO.extraLoadRotations += (up ? 0.1 : -0.1);}
+            (up) -> {mPeriodicIO.extraLoadRotations = Math.max(0, mPeriodicIO.extraLoadRotations + (up ? 0.01 : -0.01));}
         );
         trimmer.add(
             "Coral",
             "Extra unload rot",
             () -> mPeriodicIO.extraUnloadRotations,
-            (up) -> {mPeriodicIO.extraUnloadRotations += (up ? 0.1 : -0.1);}
+            (up) -> {mPeriodicIO.extraUnloadRotations = Math.max(0, mPeriodicIO.extraUnloadRotations + (up ? 0.01 : -0.01));}
         );
     }
 }

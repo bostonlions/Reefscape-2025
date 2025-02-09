@@ -210,11 +210,12 @@ public class SwerveModule extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty(name + " Angle Position", () -> mPeriodicIO.rotationPosition, null);
-        builder.addDoubleProperty(name + " CANCODER Position", () -> getCanCoder(), null);
-        builder.addDoubleProperty(name + " Drive Position", () -> mPeriodicIO.drivePosition, null);
-        builder.addDoubleProperty(name + " Velocity", () -> mPeriodicIO.velocity, null);
-        builder.addDoubleProperty(name + " Target Angle", () -> Conversions.rotationsToDegrees(mPeriodicIO.rotationDemand, SwerveConstants.angleGearRatio), null);
-        builder.addDoubleProperty(name + " Target Velocity", () -> mPeriodicIO.targetVelocity, null);
+        builder.addDoubleProperty("Angle Position", () -> mPeriodicIO.rotationPosition, null);
+        builder.addDoubleProperty("CANCODER Position", () -> getCanCoder(), null);
+        builder.addDoubleProperty("Drive Position", () -> mPeriodicIO.drivePosition, null);
+        builder.addDoubleProperty("Velocity", () -> mPeriodicIO.velocity, null);
+        builder.addDoubleProperty("Target Angle", () -> Conversions.rotationsToDegrees(mPeriodicIO.rotationDemand, SwerveConstants.angleGearRatio), null);
+        builder.addDoubleProperty("Target Velocity", () -> mPeriodicIO.targetVelocity, null);
+        builder.addStringProperty("Control Mode", () -> mPeriodicIO.driveControlMode.toString(), null);
     }
 }

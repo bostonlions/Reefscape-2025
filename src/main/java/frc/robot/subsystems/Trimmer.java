@@ -73,7 +73,7 @@ public class Trimmer extends SubsystemBase {
         items.get(currentSubsystemIndex).get(currentItemIndex).inc.accept(false);
     }
 
-    public class Item {
+    public final class Item {
         public String name;
         public DoubleSupplier getter;
         public BooleanConsumer inc;

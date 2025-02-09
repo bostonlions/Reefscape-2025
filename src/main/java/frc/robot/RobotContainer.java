@@ -42,15 +42,19 @@ public class RobotContainer {
                 drive
             )
         );
+        // Right switch up
+        new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
+            new InstantCommand(drive::zeroGyro)
+        );
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */
         elevator = Elevator.getInstance();
         SmartDashboard.putData(elevator);
-        new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(
+        new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(
             new InstantCommand(elevator::stepDown, elevator)
             // new FunctionalCommand(elevator::stepDown, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
-        new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(
+        new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(
             new InstantCommand(elevator::stepUp, elevator)
             // new FunctionalCommand(elevator::stepUp, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
@@ -87,6 +91,7 @@ public class RobotContainer {
 
         /* TRIMMER - all subsystems can add items to be adjusted */
         trimmer = Trimmer.getInstance();
+        SmartDashboard.putData(trimmer);
         new Trigger(() -> (controller.operator.getController().getPOV() == 270)).onTrue(
             new InstantCommand(trimmer::nextSubsystem, trimmer)
         );

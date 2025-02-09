@@ -112,10 +112,8 @@ public class Drive extends SubsystemBase {
     }
 
     public void setTrajectory(Trajectory trajectory, Rotation2d heading) {
-        if (mMotionPlanner != null) {
-            mMotionPlanner.setTrajectory(trajectory, heading, getPose());
-            mControlState = DriveControlState.PATH_FOLLOWING;
-        }
+        mMotionPlanner.setTrajectory(trajectory, heading, getPose());
+        mControlState = DriveControlState.PATH_FOLLOWING;
     }
 
     public void setAutoHeading(Rotation2d new_heading) {

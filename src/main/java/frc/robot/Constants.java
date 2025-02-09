@@ -196,10 +196,10 @@ public class Constants {
             entry(Position.MIN, 0.),
             entry(Position.LOAD, 0.001),
             entry(Position.PROCESSOR, 0.01),
-            entry(Position.L1, 0.06),
+            entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
             entry(Position.L3, 0.725),
-            entry(Position.L4, 1.4),
+            entry(Position.L4, 1.42),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
@@ -221,9 +221,9 @@ public class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(14)
+                .withMotionMagicCruiseVelocity(60)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(30))
+                .withMotionMagicAcceleration(90))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
@@ -298,19 +298,19 @@ public class Constants {
         public static final double gearRatio = 59./12;  // TODO drive and angle have different gears
 
         public static final double extraGroundIntakeRotations = 1.;
-        public static final double groundIntakeSpeed = 1.;
+        public static final double groundIntakeSpeed = 0.5;
 
-        public static final double extraReefIntakeRotations = 1.;
-        public static final double reefIntakeSpeed = 1.;
+        public static final double extraReefIntakeRotations = 2.;
+        public static final double reefIntakeSpeed = 0.5;
 
         public static final double extraProcessorUnloadRotations = 1.;
-        public static final double processorUnloadSpeed = 1.;
+        public static final double processorUnloadSpeed = 3.;
 
-        public static final double extraBargeUnloadRotations = 1.;
-        public static final double bargeUnloadSpeed = 1.;
+        public static final double extraBargeUnloadRotations = 2.;
+        public static final double bargeUnloadSpeed = 2.;
 
         // Set the cancoder offset to its reading in degrees at exactly horizontal
-        public static final double cancoderOffset = -144.759;
+        public static final double cancoderOffset = -151.75; // -144.759;
 
         public enum Position {
             MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
@@ -318,16 +318,16 @@ public class Constants {
 
         // Angles in degrees from horizontal:
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -96.8),
-            entry(Position.STOW_DOWN, -95.27),
-            entry(Position.PROCESSOR, -82.26),
-            entry(Position.LOADED_DOWN, -74.17),
-            entry(Position.GROUND_INTAKE, -70.66),
-            entry(Position.REEF, 45.), // was 53.97
-            entry(Position.BARGE, 52.), // was 60.56
-            entry(Position.LOADED_UP, 80.), // was 89.83
-            entry(Position.STOW_UP, 100.), // was 114.26
-            entry(Position.MAX, 123.42)
+            entry(Position.MIN, -91.8),
+            entry(Position.STOW_DOWN, -91.),
+            entry(Position.PROCESSOR, -59.),
+            entry(Position.LOADED_DOWN, -55.),
+            entry(Position.GROUND_INTAKE, -52.),
+            entry(Position.REEF, 59.),
+            entry(Position.BARGE, 70.),
+            entry(Position.LOADED_UP, 90.),
+            entry(Position.STOW_UP, 120.),
+            entry(Position.MAX, 130.)
         );
 
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
@@ -337,7 +337,7 @@ public class Constants {
                 .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.06)
+                .withKP(0.035)
                 .withKI(0.)
                 .withKD(0.)
                 .withKV(0.)
@@ -345,9 +345,9 @@ public class Constants {
                 .withKS(0.)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(1.4)
+                .withMotionMagicCruiseVelocity(6.)
                 .withMotionMagicExpo_kA(0.03)
-                .withMotionMagicAcceleration(3.))
+                .withMotionMagicAcceleration(12.))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
@@ -367,9 +367,9 @@ public class Constants {
                 .withKS(0.)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(.6)
+                .withMotionMagicCruiseVelocity(15.)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(1.))
+                .withMotionMagicAcceleration(8.))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
@@ -377,7 +377,8 @@ public class Constants {
         public static final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
             .withMagnetSensor(new MagnetSensorConfigs()
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
-                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+                .withMagnetOffset(-cancoderOffset / 360));
     }
 
     public static final class ControllerConstants {
