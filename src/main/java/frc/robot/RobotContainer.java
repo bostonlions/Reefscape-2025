@@ -23,7 +23,7 @@ import frc.robot.lib.swerve.SwerveModule;
  * trigger->command mappings should be defined here, using the Trigger constructor
  */
 public class RobotContainer {
-    private ControlBoard controller;
+    private ControlBoard controller = ControlBoard.getInstance();
     private Drive drive;
     private Elevator elevator;
     // private ClimberHook climberHook;
@@ -31,9 +31,6 @@ public class RobotContainer {
     private Algae algae;
 
     public RobotContainer() {
-        controller = ControlBoard.getInstance();
-        SmartDashboard.putData(controller);
-
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);

@@ -45,29 +45,14 @@ public class Pigeon {
         return getUnadjustedPitch().rotateBy(pitchAdjustmentAngle.unaryMinus()).unaryMinus();
     }
 
-    /**
-     * Sets the yaw register to read the specified value.
-     *
-     * @param angleDeg New yaw in degrees
-     */
     public void setYaw(double angleDeg) {
         yawAdjustmentAngle = getUnadjustedYaw().rotateBy(Rotation2d.fromDegrees(angleDeg).unaryMinus());
     }
 
-    /**
-     * Sets the roll register to read the specified value.
-     *
-     * @param angleDeg New yaw in degrees
-     */
     public void setRoll(double angleDeg) {
         rollAdjustmentAngle = getUnadjustedRoll().rotateBy(Rotation2d.fromDegrees(angleDeg).unaryMinus());
     }
 
-    /**
-     * Sets the roll register to read the specified value.
-     *
-     * @param angleDeg New yaw in degrees
-     */
     public void setPitch(double angleDeg) {
         pitchAdjustmentAngle = getUnadjustedPitch().rotateBy(Rotation2d.fromDegrees(angleDeg).unaryMinus());
     }

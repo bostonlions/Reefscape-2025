@@ -70,8 +70,8 @@ public class HolonomicDriveController {
         final var tolTranslate = m_poseTolerance.getTranslation();
         final var tolRotate = m_poseTolerance.getRotation();
         return Math.abs(eTranslate.getX()) < tolTranslate.getX()
-                && Math.abs(eTranslate.getY()) < tolTranslate.getY()
-                && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
+            && Math.abs(eTranslate.getY()) < tolTranslate.getY()
+            && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
     }
 
     /**
@@ -95,10 +95,11 @@ public class HolonomicDriveController {
      * @return The next output of the holonomic drive controller.
      */
     public ChassisSpeeds calculate(
-            Pose2d currentPose,
-            Pose2d trajectoryPose,
-            double desiredLinearVelocityMetersPerSecond,
-            Rotation2d desiredHeading) {
+        Pose2d currentPose,
+        Pose2d trajectoryPose,
+        double desiredLinearVelocityMetersPerSecond,
+        Rotation2d desiredHeading
+    ) {
         // If this is the first run, then we need to reset the theta controller to the
         // current pose's
         // heading.
@@ -111,14 +112,13 @@ public class HolonomicDriveController {
         double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
         double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
         double thetaFF = m_thetaController.calculate(
-                currentPose.getRotation().getRadians(), desiredHeading.getRadians());
+            currentPose.getRotation().getRadians(), desiredHeading.getRadians());
 
         m_poseError = trajectoryPose.relativeTo(currentPose);
         m_rotationError = desiredHeading.minus(currentPose.getRotation());
 
-        if (!m_enabled) {
+        if (!m_enabled)
             return ChassisSpeeds.fromFieldRelativeSpeeds(xFF, yFF, thetaFF, currentPose.getRotation());
-        }
 
         // Calculate feedback velocities (based on position error).
         double xFeedback = m_xController.calculate(currentPose.getX(), trajectoryPose.getX());
@@ -126,7 +126,8 @@ public class HolonomicDriveController {
 
         // Return next output.
         return ChassisSpeeds.fromFieldRelativeSpeeds(
-                xFF + xFeedback, yFF + yFeedback, thetaFF, currentPose.getRotation());
+            xFF + xFeedback, yFF + yFeedback, thetaFF, currentPose.getRotation()
+        );
     }
 
     /**
@@ -139,10 +140,8 @@ public class HolonomicDriveController {
      * @param desiredHeading The desired heading.
      * @return The next output of the holonomic drive controller.
      */
-    public ChassisSpeeds calculate(
-            Pose2d currentPose, Trajectory.State desiredState, Rotation2d desiredHeading) {
-        return calculate(
-                currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, desiredHeading);
+    public ChassisSpeeds calculate( Pose2d currentPose, Trajectory.State desiredState, Rotation2d desiredHeading) {
+        return calculate(currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, desiredHeading);
     }
 
     /**
@@ -152,7 +151,5 @@ public class HolonomicDriveController {
      *
      * @param enabled If the controller is enabled or not.
      */
-    public void setEnabled(boolean enabled) {
-        m_enabled = enabled;
-    }
+    public void setEnabled(boolean enabled) { m_enabled = enabled; }
 }

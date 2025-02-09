@@ -9,16 +9,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.lib.swerve.SwerveModule;
-import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
-import frc.robot.lib.Util;
 import frc.robot.lib.drivers.Pigeon;
 import frc.robot.lib.swerve.ChassisSpeeds;
 import frc.robot.lib.swerve.DriveMotionPlanner;
@@ -27,10 +23,8 @@ import frc.robot.lib.swerve.SwerveDriveOdometry;
 import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public class Drive extends SubsystemBase {
-    private SendableChooser<Boolean> zeroGyroChooser = new SendableChooser<Boolean>();
-
-    private Pigeon mPigeon = Pigeon.getInstance();
     public SwerveModule[] mModules;
+    private Pigeon mPigeon = Pigeon.getInstance();
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private DriveControlState mControlState = DriveControlState.FORCE_ORIENT;
     private final SwerveDriveOdometry mOdometry;
@@ -63,18 +57,11 @@ public class Drive extends SubsystemBase {
         };
 
         kKinematics = new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth);
-
         mOdometry = new SwerveDriveOdometry(kKinematics, getModuleStates());
         mMotionPlanner = new DriveMotionPlanner();
 
         setNeutralBrake(true);
-
         mPigeon.setYaw(0.0);
-
-        /* smart dashboard choosers setup */
-        zeroGyroChooser.setDefaultOption("False", Boolean.valueOf(false)); // valueOf functions as a boolean object constuctor
-        zeroGyroChooser.addOption("True", Boolean.valueOf(true));
-        SmartDashboard.putData("Zero Gyro", zeroGyroChooser);
     }
 
     public void setKinematicLimits(SwerveConstants.KinematicLimits newLimits) {
@@ -86,13 +73,12 @@ public class Drive extends SubsystemBase {
             DriveControlState.HEADING_CONTROL) mControlState = DriveControlState.OPEN_LOOP;
 
         if (mControlState == DriveControlState.HEADING_CONTROL) {
-            if (Math.abs(speeds.omegaRadiansPerSecond) > 1.0) {
-                mControlState = DriveControlState.OPEN_LOOP;
-            } else {
+            if (Math.abs(speeds.omegaRadiansPerSecond) > 1.0) mControlState = DriveControlState.OPEN_LOOP;
+            else {
                 double x = speeds.vxMetersPerSecond;
                 double y = speeds.vyMetersPerSecond;
                 double omega = mMotionPlanner.calculateRotationalAdjustment(mPeriodicIO.heading_setpoint.getRadians(),
-                        mPeriodicIO.heading.getRadians()); // I put a neg sign here fyi
+                    mPeriodicIO.heading.getRadians()); // I put a neg sign here fyi
                 mPeriodicIO.des_chassis_speeds = new ChassisSpeeds(x, y, omega);
                 return;
             }
@@ -111,8 +97,7 @@ public class Drive extends SubsystemBase {
     }
 
     public void setHeadingControlTarget(double target_degrees) {
-        if (mControlState != DriveControlState.HEADING_CONTROL)
-            mControlState = DriveControlState.HEADING_CONTROL;
+        if (mControlState != DriveControlState.HEADING_CONTROL) mControlState = DriveControlState.HEADING_CONTROL;
         mPeriodicIO.heading_setpoint = Rotation2d.fromDegrees(target_degrees);
     }
 
@@ -140,7 +125,7 @@ public class Drive extends SubsystemBase {
     // Stops drive without orienting modules
     public synchronized void stopModules() {
         List<Rotation2d> orientations = new ArrayList<>();
-        for (ModuleState moduleState : getModuleStates()) orientations.add(moduleState.angle);
+        for (ModuleState moduleState: getModuleStates()) orientations.add(moduleState.angle);
         orientModules(orientations);
     }
 
@@ -206,12 +191,12 @@ public class Drive extends SubsystemBase {
         if (mControlState == DriveControlState.FORCE_ORIENT) return;
 
         Pose2d robot_pose_vel = new Pose2d(mPeriodicIO.des_chassis_speeds.vxMetersPerSecond * SwerveConstants.kLooperDt,
-                mPeriodicIO.des_chassis_speeds.vyMetersPerSecond * SwerveConstants.kLooperDt,
-                Rotation2d.fromRadians(mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond * SwerveConstants.kLooperDt));
+            mPeriodicIO.des_chassis_speeds.vyMetersPerSecond * SwerveConstants.kLooperDt,
+            Rotation2d.fromRadians(mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond * SwerveConstants.kLooperDt));
         Twist2d twist_vel = new Pose2d().log(robot_pose_vel);
         ChassisSpeeds wanted_speeds = new ChassisSpeeds(
-                twist_vel.dx / SwerveConstants.kLooperDt, twist_vel.dy / SwerveConstants.kLooperDt,
-                twist_vel.dtheta / SwerveConstants.kLooperDt);
+            twist_vel.dx / SwerveConstants.kLooperDt, twist_vel.dy / SwerveConstants.kLooperDt,
+            twist_vel.dtheta / SwerveConstants.kLooperDt);
 
         if (mControlState == DriveControlState.PATH_FOLLOWING) {
             ModuleState[] real_module_setpoints = kKinematics.toModuleStates(wanted_speeds);
@@ -221,25 +206,25 @@ public class Drive extends SubsystemBase {
 
         // Limit rotational velocity
         wanted_speeds.omegaRadiansPerSecond = Math.signum(wanted_speeds.omegaRadiansPerSecond)
-                * Math.min(mKinematicLimits.kMaxAngularVelocity, Math.abs(wanted_speeds.omegaRadiansPerSecond));
+            * Math.min(mKinematicLimits.kMaxAngularVelocity, Math.abs(wanted_speeds.omegaRadiansPerSecond));
 
         // Limit translational velocity
         double velocity_magnitude = Math.hypot(mPeriodicIO.des_chassis_speeds.vxMetersPerSecond,
-                mPeriodicIO.des_chassis_speeds.vyMetersPerSecond);
+            mPeriodicIO.des_chassis_speeds.vyMetersPerSecond);
         if (velocity_magnitude > mKinematicLimits.kMaxDriveVelocity) {
             wanted_speeds.vxMetersPerSecond = (wanted_speeds.vxMetersPerSecond / velocity_magnitude)
-                    * mKinematicLimits.kMaxDriveVelocity;
+                * mKinematicLimits.kMaxDriveVelocity;
             wanted_speeds.vyMetersPerSecond = (wanted_speeds.vyMetersPerSecond / velocity_magnitude)
-                    * mKinematicLimits.kMaxDriveVelocity;
+                * mKinematicLimits.kMaxDriveVelocity;
         }
 
         ModuleState[] prev_module_states = mPeriodicIO.des_module_states.clone(); // Get last setpoint to get differentials
         ChassisSpeeds prev_chassis_speeds = kKinematics.toChassisSpeeds(prev_module_states);
         ModuleState[] target_module_states = kKinematics.toModuleStates(wanted_speeds);
 
-        if (wanted_speeds.epsilonEquals(new ChassisSpeeds(), Util.kEpsilon)) {
+        if (wanted_speeds.epsilonEquals(new ChassisSpeeds(), 1e-12)) {
             for (int i = 0; i < target_module_states.length; i++) {
-                target_module_states[i].speedMetersPerSecond = 0.0;
+                target_module_states[i].speedMetersPerSecond = 0.;
                 target_module_states[i].angle = prev_module_states[i].angle;
             }
         }
@@ -269,7 +254,6 @@ public class Drive extends SubsystemBase {
         if (max_omega_step < Double.MAX_VALUE * SwerveConstants.kLooperDt) {
             double omega_norm = Math.abs(domega / max_omega_step);
             min_omega_scalar = Math.min(min_omega_scalar, omega_norm);
-
             min_omega_scalar *= max_omega_step;
         }
 
@@ -277,9 +261,10 @@ public class Drive extends SubsystemBase {
 
         // if (!spinFastDuringAuto) {
         wanted_speeds = new ChassisSpeeds(
-                prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
-                prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar,
-                prev_chassis_speeds.omegaRadiansPerSecond + domega * min_omega_scalar);
+            prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
+            prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar,
+            prev_chassis_speeds.omegaRadiansPerSecond + domega * min_omega_scalar
+        );
         // } else {
         //     wanted_speeds = new ChassisSpeeds(
         //             prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
@@ -292,20 +277,18 @@ public class Drive extends SubsystemBase {
     }
 
     public void resetModulesToAbsolute() {
-        for (SwerveModule module : mModules) module.resetToAbsolute();
+        for (SwerveModule mod: mModules) mod.resetToAbsolute();
     }
 
-    public void zeroGyro() {
-        zeroGyro(0.0);
-    }
+    public void zeroGyro() { zeroGyro(0.); }
 
     public void zeroGyro(double reset) {
         mPigeon.setYaw(reset);
-        mPigeon.setPitch(0.0);
+        mPigeon.setPitch(0.);
     }
 
     public void setNeutralBrake(boolean brake) {
-        for (SwerveModule sm: mModules) sm.setDriveNeutralBrake(brake);
+        for (SwerveModule mod: mModules) mod.setDriveNeutralBrake(brake);
     }
 
     // TODO: does this need to be in periodic? Or should it be in the commands?
@@ -335,8 +318,6 @@ public class Drive extends SubsystemBase {
 
         /* read and write module periodic io */
         for (SwerveModule mod: mModules) mod.periodic();
-
-        if (zeroGyroChooser.getSelected()) zeroGyro(); // zero gyro if requested
     }
 
     public ModuleState[] getModuleStates() {
@@ -382,28 +363,28 @@ public class Drive extends SubsystemBase {
         return mKinematicLimits;
     }
 
-    public static class PeriodicIO {
+    private static final class PeriodicIO {
         // Inputs/Desired States
         double timestamp;
         ChassisSpeeds des_chassis_speeds = new ChassisSpeeds(0.0, 0.0, 0.0);
         ChassisSpeeds meas_chassis_speeds = new ChassisSpeeds(0.0, 0.0, 0.0);
         ModuleState[] meas_module_states = new ModuleState[] {
-                new ModuleState(),
-                new ModuleState(),
-                new ModuleState(),
-                new ModuleState()
+            new ModuleState(),
+            new ModuleState(),
+            new ModuleState(),
+            new ModuleState()
         };
         Rotation2d heading = new Rotation2d();
         Rotation2d pitch = new Rotation2d();
 
         // Outputs
         ModuleState[] des_module_states = new ModuleState[] {
-                new ModuleState(),
-                new ModuleState(),
-                new ModuleState(),
-                new ModuleState()
+            new ModuleState(),
+            new ModuleState(),
+            new ModuleState(),
+            new ModuleState()
         };
-        Pose2d path_setpoint = new Pose2d();
+        // Pose2d path_setpoint = new Pose2d();
         Rotation2d heading_setpoint = new Rotation2d();
     }
 
@@ -413,8 +394,10 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        if (Constants.disableExtraTelemetry) return;
-        double driveKVFactor = Util.Conversions.MPSToRPS(SwerveConstants.maxSpeed, SwerveConstants.wheelDiameter * Math.PI, SwerveConstants.driveGearRatio);
+        builder.setSmartDashboardType("Drive");
+        builder.setSafeState(this::stopModules);
+        builder.setActuator(true);
+
         builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
         builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);
@@ -434,19 +417,5 @@ public class Drive extends SubsystemBase {
         builder.addDoubleProperty("Pose X", () -> getPose().getX(), null);
         builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
         builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getDegrees(), null);
-        builder.addDoubleProperty("Velocity Limit m_s", () -> mKinematicLimits.kMaxDriveVelocity, (v) -> mKinematicLimits.kMaxDriveVelocity = v);
-        builder.addDoubleProperty("Omega Limit rad_s", () -> mKinematicLimits.kMaxAngularVelocity, (v) -> mKinematicLimits.kMaxAngularVelocity = v);
-        builder.addDoubleProperty("Acceleration Limit m_s2", () -> mKinematicLimits.kMaxAccel, (v) -> mKinematicLimits.kMaxAccel = v);
-        builder.addDoubleProperty("Angular Accel. Limit rad_s2", () -> mKinematicLimits.kMaxAngularAccel, (v) -> mKinematicLimits.kMaxAngularAccel = v);
-        builder.addDoubleProperty("Drive kP", () -> SwerveConstants.driveConfig.Slot0.kP, (v) -> {SwerveConstants.driveConfig.Slot0.kP = v; setConfigs();});
-        builder.addDoubleProperty("Drive kI", () -> SwerveConstants.driveConfig.Slot0.kI, (v) -> {SwerveConstants.driveConfig.Slot0.kI = v; setConfigs();});
-        builder.addDoubleProperty("Drive kD", () -> SwerveConstants.driveConfig.Slot0.kD, (v) -> {SwerveConstants.driveConfig.Slot0.kD = v; setConfigs();});
-        builder.addDoubleProperty("Drive kV", () -> SwerveConstants.driveConfig.Slot0.kV * driveKVFactor, (v) -> {SwerveConstants.driveConfig.Slot0.kD = v / driveKVFactor; setConfigs();});
-        builder.addDoubleProperty("Angle kP", () -> SwerveConstants.angleConfig.Slot0.kP, (v) -> {SwerveConstants.angleConfig.Slot0.kP = v; setConfigs();});
-        builder.addDoubleProperty("Angle kI", () -> SwerveConstants.angleConfig.Slot0.kI, (v) -> {SwerveConstants.angleConfig.Slot0.kI = v; setConfigs();});
-        builder.addDoubleProperty("Angle kD", () -> SwerveConstants.angleConfig.Slot0.kD, (v) -> {SwerveConstants.angleConfig.Slot0.kD = v; setConfigs();});
-        builder.addDoubleProperty("Angle kV", () -> SwerveConstants.angleConfig.Slot0.kV, (v) -> {SwerveConstants.angleConfig.Slot0.kD = v; setConfigs();});
-        builder.setActuator(true);
-        builder.setSafeState(this::stopModules);
     }
 }
