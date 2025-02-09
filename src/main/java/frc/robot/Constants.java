@@ -377,7 +377,8 @@ public class Constants {
         public static final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
             .withMagnetSensor(new MagnetSensorConfigs()
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
-                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+                .withMagnetOffset(cancoderOffset / 360));
     }
 
     public static final class ControllerConstants {

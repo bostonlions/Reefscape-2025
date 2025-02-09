@@ -150,7 +150,7 @@ public class Algae extends SubsystemBase {
 
     public double getAdjustedCancoderAngle() {
         return Util.placeInAppropriate0To360Scope(
-            0, mCANcoder.getAbsolutePosition().getValueAsDouble() * 360 - AlgaeConstants.cancoderOffset
+            0, mCANcoder.getAbsolutePosition().getValueAsDouble() * 360  // - AlgaeConstants.cancoderOffset
         );
     }
 
