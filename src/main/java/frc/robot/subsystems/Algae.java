@@ -176,6 +176,7 @@ public class Algae extends SubsystemBase {
         public DriveState driveState = DriveState.IDLE;
         public long stopTime;
         public double angleSetpoint = 0;
+        public double adjustedCancoderAngle = 0;
     }
 
     @Override
