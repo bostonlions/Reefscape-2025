@@ -87,7 +87,7 @@ public class Algae extends SubsystemBase {
         angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
         angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.gearRatio;
         setConfigs();
-        mAngleMotor.setPosition(getAdjustedCancoderAngle() * AlgaeConstants.gearRatio / 360);
+        // mAngleMotor.setPosition(getAdjustedCancoderAngle() * AlgaeConstants.gearRatio / 360);
         initTrimmer();
     }
 
@@ -150,7 +150,7 @@ public class Algae extends SubsystemBase {
 
     public double getAdjustedCancoderAngle() {
         return Util.placeInAppropriate0To360Scope(
-            0, mCANcoder.getAbsolutePosition().getValueAsDouble() * 360  // - AlgaeConstants.cancoderOffset
+            0, mCANcoder.getPosition().getValueAsDouble() * 360  // - AlgaeConstants.cancoderOffset
         );
     }
 
@@ -266,7 +266,7 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Drive motor speed", () -> mPeriodicIO.D_velocity_rps, null);
         builder.addDoubleProperty("Drive motor demand", () -> mPeriodicIO.D_demand, null);
         builder.addDoubleProperty("CANCODER Position", () -> mPeriodicIO.adjustedCancoderAngle, null);
-        builder.addDoubleProperty("CANCODER Raw Position", () -> mCANcoder.getAbsolutePosition().getValueAsDouble()*360, null);
+        builder.addDoubleProperty("CANCODER Raw Position", () -> mCANcoder.getAbsolutePosition().getValueAsDouble() * 360, null);
         builder.addDoubleProperty("Angle setpoint", () -> mPeriodicIO.angleSetpoint, null);
         builder.addStringProperty("Target PositionState", () -> mPeriodicIO.requestedPosition.toString(), null);
         builder.addStringProperty("Target DriveState", () -> mPeriodicIO.driveState.toString(), null);
