@@ -8,12 +8,13 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+// import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 // import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-// import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import frc.robot.Ports;
 import frc.robot.lib.drivers.BeamBreak;
@@ -26,6 +27,7 @@ import static frc.robot.Constants.AlgaeConstants.driveMotorConfig;
 import static frc.robot.Constants.AlgaeConstants.angles;
 
 public class Algae extends SubsystemBase {
+    private boolean mDebug = true;
     private static Algae mInstance;
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;
@@ -84,13 +86,12 @@ public class Algae extends SubsystemBase {
         mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
 
         mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
-        // mAngleMotor.setPosition(getAdjustedCancoderAngle() * AlgaeConstants.gearRatio / 360);
-        // angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
-        // angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        // angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
-        // angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.gearRatio;
+        mAngleMotor.setPosition(getAdjustedCancoderAngle() * AlgaeConstants.angleGearRatio / 360); // TODO not needed?
+        angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
+        angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
+        angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.angleGearRatio;
         setConfigs();
-        // mAngleMotor.setPosition(-90 * AlgaeConstants.gearRatio / 360); // Forget cancoder for now, always start straight down
         initTrimmer();
     }
 
@@ -100,38 +101,40 @@ public class Algae extends SubsystemBase {
         mAngleMotor.getConfigurator().apply(angleMotorConfig);
     }
 
-    public void resetAngleMotor(boolean force) {
-        // updating to the cancoder position on the fly, rather than trying to use programmatic feedback
-        // because I couldn't figure out the offset for programmatic feedback, but we do need to account for
-        // slippage at least occasionally. That said, the cancoder doesn't seem quite linear so this may cause problems too.
-        double now = Timer.getFPGATimestamp();
-        double newPosition = getAdjustedCancoderAngle() * AlgaeConstants.gearRatio / 360;
-        if (force || ((now - resetTS > 1.0) && Math.abs(mAngleMotor.getRotorPosition().getValueAsDouble() - newPosition) > 1/360.)) {
-            mAngleMotor.setPosition(newPosition);
-            resetTS = now;
-        }
+    public double getCanCoderPosition() {
+        return Util.placeIn0To360Scope(
+                mCANcoder.getAbsolutePosition().getValueAsDouble() * 360 - AlgaeConstants.cancoderOffset);
     }
+
 
     public void disable() {
         // TODO
     }
 
     public void setAngleSetpoint(double angle) {
-        resetAngleMotor(true);
+        if (mDebug) System.out.println("setAngleSetpoint: " + angle);
+        if (mDebug) System.out.println("----------------------------------------- ");
         mPeriodicIO.angleSetpoint = angle;
-        mPeriodicIO.C_demand = angle * AlgaeConstants.gearRatio / 360;
+        mPeriodicIO.C_demand = angle / 360.;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
         // mDriveMotor.setControl(new Follower(Ports.ALGAE_ANGLE, true));
+        if (mDebug) System.out.println("setAngleSetpoint mPeriodicIO.angleSetpoint: " +mPeriodicIO.angleSetpoint);
+        if (mDebug) System.out.println("setAngleSetpoint getPosition: " + mAngleMotor.getPosition());
+        if (mDebug) System.out.println(" setAngleSetpoint mPeriodicIO.C_demand: " +  mPeriodicIO.C_demand);
         mAngleMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.C_demand));
+        if (mDebug) System.out.println("----------------------------------------- ");
+
     }
 
     public void setDriveSpeed(double rps) {
-        mPeriodicIO.D_demand = rps * AlgaeConstants.gearRatio;
+        if (mDebug) System.out.println("setDriveSpeed: " + rps);
+        mPeriodicIO.D_demand = rps * AlgaeConstants.driveGearRatio;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
         // TODO - do we need to explicitly decouple from angle motor or is a new setControl enough?
     }
 
     public void setPosition(PositionState newPosition) {
+        if (mDebug) System.out.println("setPosition: " + newPosition);
         if (newPosition == mPeriodicIO.requestedPosition) return;
         mPeriodicIO.requestedPosition = newPosition;
         setState();
@@ -141,32 +144,47 @@ public class Algae extends SubsystemBase {
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case UNLOADING_NO_ALGAE:
+            if (mDebug) System.out.println("toggleDrive UNLOADING_NO_ALGAE");
+
                 mPeriodicIO.driveState = DriveState.INTAKE_NO_ALGAE;
                 break;
             case INTAKE_NO_ALGAE:
-                mPeriodicIO.driveState = DriveState.IDLE;
+            if (mDebug) System.out.println("toggleDrive INTAKE_NO_ALGAE");
+            mPeriodicIO.driveState = DriveState.IDLE;
                 break;
             case INTAKE_WITH_ALGAE:
+            if (mDebug)  System.out.println("toggleDrive INTAKE_WITH_ALGAE");
             case LOADED:
-                mPeriodicIO.driveState = DriveState.UNLOADING_WITH_ALGAE;
+            if (mDebug) System.out.println("toggleDrive LOADED");
+            mPeriodicIO.driveState = DriveState.UNLOADING_WITH_ALGAE;
                 break;
             case UNLOADING_WITH_ALGAE:
-                mPeriodicIO.driveState = DriveState.LOADED;
+            if (mDebug) System.out.println("toggleDrive UNLOADING_WITH_ALGAE");
+            mPeriodicIO.driveState = DriveState.LOADED;
         }
         setState();
     }
 
     public void setState() {
+        if (mDebug) System.out.println("setState");
+
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
         mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(mPeriodicIO.driveState);
         mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : DOWN_SPEEDS).get(mPeriodicIO.driveState);
+        if (mDebug)  System.out.println("setState targetPosition: " + mPeriodicIO.targetPosition);
+        if (mDebug) System.out.println("setState targetSpeed: " + mPeriodicIO.targetSpeed);
+ 
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
-        if (mPeriodicIO.targetSpeed != 0) setDriveSpeed(mPeriodicIO.targetSpeed);
+        if (mPeriodicIO.targetSpeed != 0) {
+            if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
+
+            setDriveSpeed(mPeriodicIO.targetSpeed);
+        }
     }
 
     public double getAdjustedCancoderAngle() {
         return Util.placeInAppropriate0To360Scope(
-            0, mCANcoder.getPosition().getValueAsDouble() * 360  // - AlgaeConstants.cancoderOffset
+            0, mCANcoder.getPosition().getValueAsDouble() * 360
         );
     }
 
@@ -197,6 +215,7 @@ public class Algae extends SubsystemBase {
 
     @Override
     public void periodic() {
+
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
         switch (mPeriodicIO.driveState) {
             case INTAKE_NO_ALGAE:
@@ -207,6 +226,7 @@ public class Algae extends SubsystemBase {
                             (AlgaeConstants.extraGroundIntakeRotations / AlgaeConstants.groundIntakeSpeed)
                         )
                     );
+                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(100);
                     mPeriodicIO.driveState = DriveState.INTAKE_WITH_ALGAE;
                 }
                 if ((isUp ? AlgaeConstants.extraReefIntakeRotations : AlgaeConstants.extraGroundIntakeRotations) > 0) {
@@ -215,12 +235,14 @@ public class Algae extends SubsystemBase {
                     break;
                 }
             case INTAKE_WITH_ALGAE:
-                if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
+            if (mDebug) System.out.println("INTAKE_WITH_ALGAE 1");
+            if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     mPeriodicIO.driveState = DriveState.LOADED;
                     setState();
                 } break;
             case UNLOADING_WITH_ALGAE:
-                if (!mBeamBreak.get()) {
+            if (mDebug) System.out.println("UNLOADING_WITH_ALGAE 1");
+            if (!mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (isUp ?
                             (AlgaeConstants.extraBargeUnloadRotations / AlgaeConstants.bargeUnloadSpeed) :
@@ -235,7 +257,8 @@ public class Algae extends SubsystemBase {
                     break;
                 }
             case UNLOADING_NO_ALGAE:
-                if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
+            if (mDebug) System.out.println("UNLOADING_NO_ALGAE 1");
+            if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     mPeriodicIO.driveState = DriveState.IDLE;
                     setState();
                 }
@@ -246,23 +269,22 @@ public class Algae extends SubsystemBase {
                 if (mBeamBreak.get()) mPeriodicIO.driveState = DriveState.LOADED;
                 break;
             case LOADED:
+            if (mDebug) System.out.println("LOADED 1");
                 if (!mBeamBreak.get()) mPeriodicIO.driveState = DriveState.IDLE;
                 break;
 
             default: break;
         }
 
-        resetAngleMotor(false);
-
-        mPeriodicIO.C_position_degrees = mAngleMotor.getRotorPosition().getValue().in(Units.Degrees) / AlgaeConstants.gearRatio;
+        mPeriodicIO.C_position_degrees = mAngleMotor.getRotorPosition().getValue().in(Units.Degrees) / AlgaeConstants.angleGearRatio;
         mPeriodicIO.C_current = mAngleMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.C_output_voltage = mAngleMotor.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.C_velocity_rps = mAngleMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / AlgaeConstants.gearRatio;
+        mPeriodicIO.C_velocity_rps = mAngleMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / AlgaeConstants.angleGearRatio;
 
-        mPeriodicIO.D_position_degrees = mDriveMotor.getRotorPosition().getValue().in(Units.Degrees) / AlgaeConstants.gearRatio;
+        mPeriodicIO.D_position_degrees = mDriveMotor.getRotorPosition().getValue().in(Units.Degrees) / AlgaeConstants.driveGearRatio;
         mPeriodicIO.D_current = mDriveMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.D_output_voltage = mDriveMotor.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.D_velocity_rps = mDriveMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / AlgaeConstants.gearRatio;
+        mPeriodicIO.D_velocity_rps = mDriveMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / AlgaeConstants.driveGearRatio;
 
         mPeriodicIO.adjustedCancoderAngle = getAdjustedCancoderAngle();
     }

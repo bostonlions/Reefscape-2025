@@ -199,7 +199,7 @@ public class Constants {
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
             entry(Position.L3, 0.725),
-            entry(Position.L4, 1.42),
+            entry(Position.L4, 1.4),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
@@ -269,9 +269,9 @@ public class Constants {
 
     public static final class CoralConstants {
         public static final double gearRatio = 4.;
-        public static final double loadSpeed = 0.5;
+        public static final double loadSpeed = 0.75;
         public static final double extraLoadRotations = 0.01; // if this is 0 we never break from case statement
-        public static final double unloadSpeed = 0.5;
+        public static final double unloadSpeed = 1.;
         public static final double extraUnloadRotations = 0.1;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -295,10 +295,11 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double gearRatio = 59./12;  // TODO drive and angle have different gears
+        public static final double angleGearRatio = (57./15)*5*9;
+        public static final double driveGearRatio = 2.;  // TODO figure out the actual number
 
-        public static final double extraGroundIntakeRotations = 1.;
-        public static final double groundIntakeSpeed = 0.5;
+        public static final double extraGroundIntakeRotations = .009; //.009
+        public static final double groundIntakeSpeed = .5; //was .5
 
         public static final double extraReefIntakeRotations = 2.;
         public static final double reefIntakeSpeed = 0.5;
@@ -307,10 +308,12 @@ public class Constants {
         public static final double processorUnloadSpeed = 3.;
 
         public static final double extraBargeUnloadRotations = 2.;
-        public static final double bargeUnloadSpeed = 2.;
+        public static final double bargeUnloadSpeed = 4;
 
         // Set the cancoder offset to its reading in degrees at exactly horizontal
-        public static final double cancoderOffset = -151.75; // -144.759;
+        // to get that value, set cancoderOffset=o load the code to the robot and
+        // look at smart dashboard for the CANCoder Position when it is horizontal
+        public static final double cancoderOffset = -112.5; // -144.759;  38??
 
         public enum Position {
             MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
@@ -318,16 +321,16 @@ public class Constants {
 
         // Angles in degrees from horizontal:
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -91.8),
-            entry(Position.STOW_DOWN, -91.),
+            entry(Position.MIN, -90.), 
+            entry(Position.STOW_DOWN, -90.),
             entry(Position.PROCESSOR, -59.),
             entry(Position.LOADED_DOWN, -55.),
-            entry(Position.GROUND_INTAKE, -52.),
+            entry(Position.GROUND_INTAKE, -48.),
             entry(Position.REEF, 59.),
-            entry(Position.BARGE, 70.),
+            entry(Position.BARGE, 90.),
             entry(Position.LOADED_UP, 90.),
-            entry(Position.STOW_UP, 120.),
-            entry(Position.MAX, 130.)
+            entry(Position.STOW_UP, 90.),
+            entry(Position.MAX, 90.)
         );
 
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
@@ -347,7 +350,7 @@ public class Constants {
             .withMotionMagic(new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(6.)
                 .withMotionMagicExpo_kA(0.03)
-                .withMotionMagicAcceleration(12.))
+                .withMotionMagicAcceleration(200.))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
@@ -359,17 +362,18 @@ public class Constants {
                 .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.6)
+                .withKP(.6)
                 .withKI(0.)
-                .withKD(0.)
-                .withKV(0.)
-                .withKA(0.)
-                .withKS(0.)
+                .withKD(0.0)
+                .withKV(0.0)
+                .withKA(0.0)
+                .withKS(0.0)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(15.)
+                .withMotionMagicCruiseVelocity(.15)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(8.))
+               // .withMotionMagicJerk(1600)
+                .withMotionMagicAcceleration(.08))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
