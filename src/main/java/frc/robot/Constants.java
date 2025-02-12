@@ -295,20 +295,20 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double angleGearRatio = (57./15)*5*9;
+        public static final double angleGearRatio = (57./15)*5;
         public static final double driveGearRatio = 2.;  // TODO figure out the actual number
 
         public static final double extraGroundIntakeRotations = .009; //.009
-        public static final double groundIntakeSpeed = .5; //was .5
+        public static final double groundIntakeSpeed = 18; //was .5
 
-        public static final double extraReefIntakeRotations = 2.;
-        public static final double reefIntakeSpeed = 0.5;
+        public static final double extraReefIntakeRotations = 50.;
+        public static final double reefIntakeSpeed = 14;
 
         public static final double extraProcessorUnloadRotations = 1.;
-        public static final double processorUnloadSpeed = 3.;
+        public static final double processorUnloadSpeed = 18.;
 
         public static final double extraBargeUnloadRotations = 2.;
-        public static final double bargeUnloadSpeed = 4;
+        public static final double bargeUnloadSpeed = 18;
 
         // Set the cancoder offset to its reading in degrees at exactly horizontal
         // to get that value, set cancoderOffset=o load the code to the robot and
@@ -321,15 +321,15 @@ public class Constants {
 
         // Angles in degrees from horizontal:
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -90.), 
-            entry(Position.STOW_DOWN, -90.),
+            entry(Position.MIN, -94.), 
+            entry(Position.STOW_DOWN, -94.),
             entry(Position.PROCESSOR, -59.),
             entry(Position.LOADED_DOWN, -55.),
-            entry(Position.GROUND_INTAKE, -48.),
-            entry(Position.REEF, 59.),
-            entry(Position.BARGE, 90.),
-            entry(Position.LOADED_UP, 90.),
-            entry(Position.STOW_UP, 90.),
+            entry(Position.GROUND_INTAKE, -68.),
+            entry(Position.REEF, 45.),
+            entry(Position.BARGE, 80.),
+            entry(Position.LOADED_UP, 80.),
+            entry(Position.STOW_UP, 100.),
             entry(Position.MAX, 90.)
         );
 
@@ -348,7 +348,7 @@ public class Constants {
                 .withKS(0.)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(6.)
+                .withMotionMagicCruiseVelocity(42.)
                 .withMotionMagicExpo_kA(0.03)
                 .withMotionMagicAcceleration(200.))
             .withMotorOutput(new MotorOutputConfigs()
@@ -362,18 +362,18 @@ public class Constants {
                 .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(.6)
-                .withKI(0.)
-                .withKD(0.0)
+                .withKP(1.65) //6.5 w 9
+                .withKI(0.04) //.09 w 9
+                .withKD(0.012)
                 .withKV(0.0)
                 .withKA(0.0)
                 .withKS(0.0)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(.15)
+                .withMotionMagicCruiseVelocity(8.3) //42 w9
                 .withMotionMagicExpo_kA(0.3)
                // .withMotionMagicJerk(1600)
-                .withMotionMagicAcceleration(.08))
+                .withMotionMagicAcceleration(1.5)) // 10 w9
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
@@ -388,7 +388,7 @@ public class Constants {
     public static final class ControllerConstants {
         // Max says trimming joystick input by a percent is the best way to limit speed
         // that way the autonomous system doesn't get messed up
-        public static final double kInputClipping = 0.3; // set to 1 for  100% of joystick range
+        public static final double kInputClipping =.6; // set to 1 for  100% of joystick range
 
         public static final double kTriggerThreshold = 0.2;
 

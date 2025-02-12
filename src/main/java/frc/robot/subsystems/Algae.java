@@ -215,19 +215,22 @@ public class Algae extends SubsystemBase {
 
     @Override
     public void periodic() {
-
+        boolean pDebug = false;
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
         switch (mPeriodicIO.driveState) {
             case INTAKE_NO_ALGAE:
                 if (mBeamBreak.get()) {
+
+                    /* 
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (isUp ?
                             (AlgaeConstants.extraReefIntakeRotations / AlgaeConstants.reefIntakeSpeed) :
                             (AlgaeConstants.extraGroundIntakeRotations / AlgaeConstants.groundIntakeSpeed)
                         )
-                    );
-                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(100);
+                    );*/
+                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(70);
                     mPeriodicIO.driveState = DriveState.INTAKE_WITH_ALGAE;
+                    
                 }
                 if ((isUp ? AlgaeConstants.extraReefIntakeRotations : AlgaeConstants.extraGroundIntakeRotations) > 0) {
                     // we wanna check the next case without waiting for next periodic loop,
@@ -235,41 +238,41 @@ public class Algae extends SubsystemBase {
                     break;
                 }
             case INTAKE_WITH_ALGAE:
-            if (mDebug) System.out.println("INTAKE_WITH_ALGAE 1");
-            if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
-                    mPeriodicIO.driveState = DriveState.LOADED;
-                    setState();
-                } break;
+                if (pDebug) System.out.println("INTAKE_WITH_ALGAE 1");
+                if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
+                        mPeriodicIO.driveState = DriveState.LOADED;
+                        setState();
+                    } break;
             case UNLOADING_WITH_ALGAE:
-            if (mDebug) System.out.println("UNLOADING_WITH_ALGAE 1");
-            if (!mBeamBreak.get()) {
-                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
-                        (isUp ?
-                            (AlgaeConstants.extraBargeUnloadRotations / AlgaeConstants.bargeUnloadSpeed) :
-                            (AlgaeConstants.extraProcessorUnloadRotations / AlgaeConstants.processorUnloadSpeed)
-                        )
-                    );
-                    mPeriodicIO.driveState = DriveState.UNLOADING_NO_ALGAE;
-                }
-                if ((isUp ? AlgaeConstants.extraBargeUnloadRotations : AlgaeConstants.extraProcessorUnloadRotations) > 0) {
+                if (pDebug) System.out.println("UNLOADING_WITH_ALGAE 1");
+                if (!mBeamBreak.get()) {
+                        mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
+                            (isUp ?
+                                (AlgaeConstants.extraBargeUnloadRotations / AlgaeConstants.bargeUnloadSpeed) :
+                                (AlgaeConstants.extraProcessorUnloadRotations / AlgaeConstants.processorUnloadSpeed)
+                            )
+                        );
+                        mPeriodicIO.driveState = DriveState.UNLOADING_NO_ALGAE;
+                    }
+                    if ((isUp ? AlgaeConstants.extraBargeUnloadRotations : AlgaeConstants.extraProcessorUnloadRotations) > 0) {
                     // we wanna check the next case without waiting for next periodic loop,
                     // just if no wait time after the ground intake
                     break;
                 }
             case UNLOADING_NO_ALGAE:
-            if (mDebug) System.out.println("UNLOADING_NO_ALGAE 1");
-            if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
-                    mPeriodicIO.driveState = DriveState.IDLE;
-                    setState();
-                }
-                break;
+                if (pDebug) System.out.println("UNLOADING_NO_ALGAE 1");
+                if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
+                        mPeriodicIO.driveState = DriveState.IDLE;
+                        setState();
+                    }
+                    break;
 
             // error correction:
             case IDLE:
                 if (mBeamBreak.get()) mPeriodicIO.driveState = DriveState.LOADED;
                 break;
             case LOADED:
-            if (mDebug) System.out.println("LOADED 1");
+                if (pDebug) System.out.println("LOADED 1");
                 if (!mBeamBreak.get()) mPeriodicIO.driveState = DriveState.IDLE;
                 break;
 
