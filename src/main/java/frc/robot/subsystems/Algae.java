@@ -28,6 +28,7 @@ import static frc.robot.Constants.AlgaeConstants.angles;
 
 public class Algae extends SubsystemBase {
     private boolean mDebug = true;
+    private boolean mIsNudging = false;
     private static Algae mInstance;
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;
@@ -132,6 +133,24 @@ public class Algae extends SubsystemBase {
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
         // TODO - do we need to explicitly decouple from angle motor or is a new setControl enough?
     }
+
+    // Use xbox triggers to turn the drive wheel a bit in or out so operator can get a better grip on the ball
+    public void nudgeDrive(int direction, boolean run) {
+        if (mDebug) System.out.println("nudgeDriveIn: ");
+
+        if (run){
+            mIsNudging = true;
+            mPeriodicIO.D_demand = direction * 3 * AlgaeConstants.driveGearRatio;
+            mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
+        } else {
+            if (mIsNudging) {
+                mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
+            }
+            mIsNudging = false;
+        }
+    }
+ 
+ 
 
     public void setPosition(PositionState newPosition) {
         if (mDebug) System.out.println("setPosition: " + newPosition);

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 // import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.CustomXboxController.Button;
+import frc.robot.controlboard.CustomXboxController.Side;
 import frc.robot.lib.swerve.SwerveModule;
 
 /**
@@ -32,6 +34,9 @@ public class RobotContainer {
     private Trimmer trimmer;
 
     public RobotContainer() {
+        // Start the Camera
+        //CameraServer.startAutomaticCapture();
+
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);
@@ -88,6 +93,19 @@ public class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.B)).onTrue(
             new InstantCommand(algae :: toggleDrive, algae)
         );
+        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onTrue(
+            new InstantCommand(() -> algae.nudgeDrive(-1, true), algae)
+        );        
+        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onTrue(
+            new InstantCommand(() -> algae.nudgeDrive(1, true), algae)
+        );
+        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onFalse(
+            new InstantCommand(() -> algae.nudgeDrive(-1, false), algae)
+        );        
+        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onFalse(
+            new InstantCommand(() -> algae.nudgeDrive(1, false), algae)
+        );
+
 
         /* TRIMMER - all subsystems can add items to be adjusted */
         trimmer = Trimmer.getInstance();
