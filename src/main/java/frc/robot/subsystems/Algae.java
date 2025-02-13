@@ -240,16 +240,16 @@ public class Algae extends SubsystemBase {
             case INTAKE_NO_ALGAE:
                 if (mBeamBreak.get()) {
 
-                    /* 
+                    
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (isUp ?
-                            (AlgaeConstants.extraReefIntakeRotations / AlgaeConstants.reefIntakeSpeed) :
-                            (AlgaeConstants.extraGroundIntakeRotations / AlgaeConstants.groundIntakeSpeed)
+                            (AlgaeConstants.extraReefIntakeRotations /*/ AlgaeConstants.reefIntakeSpeed*/) :
+                            (AlgaeConstants.extraGroundIntakeRotations /*/ AlgaeConstants.groundIntakeSpeed*/)
                         )
-                    );*/
-                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(70);
+                    );
+                    //mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(70);
                     mPeriodicIO.driveState = DriveState.INTAKE_WITH_ALGAE;
-                    
+
                 }
                 if ((isUp ? AlgaeConstants.extraReefIntakeRotations : AlgaeConstants.extraGroundIntakeRotations) > 0) {
                     // we wanna check the next case without waiting for next periodic loop,

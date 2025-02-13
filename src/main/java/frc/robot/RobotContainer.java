@@ -35,7 +35,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         // Start the Camera
-        //CameraServer.startAutomaticCapture();
+        CameraServer.startAutomaticCapture();
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
