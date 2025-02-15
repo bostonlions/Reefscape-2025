@@ -199,7 +199,7 @@ public class Constants {
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
             entry(Position.L3, 0.725),
-            entry(Position.L4, 1.4),
+            entry(Position.L4, 1.38),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
