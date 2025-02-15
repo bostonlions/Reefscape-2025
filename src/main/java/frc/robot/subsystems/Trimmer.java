@@ -121,10 +121,10 @@ public class Trimmer extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Trimmer");
-        builder.addStringProperty("Subsystem", () -> currentSubsystem, null);
-        builder.addStringProperty("Item", () -> currentItem.name, null);
-        builder.addDoubleProperty("Value", () -> currentItem.getter.getAsDouble(), null);
-        builder.addStringArrayProperty("Subsystems", () -> subsystemsArray, null);
-        builder.addStringArrayProperty("Items", () -> itemsArray, null);
+        builder.addStringProperty("1. Subsystems", () -> String.join("\n", subsystemsArray), null);
+        builder.addStringProperty("2. Selected Subsystem", () -> currentSubsystem, null);
+        builder.addStringProperty("3. Selected Item", () -> currentItem.name, null);
+        builder.addDoubleProperty("4. Value", () -> currentItem.getter.getAsDouble(), null);
+        builder.addStringProperty("5. Items", () -> String.join("\n", itemsArray), null);
     }
 }

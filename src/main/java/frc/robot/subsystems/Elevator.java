@@ -46,6 +46,7 @@ public class Elevator extends SubsystemBase {
     public Command stepUpCommand() { return new InstantCommand(this::stepUp, this); }
     public Command stepDownCommand() { return new InstantCommand(this::stepDown, this); }
     public Command markMinCommand() { return new InstantCommand(this::markMin, this); }
+    public Command stepToCommand(Position p) { return new InstantCommand(() -> { setTarget(p); }, this); }
 
     private void setMotorConfig(TalonFXConfiguration config) {
         mMain.getConfigurator().apply(config);
@@ -169,16 +170,16 @@ public class Elevator extends SubsystemBase {
         builder.setSafeState(this::disable);
         builder.setActuator(true);
 
-        builder.addDoubleProperty("Elevator Position Meters", () -> mPeriodicIO.height, null);
-        builder.addDoubleProperty("Elevator Position Inches", () -> Conversions.metersToInches(mPeriodicIO.height), null);
-        builder.addDoubleProperty("Elevator Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
-        builder.addBooleanProperty("Elevator Moving", () -> mPeriodicIO.moving, null);
-        builder.addDoubleProperty("Elevator Demand", () -> mPeriodicIO.demand, null);
-        builder.addDoubleProperty("Elevator Velocity", () -> mPeriodicIO.velocity, null);
-        builder.addDoubleProperty("Elevator Output Volts", () -> mPeriodicIO.voltage, null);
-        builder.addDoubleProperty("Elevator Current", () -> mPeriodicIO.current, null);
-        builder.addDoubleProperty("Elevator Torque Current", () -> mPeriodicIO.torqueCurrent, null);
-        builder.addStringProperty("Elevator State", () -> mPeriodicIO.targetPosition.toString(), null);
+        builder.addDoubleProperty("Position Meters", () -> mPeriodicIO.height, null);
+        builder.addDoubleProperty("Position Inches", () -> Conversions.metersToInches(mPeriodicIO.height), null);
+        builder.addDoubleProperty("Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
+        builder.addBooleanProperty("Moving", () -> mPeriodicIO.moving, null);
+        builder.addDoubleProperty("Demand", () -> mPeriodicIO.demand, null);
+        builder.addDoubleProperty("Velocity", () -> mPeriodicIO.velocity, null);
+        builder.addDoubleProperty("Output Volts", () -> mPeriodicIO.voltage, null);
+        builder.addDoubleProperty("Current", () -> mPeriodicIO.current, null);
+        builder.addDoubleProperty("Torque Current", () -> mPeriodicIO.torqueCurrent, null);
+        builder.addStringProperty("State", () -> mPeriodicIO.targetPosition.toString(), null);
     }
 
     public void initTrimmer() {

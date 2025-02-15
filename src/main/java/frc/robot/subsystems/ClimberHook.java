@@ -131,11 +131,11 @@ public class ClimberHook extends SubsystemBase {
         builder.setSafeState(this::disable);
         builder.setActuator(true);
 
-        builder.addDoubleProperty("ClimberHook Angle (degrees)", () -> mPeriodicIO.extension, null);
-        builder.addDoubleProperty("ClimberHook Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("ClimberHook Demand", () -> mPeriodicIO.demand, null);
-        builder.addDoubleProperty("ClimberHook Velocity rad_s", () -> mPeriodicIO.velocity, null);
-        builder.addDoubleProperty("ClimberHook Volts", () -> mPeriodicIO.output_voltage, null);
-        builder.addDoubleProperty("ClimberHook Current", () -> mPeriodicIO.current, null);
+        builder.addDoubleProperty("Angle (degrees)", () -> mPeriodicIO.extension, null);
+        builder.addDoubleProperty("Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Demand", () -> mPeriodicIO.demand, null);
+        builder.addDoubleProperty("Velocity rad_s", () -> mPeriodicIO.velocity, null);
+        builder.addDoubleProperty("Volts", () -> mPeriodicIO.output_voltage, null);
+        builder.addDoubleProperty("Current", () -> mPeriodicIO.current, null);
     }
 }

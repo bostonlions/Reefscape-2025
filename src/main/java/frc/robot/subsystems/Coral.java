@@ -171,13 +171,13 @@ public class Coral extends SubsystemBase {
         builder.setSafeState(this::disable);
         builder.setActuator(true);
 
-        builder.addDoubleProperty("Coral Angle (degrees)", () -> mPeriodicIO.position_degrees, null);
-        builder.addDoubleProperty("Coral Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("Coral Demand", () -> mPeriodicIO.demand, null);
-        builder.addDoubleProperty("Coral Velocity rps", () -> mPeriodicIO.velocity_rps, null);
-        builder.addDoubleProperty("Coral Volts", () -> mPeriodicIO.output_voltage, null);
-        builder.addDoubleProperty("Coral Current", () -> mPeriodicIO.current, null);
-        builder.addStringProperty("Coral State", () -> mPeriodicIO.state.toString(), null);
+        builder.addDoubleProperty("Angle (degrees)", () -> mPeriodicIO.position_degrees, null);
+        builder.addDoubleProperty("Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Demand", () -> mPeriodicIO.demand, null);
+        builder.addDoubleProperty("Velocity rps", () -> mPeriodicIO.velocity_rps, null);
+        builder.addDoubleProperty("Volts", () -> mPeriodicIO.output_voltage, null);
+        builder.addDoubleProperty("Current", () -> mPeriodicIO.current, null);
+        builder.addStringProperty("State", () -> mPeriodicIO.state.toString(), null);
     }
 
     public void initTrimmer() {

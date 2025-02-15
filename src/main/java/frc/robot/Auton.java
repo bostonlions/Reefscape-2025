@@ -3,18 +3,19 @@ package frc.robot;
 import java.util.Map;
 import static java.util.Map.entry;
 
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
+import frc.robot.Constants.ElevatorConstants.Position;
 import frc.robot.subsystems.Algae;
 import frc.robot.subsystems.Coral;
 // import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Trimmer;
 
-public final class Auton implements Sendable {
+public final class Auton extends SubsystemBase {
     private static Auton mInstance;
     private int commandIdx = 0;
     private static Algae algae = Algae.getInstance();
@@ -26,24 +27,21 @@ public final class Auton implements Sendable {
         entry(
             "Flip Algae",
             algae.upCommand()
-            .andThen(new WaitCommand(1.))
+            .andThen(wait(1.))
             .andThen(algae.downCommand())
         ),
         entry(
             "Toggle Coral",
             coral.toggleCommand()
-            .andThen(new WaitCommand(1.))
+            .andThen(wait(1.))
             .andThen(coral.toggleCommand())
         ),
         entry(
             "Elevator Up/Down",
             elevator.stepUpCommand()
-            .andThen(elevator.stepUpCommand())
-            .andThen(elevator.stepUpCommand())
-            .andThen(new WaitCommand(3.))
-            .andThen(elevator.stepDownCommand())
-            .andThen(elevator.stepDownCommand())
-            .andThen(elevator.stepDownCommand())
+            .andThen(elevator.stepToCommand(Position.L3))
+            .andThen(wait(3.))
+            .andThen(elevator.stepToCommand(Position.LOAD))
         )
     );
 
@@ -57,6 +55,10 @@ public final class Auton implements Sendable {
 
     private Auton() {
         initTrimmer();
+    }
+
+    private static Command wait(double secs) {
+        return new WaitCommand(secs);
     }
 
     public Command getCommand() {
