@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -39,6 +41,11 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.moving = false;
         initTrimmer();
     }
+
+    /* Commands */
+    public Command stepUpCommand() { return new InstantCommand(this::stepUp, this); }
+    public Command stepDownCommand() { return new InstantCommand(this::stepDown, this); }
+    public Command markMinCommand() { return new InstantCommand(this::markMin, this); }
 
     private void setMotorConfig(TalonFXConfiguration config) {
         mMain.getConfigurator().apply(config);
