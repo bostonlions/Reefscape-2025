@@ -101,20 +101,24 @@ public class RobotContainer {
             .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));
 
 
-        /* TRIMMER - all subsystems can add items to be adjusted */
+        /* 
+         * TRIMMER - all subsystems can add items to be adjusted 
+         * These commands are marked to still run in disabled mode, so we can
+         * tweak parameters and choose auto commands prior to the match starting.
+        */
         trimmer = Trimmer.getInstance();
         SmartDashboard.putData(trimmer);
         new Trigger(() -> (controller.operator.getController().getPOV() == 270)).onTrue(
-            new InstantCommand(trimmer::nextSubsystem, trimmer)
+            new InstantCommand(trimmer::nextSubsystem, trimmer).ignoringDisable(true)
         );
         new Trigger(() -> (controller.operator.getController().getPOV() == 90)).onTrue(
-            new InstantCommand(trimmer::nextItem, trimmer)
+            new InstantCommand(trimmer::nextItem, trimmer).ignoringDisable(true)
         );
         new Trigger(() -> (controller.operator.getController().getPOV() == 0)).onTrue(
-            new InstantCommand(trimmer::incrementItem, trimmer)
+            new InstantCommand(trimmer::incrementItem, trimmer).ignoringDisable(true)
         );
         new Trigger(() -> (controller.operator.getController().getPOV() == 180)).onTrue(
-            new InstantCommand(trimmer::decrementItem, trimmer)
+            new InstantCommand(trimmer::decrementItem, trimmer).ignoringDisable(true)
         );
     }
 
