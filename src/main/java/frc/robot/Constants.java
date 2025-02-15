@@ -145,17 +145,12 @@ public class Constants {
         public static final double BR_AngleOffset = 73.2129;
     }
 
-    // For DriveMotionPlanner - what is snap?
-    // public static final class SnapConstants {
-        // public static final double kP = 6.;
-        // public static final double kI = 0.5;
-        // public static final double kD = 0.2;
-        // public static final double snapTimeout = 0.25;
-        // public static final double snapEpsilon = 1.;
-    // }
-
     // For DriveMotionPlanner
-    public static final class AutoConstants {
+    public static final class AutonConstants {
+        public static final double snapP = 6.;
+        public static final double snapI = 0.5;
+        public static final double snapD = 0.2;
+
         public static final double kPXController = 6.7;
         public static final double kPYController = 6.7;
 

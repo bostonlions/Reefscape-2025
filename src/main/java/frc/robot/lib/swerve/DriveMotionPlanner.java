@@ -13,16 +13,13 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.Constants.AutoConstants;
-// import frc.robot.Constants.SnapConstants;
+import frc.robot.Constants.AutonConstants;
 
 public class DriveMotionPlanner {
     private final PIDController forwardController;
     private final PIDController strafeController;
-    private final ProfiledPIDController rotationController;
-
     private final PIDController snapController;
-
+    private final ProfiledPIDController rotationController;
     private final HolonomicDriveController mDriveController;
 
     private Trajectory mCurrentTrajectory;
@@ -32,10 +29,10 @@ public class DriveMotionPlanner {
     private boolean isFinished = false;
 
     public DriveMotionPlanner() {
-        forwardController = new PIDController(AutoConstants.kPXController, 0.0, AutoConstants.kDXController);
-        strafeController = new PIDController(AutoConstants.kPYController, 0.0, AutoConstants.kDYController);
-        rotationController = new ProfiledPIDController(AutoConstants.kPThetaController, 0.0, 0.0, AutoConstants.kThetaControllerConstraints);
-        snapController = new PIDController(6., 0.5, 0.2);
+        forwardController = new PIDController(AutonConstants.kPXController, 0.0, AutonConstants.kDXController);
+        strafeController = new PIDController(AutonConstants.kPYController, 0.0, AutonConstants.kDYController);
+        rotationController = new ProfiledPIDController(AutonConstants.kPThetaController, 0.0, 0.0, AutonConstants.kThetaControllerConstraints);
+        snapController = new PIDController(AutonConstants.snapP, AutonConstants.snapI, AutonConstants.snapD);
 
         rotationController.enableContinuousInput(0, 2 * Math.PI);
         snapController.enableContinuousInput(0, 2 * Math.PI);
