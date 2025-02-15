@@ -64,7 +64,7 @@ public final class Auton implements Sendable {
     }
 
     private void inc(boolean up) {
-        commandIdx = commandIdx + commands.size() + (up ? 1 : -1);
+        commandIdx = (commandIdx + commands.size() + (up ? 1 : -1)) % commands.size();
     }
 
     @Override
