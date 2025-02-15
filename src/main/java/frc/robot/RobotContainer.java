@@ -43,7 +43,11 @@ public class RobotContainer {
         for (SwerveModule sm: drive.mModules) SmartDashboard.putData("SwerveModule_" + sm.name, sm);
         drive.setDefaultCommand(
             new RunCommand(
-                () -> drive.setTargetSpeeds(controller.getSwerveTranslation(), controller.getSwerveRotation()),
+                () -> drive.setTargetSpeeds(
+                    controller.getSwerveTranslation(), 
+                    controller.getSwerveRotation(),
+                    controller.driver.getRawButton(1)
+                ),
                 drive
             )
         );
@@ -57,11 +61,9 @@ public class RobotContainer {
         SmartDashboard.putData(elevator);
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(
             new InstantCommand(elevator::stepDown, elevator)
-            // new FunctionalCommand(elevator::stepDown, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(
             new InstantCommand(elevator::stepUp, elevator)
-            // new FunctionalCommand(elevator::stepUp, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(
             new InstantCommand(elevator::markMin, elevator)
