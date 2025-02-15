@@ -74,11 +74,8 @@ public class SwerveModule extends SubsystemBase {
 
         double targetAngle = targetModuleState.angle.getDegrees();
 
-        if(isOpenLoop) {
-            mPeriodicIO.targetVelocity = targetModuleState.speedMetersPerSecond;
-        } else {
-            mPeriodicIO.targetVelocity = Util.limit(targetModuleState.speedMetersPerSecond, SwerveConstants.maxAttainableSpeed);
-        }
+        if (isOpenLoop) mPeriodicIO.targetVelocity = targetModuleState.speedMetersPerSecond;
+        else mPeriodicIO.targetVelocity = Util.limit(targetModuleState.speedMetersPerSecond, SwerveConstants.maxAttainableSpeed);
 
         if (shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
             mPeriodicIO.targetVelocity = -mPeriodicIO.targetVelocity;
@@ -88,7 +85,7 @@ public class SwerveModule extends SubsystemBase {
         targetAngle = Util.placeInAppropriate0To360Scope(mPeriodicIO.rotationPosition, targetAngle);
 
         mPeriodicIO.rotationDemand = Util.Conversions.degreesToRotation(targetAngle,
-                SwerveConstants.angleGearRatio); //this is a duplicate
+            SwerveConstants.angleGearRatio); //this is a duplicate
 
         if (isOpenLoop) {
             mPeriodicIO.driveControlMode = ControlModeState.PercentOutput;
@@ -96,7 +93,7 @@ public class SwerveModule extends SubsystemBase {
         } else {
             mPeriodicIO.driveControlMode = ControlModeState.Velocity;
             mPeriodicIO.driveDemand = Util.Conversions.MPSToRPS(mPeriodicIO.targetVelocity,
-                    wheelCircumference, SwerveConstants.driveGearRatio);
+                wheelCircumference, SwerveConstants.driveGearRatio);
         }
     }
 
@@ -106,7 +103,7 @@ public class SwerveModule extends SubsystemBase {
         mAngleMotor.setPosition(absolutePosition);
     }
 
-    /**degrees */
+    /** degrees */
     public double getCanCoder() {
         return Util.placeIn0To360Scope(angleEncoder.getAbsolutePosition().getValueAsDouble()*360);
     }
@@ -117,7 +114,6 @@ public class SwerveModule extends SubsystemBase {
 
     @Override
     public void periodic() {
-
         /* read periodic inputs */
 
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
@@ -147,17 +143,13 @@ public class SwerveModule extends SubsystemBase {
         targetAngle = Util.placeInAppropriate0To360Scope(mPeriodicIO.rotationPosition, targetAngle);
 
         mPeriodicIO.rotationDemand = Util.Conversions.degreesToRotation(targetAngle,
-                SwerveConstants.angleGearRatio);
+            SwerveConstants.angleGearRatio);
 
         mAngleMotor.setControl(new PositionDutyCycle(mPeriodicIO.rotationDemand));
 
-        if (mPeriodicIO.driveControlMode == ControlModeState.Velocity) {
-            mDriveMotor.setControl(new VelocityTorqueCurrentFOC(mPeriodicIO.driveDemand));
-        } else {
-            // TODO: previously this had extra args: true, false, false, false - but I can't find
-            // a constructor with that signature
-            mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand));
-        }
+        if (mPeriodicIO.driveControlMode == ControlModeState.Velocity) mDriveMotor.setControl(
+            new VelocityTorqueCurrentFOC(mPeriodicIO.driveDemand)
+        ); else mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand)); // TODO: previously this had extra args: true, false, false, false - but I can't find a constructor with that signature
     }
 
     public static class mPeriodicIO {
@@ -174,10 +166,7 @@ public class SwerveModule extends SubsystemBase {
         public double driveDemand;
     }
 
-    private enum ControlModeState{
-        PercentOutput,
-        Velocity
-    }
+    private enum ControlModeState{ PercentOutput, Velocity }
 
     public int moduleNumber() {
         return kModuleNumber;
@@ -204,8 +193,8 @@ public class SwerveModule extends SubsystemBase {
     }
 
     private final boolean shouldReverse(double goalAngle, double currentAngle) {
-        double diff = (goalAngle - currentAngle + 720.0) % 360.0;
-        return diff > 90 && diff < 270;
+        double diff = (goalAngle - currentAngle + 720.) % 360.;
+        return diff > 90. && diff < 270.;
     }
 
     @Override

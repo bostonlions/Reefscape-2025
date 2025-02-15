@@ -55,9 +55,9 @@ public class SwerveDriveKinematics {
    * @param wheelsMeters The locations of the wheels relative to the physical center of the robot.
    */
   public SwerveDriveKinematics(Translation2d... wheelsMeters) {
-    if (wheelsMeters.length < 2) {
-      throw new IllegalArgumentException("A swerve drive requires at least two modules");
-    }
+    if (wheelsMeters.length < 2) throw new IllegalArgumentException(
+      "A swerve drive requires at least two modules"
+    );
     m_numModules = wheelsMeters.length;
     m_modules = Arrays.copyOf(wheelsMeters, m_numModules);
     m_moduleStates = new ModuleState[m_numModules];
@@ -106,13 +106,10 @@ public class SwerveDriveKinematics {
   @SuppressWarnings("PMD.MethodReturnsInternalArray")
   public ModuleState[] toModuleStates(
       ChassisSpeeds chassisSpeeds, Translation2d centerOfRotationMeters) {
-    if (chassisSpeeds.vxMetersPerSecond == 0.0
-        && chassisSpeeds.vyMetersPerSecond == 0.0
-        && chassisSpeeds.omegaRadiansPerSecond == 0.0) {
-      for (int i = 0; i < m_numModules; i++) {
-        m_moduleStates[i].speedMetersPerSecond = 0.0;
-      }
-
+    if (chassisSpeeds.vxMetersPerSecond == 0.
+        && chassisSpeeds.vyMetersPerSecond == 0.
+        && chassisSpeeds.omegaRadiansPerSecond == 0.) {
+      for (int i = 0; i < m_numModules; i++) m_moduleStates[i].speedMetersPerSecond = 0.0;
       return m_moduleStates;
     }
 
@@ -136,11 +133,12 @@ public class SwerveDriveKinematics {
 
     var chassisSpeedsVector = new SimpleMatrix(3, 1);
     chassisSpeedsVector.setColumn(
-        0,
-        0,
-        chassisSpeeds.vxMetersPerSecond,
-        chassisSpeeds.vyMetersPerSecond,
-        chassisSpeeds.omegaRadiansPerSecond);
+      0,
+      0,
+      chassisSpeeds.vxMetersPerSecond,
+      chassisSpeeds.vyMetersPerSecond,
+      chassisSpeeds.omegaRadiansPerSecond
+    );
 
     var moduleStatesMatrix = m_inverseKinematics.mult(chassisSpeedsVector);
 
@@ -179,11 +177,9 @@ public class SwerveDriveKinematics {
    * @return The resulting chassis speed.
    */
   public ChassisSpeeds toChassisSpeeds(ModuleState... wheelStates) {
-    if (wheelStates.length != m_numModules) {
-      throw new IllegalArgumentException(
-          "Number of modules is not consistent with number of wheel locations provided in "
-              + "constructor");
-    }
+    if (wheelStates.length != m_numModules) throw new IllegalArgumentException(
+      "Number of modules is not consistent with number of wheel locations provided in constructor"
+    );
     var moduleStatesMatrix = new SimpleMatrix(m_numModules * 2, 1);
 
     for (int i = 0; i < m_numModules; i++) {
@@ -194,9 +190,10 @@ public class SwerveDriveKinematics {
 
     var chassisSpeedsVector = m_forwardKinematics.mult(moduleStatesMatrix);
     return new ChassisSpeeds(
-        chassisSpeedsVector.get(0, 0),
-        chassisSpeedsVector.get(1, 0),
-        chassisSpeedsVector.get(2, 0));
+      chassisSpeedsVector.get(0, 0),
+      chassisSpeedsVector.get(1, 0),
+      chassisSpeedsVector.get(2, 0)
+    );
   }
 
   /**
@@ -210,11 +207,9 @@ public class SwerveDriveKinematics {
    * @return The resulting Twist2d.
    */
   public Twist2d toTwist2d(SwerveModulePosition... wheelDeltas) {
-    if (wheelDeltas.length != m_numModules) {
-      throw new IllegalArgumentException(
-          "Number of modules is not consistent with number of wheel locations provided in "
-              + "constructor");
-    }
+    if (wheelDeltas.length != m_numModules) throw new IllegalArgumentException(
+      "Number of modules is not consistent with number of wheel locations provided in constructor"
+    );
     var moduleDeltaMatrix = new SimpleMatrix(m_numModules * 2, 1);
 
     for (int i = 0; i < m_numModules; i++) {
@@ -224,8 +219,8 @@ public class SwerveDriveKinematics {
     }
 
     var chassisDeltaVector = m_forwardKinematics.mult(moduleDeltaMatrix);
-    return new Twist2d(
-        chassisDeltaVector.get(0, 0), chassisDeltaVector.get(1, 0), chassisDeltaVector.get(2, 0));
+    return new Twist2d(chassisDeltaVector.get(0, 0), chassisDeltaVector.get(1, 0),
+      chassisDeltaVector.get(2, 0));
   }
 
   /**
@@ -241,12 +236,12 @@ public class SwerveDriveKinematics {
    * @param attainableMaxSpeedMetersPerSecond The absolute max speed that a module can reach.
    */
   public static void desaturateWheelSpeeds(
-      ModuleState[] moduleStates, double attainableMaxSpeedMetersPerSecond) {
+    ModuleState[] moduleStates, double attainableMaxSpeedMetersPerSecond) {
     double realMaxSpeed = Collections.max(Arrays.asList(moduleStates)).speedMetersPerSecond;
     if (realMaxSpeed > attainableMaxSpeedMetersPerSecond) {
       for (ModuleState moduleState : moduleStates) {
         moduleState.speedMetersPerSecond =
-            moduleState.speedMetersPerSecond / realMaxSpeed * attainableMaxSpeedMetersPerSecond;
+          moduleState.speedMetersPerSecond / realMaxSpeed * attainableMaxSpeedMetersPerSecond;
       }
     }
   }
@@ -278,10 +273,8 @@ public class SwerveDriveKinematics {
     double realMaxSpeed = Collections.max(Arrays.asList(moduleStates)).speedMetersPerSecond;
 
     if (attainableMaxTranslationalSpeedMetersPerSecond == 0
-        || attainableMaxRotationalVelocityRadiansPerSecond == 0
-        || realMaxSpeed == 0) {
-      return;
-    }
+      || attainableMaxRotationalVelocityRadiansPerSecond == 0
+      || realMaxSpeed == 0) return;
     double translationalK =
         Math.hypot(currentChassisSpeed.vxMetersPerSecond, currentChassisSpeed.vyMetersPerSecond)
             / attainableMaxTranslationalSpeedMetersPerSecond;
@@ -290,8 +283,6 @@ public class SwerveDriveKinematics {
             / attainableMaxRotationalVelocityRadiansPerSecond;
     double k = Math.max(translationalK, rotationalK);
     double scale = Math.min(k * attainableMaxModuleSpeedMetersPerSecond / realMaxSpeed, 1);
-    for (ModuleState moduleState : moduleStates) {
-      moduleState.speedMetersPerSecond *= scale;
-    }
+    for (ModuleState moduleState : moduleStates) moduleState.speedMetersPerSecond *= scale;
   }
 }

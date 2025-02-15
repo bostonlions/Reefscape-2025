@@ -7,11 +7,9 @@ public final class Ports {
     public static final int DRIVER_CONTROL = 2;
     public static final int OPERATOR_CONTROL = 1;
 
-    /**
-     * Swerve Modules - as viewed from the bottom:
-     * FL FR
-     * BL BR
-     */
+    // Swerve Modules as viewed from the bottom:
+    // FL FR
+    // BL BR
 
     public static final int PIGEON = 13;
 

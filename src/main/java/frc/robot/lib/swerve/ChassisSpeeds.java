@@ -27,23 +27,16 @@ import frc.robot.lib.Util;
  */
 @SuppressWarnings("MemberName")
 public class ChassisSpeeds {
-    /**
-     * Represents forward velocity w.r.t the robot frame of reference. (Fwd is +)
-     */
+    /** Represents forward velocity w.r.t the robot frame of reference. (Fwd is +) */
     public double vxMetersPerSecond;
 
-    /**
-     * Represents sideways velocity w.r.t the robot frame of reference. (Left is +)
-     */
+    /** Represents sideways velocity w.r.t the robot frame of reference. (Left is +) */
     public double vyMetersPerSecond;
 
     /** Represents the angular velocity of the robot frame. (CCW is +) */
     public double omegaRadiansPerSecond;
 
-    /**
-     * Constructs a ChassisSpeeds with zeros for vxMetersPerSecond,
-     * vyMetersPerSecond, and theta.
-     */
+    /** Constructs a ChassisSpeeds with zeros for vxMetersPerSecond, vyMetersPerSecond, and theta. */
     public ChassisSpeeds() {}
 
     /**
@@ -53,18 +46,14 @@ public class ChassisSpeeds {
      * @param vyMetersPerSecond     Sideways velocity.
      * @param omegaRadiansPerSecond Angular velocity.
      */
-    public ChassisSpeeds(
-        double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond
-    ) {
+    public ChassisSpeeds( double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond) {
         this.vxMetersPerSecond = vxMetersPerSecond;
         this.vyMetersPerSecond = vyMetersPerSecond;
         this.omegaRadiansPerSecond = omegaRadiansPerSecond;
     }
 
     /**
-     * Converts a user provided field-relative set of speeds into a robot-relative
-     * ChassisSpeeds
-     * object.
+     * Converts a user provided field-relative set of speeds into a robot-relative ChassisSpeeds object.
      *
      * @param vxMetersPerSecond     The component of speed in the x direction
      *                              relative to the field.
@@ -79,14 +68,11 @@ public class ChassisSpeeds {
      *                              considered to be zero when it is facing directly
      *                              away from your alliance station wall.
      *                              Remember that this should be CCW positive.
-     * @return ChassisSpeeds object representing the speeds in the robot's frame of
-     *         reference.
+     * @return ChassisSpeeds object representing the speeds in the robot's frame of reference.
      */
     public static ChassisSpeeds fromFieldRelativeSpeeds(
-        double vxMetersPerSecond,
-        double vyMetersPerSecond,
-        double omegaRadiansPerSecond,
-        Rotation2d robotAngle
+        double vxMetersPerSecond, double vyMetersPerSecond,
+        double omegaRadiansPerSecond, Rotation2d robotAngle
     ) {
         return new ChassisSpeeds(
             vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin(),

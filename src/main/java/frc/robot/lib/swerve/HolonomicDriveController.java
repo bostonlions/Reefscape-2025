@@ -151,5 +151,7 @@ public class HolonomicDriveController {
      *
      * @param enabled If the controller is enabled or not.
      */
-    public void setEnabled(boolean enabled) { m_enabled = enabled; }
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
+    }
 }

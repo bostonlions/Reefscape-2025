@@ -13,7 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class ControlBoard {
+public final class ControlBoard {
     private static ControlBoard mInstance = null;
     public final CustomXboxController operator;
     public final GenericHID driver;
@@ -67,10 +67,16 @@ public class ControlBoard {
             Rotation2d deadband_direction = new Rotation2d(tAxes.getX(), tAxes.getY());
             Translation2d deadband_vector = new Translation2d(kSwerveDeadband, deadband_direction);
 
-            double scaled_x = Util.scaledDeadband(forwardAxis, 1.0, Math.abs(deadband_vector.getX()));
-            double scaled_y = Util.scaledDeadband(strafeAxis, 1.0, Math.abs(deadband_vector.getY()));
+            double scaled_x = scaledDeadband(forwardAxis, 1.0, Math.abs(deadband_vector.getX()));
+            double scaled_y = scaledDeadband(strafeAxis, 1.0, Math.abs(deadband_vector.getY()));
             return new Translation2d(scaled_x, scaled_y).times(Drive.getInstance().getKinematicLimits().kMaxDriveVelocity);
         }
+    }
+
+    private double scaledDeadband(double value, double maxValue, double deadband) {
+        double deadbandedValue = (Math.abs(value) > Math.abs(deadband)) ? value : 0.;
+        if (Util.epsilonEquals(deadbandedValue, 0., 1e-12)) return 0.;
+        return Math.signum(deadbandedValue) * ((Math.abs(deadbandedValue) - deadband) / (maxValue - deadband));
     }
 
     public double getSwerveRotation() {
@@ -78,7 +84,7 @@ public class ControlBoard {
         rotAxis = ControllerConstants.invertRAxis ? rotAxis : -rotAxis;
         rotAxis *= speedFactor;
 
-        if (Math.abs(rotAxis) < kSwerveDeadband) return 0.0;
+        if (Math.abs(rotAxis) < kSwerveDeadband) return 0.;
         return Drive.getInstance().getKinematicLimits().kMaxAngularVelocity *
             (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband)) / (1 - kSwerveDeadband);
     }

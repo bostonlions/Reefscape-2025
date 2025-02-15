@@ -1,31 +1,11 @@
 package frc.robot.lib;
 
-public final class Util {
+public class Util {
     public static double limit(double v, double maxMagnitude) {
-        return limit(v, -maxMagnitude, maxMagnitude);
-    }
-
-    public static double limit(double v, double min, double max) {
-        return Math.min(max, Math.max(min, v));
-    }
-
-    public static boolean inRange(double v, double maxMagnitude) {
-        return inRange(v, -maxMagnitude, maxMagnitude);
-    }
-
-    public static boolean inRange(double v, double min, double max) {
-        return v > min && v < max;
+        return Math.min(maxMagnitude, Math.max(-maxMagnitude, v));
     }
 
     public static boolean epsilonEquals(double a, double b, double epsilon) {
-        return (a - epsilon <= b) && (a + epsilon >= b);
-    }
-
-    public static boolean epsilonEquals(double a, double b) {
-        return epsilonEquals(a, b, 1e-12);
-    }
-
-    public static boolean epsilonEquals(int a, int b, int epsilon) {
         return (a - epsilon <= b) && (a + epsilon >= b);
     }
 
@@ -34,21 +14,11 @@ public final class Util {
         return placeIn0To360Scope(newAngle - minResult) + minResult;
     }
 
-    public static double placeIn0To360Scope(double newAngle){
+    public static double placeIn0To360Scope(double newAngle) {
         return (newAngle % 360. + 360.) % 360.;
     }
 
-    public static double deadBand(double val, double deadband) {
-        return (Math.abs(val) > Math.abs(deadband)) ? val : 0.;
-    }
-
-    public static double scaledDeadband(double value, double maxValue, double deadband) {
-        double deadbandedValue = deadBand(value, deadband);
-        if (epsilonEquals(deadbandedValue, 0.)) return 0.;
-        return Math.signum(deadbandedValue) * ((Math.abs(deadbandedValue) - deadband) / (maxValue - deadband));
-    }
-
-    public final class Conversions {
+    public static final class Conversions {
         public static double rotationsToDegrees(double rotations, double gearRatio) {
             return rotations * 360. / gearRatio;
         }

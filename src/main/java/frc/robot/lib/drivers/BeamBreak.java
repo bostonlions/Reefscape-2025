@@ -2,7 +2,7 @@ package frc.robot.lib.drivers;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
-public class BeamBreak {
+public final class BeamBreak {
     private final DigitalInput mBreak;
     private boolean lastStatus;
     private boolean tripped;

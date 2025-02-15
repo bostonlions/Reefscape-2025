@@ -9,7 +9,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.Constants;
 import frc.robot.Ports;
 
-public class Pigeon {
+public final class Pigeon {
     private static Pigeon mInstance;
 
     public static Pigeon getInstance() {

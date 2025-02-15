@@ -4,18 +4,14 @@ import frc.robot.Constants.ControllerConstants;
 
 import edu.wpi.first.wpilibj.XboxController;
 
-public class CustomXboxController {
+public final class CustomXboxController {
     private final XboxController mController;
     public enum Side { LEFT, RIGHT }
     public enum Axis { X, Y }
     public enum Button {
         A(1), B(2), X(3), Y(4), LB(5), RB(6), BACK(7), START(8), L_JOYSTICK(9), R_JOYSTICK(10);
-
         public final int id;
-
-        Button(int id) {
-            this.id = id;
-        }
+        Button(int id) { this.id = id; }
     }
 
     CustomXboxController(int port) {

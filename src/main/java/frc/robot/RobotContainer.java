@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-// import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
@@ -22,9 +21,9 @@ import frc.robot.lib.swerve.SwerveModule;
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
  * and commands. Since Command-based is a "declarative" paradigm, very little robot logic should
  * actually be handled in the {@link Robot} periodic methods (other than the scheduler calls);
- * trigger->command mappings should be defined here, using the Trigger constructor
+ * trigger->command mappings should be defined here, using the {@link Trigger} constructor
  */
-public class RobotContainer {
+public final class RobotContainer {
     private ControlBoard controller = ControlBoard.getInstance();
     private Drive drive;
     private Elevator elevator;
@@ -40,11 +39,11 @@ public class RobotContainer {
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);
-        for (SwerveModule sm: drive.mModules) SmartDashboard.putData("SwerveModule_" + sm.name, sm);
+        for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(
-                    controller.getSwerveTranslation(), 
+                    controller.getSwerveTranslation(),
                     controller.getSwerveRotation(),
                     controller.driver.getRawButton(1)
                 ),
@@ -97,14 +96,14 @@ public class RobotContainer {
         );
         new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
             .onTrue(new InstantCommand(() -> algae.nudgeDrive(-1), algae))
-            .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));        
+            .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));
         new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
             .onTrue(new InstantCommand(() -> algae.nudgeDrive(1), algae))
             .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));
 
 
-        /* 
-         * TRIMMER - all subsystems can add items to be adjusted 
+        /*
+         * TRIMMER - all subsystems can add items to be adjusted
          * These commands are marked to still run in disabled mode, so we can
          * tweak parameters and choose auto commands prior to the match starting.
         */

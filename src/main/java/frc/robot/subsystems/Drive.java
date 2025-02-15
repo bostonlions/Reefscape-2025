@@ -33,7 +33,9 @@ public class Drive extends SubsystemBase {
     private SwerveConstants.KinematicLimits mKinematicLimits = SwerveConstants.kUncappedLimits;
     private SwerveDriveKinematics kKinematics;
     private static Drive mInstance;
-    public enum DriveControlState { FORCE_ORIENT, OPEN_LOOP, HEADING_CONTROL, VELOCITY, PATH_FOLLOWING, AUTO_BALANCE }
+    public enum DriveControlState {
+        FORCE_ORIENT, OPEN_LOOP, HEADING_CONTROL, VELOCITY, PATH_FOLLOWING, AUTO_BALANCE
+    }
 
     public static Drive getInstance() {
         if (mInstance == null) mInstance = new Drive();
