@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorConstants.Position;
 import frc.robot.subsystems.Algae;
 import frc.robot.subsystems.Coral;
-// import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Trimmer;
 
@@ -21,27 +21,41 @@ public final class Auton extends SubsystemBase {
     private static Algae algae = Algae.getInstance();
     private static Coral coral = Coral.getInstance();
     private static Elevator elevator = Elevator.getInstance();
-    // private static Drive drive = Drive.getInstance();
+    private static Drive drive = Drive.getInstance();
 
     private static final Map<String, Command> commands = Map.ofEntries(
         entry(
             "Flip Algae",
             algae.upCommand()
-            .andThen(wait(1.))
+            .andThen(_wait(1.))
             .andThen(algae.downCommand())
         ),
         entry(
             "Toggle Coral",
             coral.toggleCommand()
-            .andThen(wait(1.))
+            .andThen(_wait(1.))
             .andThen(coral.toggleCommand())
         ),
         entry(
             "Elevator Up/Down",
             elevator.stepUpCommand()
             .andThen(elevator.stepToCommand(Position.L3))
-            .andThen(wait(3.))
+            .andThen(_wait(3.))
             .andThen(elevator.stepToCommand(Position.LOAD))
+        ),
+        entry(
+            "Turn around",
+            drive.headingCommand(90)
+            .andThen(_wait(2.))
+            .andThen(drive.headingCommand(180))
+            .andThen(_wait(2.))
+            .andThen(drive.headingCommand(270))
+            .andThen(drive.headingCommand(0))
+        ),
+        entry(
+            "Drive Test",
+            _wait(2) // need to bring in AutoTrajectory stuff
+            // drive.trajectoryCommand(..., 0)
         )
     );
 
@@ -57,7 +71,7 @@ public final class Auton extends SubsystemBase {
         initTrimmer();
     }
 
-    private static Command wait(double secs) {
+    private static Command _wait(double secs) {
         return new WaitCommand(secs);
     }
 
