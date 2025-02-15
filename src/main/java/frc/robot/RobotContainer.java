@@ -93,18 +93,12 @@ public class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.B)).onTrue(
             new InstantCommand(algae :: toggleDrive, algae)
         );
-        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onTrue(
-            new InstantCommand(() -> algae.nudgeDrive(-1, true), algae)
-        );        
-        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onTrue(
-            new InstantCommand(() -> algae.nudgeDrive(1, true), algae)
-        );
-        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onFalse(
-            new InstantCommand(() -> algae.nudgeDrive(-1, false), algae)
-        );        
-        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onFalse(
-            new InstantCommand(() -> algae.nudgeDrive(1, false), algae)
-        );
+        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
+            .onTrue(new InstantCommand(() -> algae.nudgeDrive(-1), algae))
+            .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));        
+        new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
+            .onTrue(new InstantCommand(() -> algae.nudgeDrive(1), algae))
+            .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));
 
 
         /* TRIMMER - all subsystems can add items to be adjusted */
