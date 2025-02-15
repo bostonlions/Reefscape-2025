@@ -146,13 +146,13 @@ public class Constants {
     }
 
     // For DriveMotionPlanner - what is snap?
-    public static final class SnapConstants {
-        public static final double kP = 6.;
-        public static final double kI = 0.5;
-        public static final double kD = 0.2;
-        public static final double snapTimeout = 0.25;
-        public static final double snapEpsilon = 1.;
-    }
+    // public static final class SnapConstants {
+        // public static final double kP = 6.;
+        // public static final double kI = 0.5;
+        // public static final double kD = 0.2;
+        // public static final double snapTimeout = 0.25;
+        // public static final double snapEpsilon = 1.;
+    // }
 
     // For DriveMotionPlanner
     public static final class AutoConstants {
@@ -321,7 +321,7 @@ public class Constants {
 
         // Angles in degrees from horizontal:
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -94.), 
+            entry(Position.MIN, -94.),
             entry(Position.STOW_DOWN, -94.),
             entry(Position.PROCESSOR, -59.),
             entry(Position.LOADED_DOWN, -55.),

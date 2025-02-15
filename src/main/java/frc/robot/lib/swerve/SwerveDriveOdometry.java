@@ -37,17 +37,15 @@ public class SwerveDriveOdometry {
 	 * @param initialPose     The starting position of the robot on the field.
 	 */
 	public SwerveDriveOdometry(
-			SwerveDriveKinematics kinematics, SwerveModulePosition[] modulePositions, Pose2d initialPose) {
+		SwerveDriveKinematics kinematics, SwerveModulePosition[] modulePositions, Pose2d initialPose) {
 		m_kinematics = kinematics;
 		m_poseMeters = initialPose;
 		m_previousAngle = initialPose.getRotation();
 		m_numModules = modulePositions.length;
 
 		m_previousModulePositions = new SwerveModulePosition[m_numModules];
-		for (int index = 0; index < m_numModules; index++) {
-			m_previousModulePositions[index] = new SwerveModulePosition(
-					modulePositions[index].distanceMeters, modulePositions[index].angle);
-		}
+		for (int index = 0; index < m_numModules; index++) m_previousModulePositions[index] =
+			new SwerveModulePosition(modulePositions[index].distanceMeters, modulePositions[index].angle);
 	}
 
 	/**
@@ -58,8 +56,9 @@ public class SwerveDriveOdometry {
 	 * @param modulePositions The wheel positions reported by each module.
 	 */
 	public SwerveDriveOdometry(
-			SwerveDriveKinematics kinematics,
-			SwerveModulePosition[] modulePositions) {
+		SwerveDriveKinematics kinematics,
+		SwerveModulePosition[] modulePositions
+	) {
 		this(kinematics, modulePositions, new Pose2d());
 	}
 
@@ -75,10 +74,8 @@ public class SwerveDriveOdometry {
 	public void resetPosition(SwerveModulePosition[] modulePositions, Pose2d pose) {
 		m_poseMeters = pose;
 		m_previousAngle = pose.getRotation();
-		for (int index = 0; index < m_numModules; index++) {
-			m_previousModulePositions[index] = new SwerveModulePosition(
-					modulePositions[index].distanceMeters, modulePositions[index].angle);
-		}
+		for (int index = 0; index < m_numModules; index++) m_previousModulePositions[index] =
+			new SwerveModulePosition(modulePositions[index].distanceMeters, modulePositions[index].angle);
 	}
 
 	/**
@@ -110,17 +107,16 @@ public class SwerveDriveOdometry {
 	 * @return The new pose of the robot.
 	 */
 	public Pose2d update(Rotation2d gyroAngle, SwerveModulePosition[] modulePositions) {
-		if (modulePositions.length != m_numModules) {
-			throw new IllegalArgumentException("Number of modules is not consistent with number of wheel locations provided in constructor");
-		}
+		if (modulePositions.length != m_numModules) throw new IllegalArgumentException(
+			"Number of modules is not consistent with number of wheel locations provided in constructor"
+		);
 
 		var moduleDeltas = new SwerveModulePosition[m_numModules];
 		for (int index = 0; index < m_numModules; index++) {
 			var current = modulePositions[index];
 			var previous = m_previousModulePositions[index];
 
-			moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters,
-					current.angle);
+			moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters, current.angle);
 			previous.distanceMeters = current.distanceMeters;
 		}
 
@@ -136,26 +132,22 @@ public class SwerveDriveOdometry {
 	}
 
 	public Pose2d update(SwerveModulePosition[] modulePositions) {
-		if (modulePositions.length != m_numModules) {
-			throw new IllegalArgumentException(
-					"Number of modules is not consistent with number of wheel locations provided in "
-							+ "constructor");
-		}
+		if (modulePositions.length != m_numModules) throw new IllegalArgumentException(
+			"Number of modules is not consistent with number of wheel locations provided in constructor"
+		);
 
 		var moduleDeltas = new SwerveModulePosition[m_numModules];
 		for (int index = 0; index < m_numModules; index++) {
 			var current = modulePositions[index];
 			var previous = m_previousModulePositions[index];
 
-			moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters,
-					current.angle);
+			moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters, current.angle);
 			previous.distanceMeters = current.distanceMeters;
 		}
 
 		var twist = m_kinematics.toTwist2d(moduleDeltas);
 
 		var newPose = m_poseMeters.exp(twist);
-
 		return newPose;
 	}
 }

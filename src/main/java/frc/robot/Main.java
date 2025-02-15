@@ -7,10 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.RobotBase;
 
 final class Main {
-
-    // if deploying code isn't working, it might be because of vendordeps updates, in which
-    // case the code has to be built once first to allow for deploying in the future
-    public static void main(String... args) {
-        RobotBase.startRobot(Robot::new);
-    }
+    public static void main(String... args) { // if deploying code isn't working, it might be because of
+        RobotBase.startRobot(Robot::new);     // vendordeps updates, in which case the code has to be
+    }                                         // built once first to allow for deploying in the future
 }

@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.SnapConstants;
+// import frc.robot.Constants.SnapConstants;
 
 public class DriveMotionPlanner {
     private final PIDController forwardController;
@@ -35,7 +35,7 @@ public class DriveMotionPlanner {
         forwardController = new PIDController(AutoConstants.kPXController, 0.0, AutoConstants.kDXController);
         strafeController = new PIDController(AutoConstants.kPYController, 0.0, AutoConstants.kDYController);
         rotationController = new ProfiledPIDController(AutoConstants.kPThetaController, 0.0, 0.0, AutoConstants.kThetaControllerConstraints);
-        snapController = new PIDController(SnapConstants.kP, SnapConstants.kI, SnapConstants.kD);
+        snapController = new PIDController(6., 0.5, 0.2);
 
         rotationController.enableContinuousInput(0, 2 * Math.PI);
         snapController.enableContinuousInput(0, 2 * Math.PI);
@@ -72,24 +72,16 @@ public class DriveMotionPlanner {
 
     public Trajectory generateTrajectory(TrajectoryConfig config, Pose2d... poses) {
         ArrayList<Translation2d> interiorPoints = new ArrayList<Translation2d>();
-        for (int i = 1; i < poses.length - 1; i++) {
-            interiorPoints.add(poses[i].getTranslation());
-        }
+        for (int i = 1; i < poses.length - 1; i++) interiorPoints.add(poses[i].getTranslation());
         return TrajectoryGenerator.generateTrajectory(poses[0], interiorPoints, poses[poses.length - 1], config);
     }
 
     public ChassisSpeeds update(Pose2d current_state, double timestamp) {
-        if (mStartTime.isNaN()) {
-            mStartTime = Timer.getFPGATimestamp();
-        }
+        if (mStartTime.isNaN()) mStartTime = Timer.getFPGATimestamp();
 
-        if (timestamp > mStartTime + mCurrentTrajectory.getTotalTimeSeconds()) {
-            isFinished = true;
-        }
+        if (timestamp > mStartTime + mCurrentTrajectory.getTotalTimeSeconds()) isFinished = true;
 
-        if (mCurrentTrajectory == null) {
-            return new ChassisSpeeds();
-        }
+        if (mCurrentTrajectory == null) return new ChassisSpeeds();
 
         Trajectory.State desired_state = mCurrentTrajectory.sample(timestamp - mStartTime);
 
@@ -99,35 +91,26 @@ public class DriveMotionPlanner {
     }
 
     public Double getXError(double currentX, double timestamp) {
-        if (mCurrentTrajectory == null) {
-            return Double.NaN;
-        }
+        if (mCurrentTrajectory == null) return Double.NaN;
         return mCurrentTrajectory.sample(timestamp - mStartTime).poseMeters.getX() - currentX;
     }
 
     public Double getYError(double getY, double timestamp) {
-        if (mCurrentTrajectory == null) {
-            return Double.NaN;
-        }
+        if (mCurrentTrajectory == null) return Double.NaN;
         return mCurrentTrajectory.sample(timestamp - mStartTime).poseMeters.getY() - getY;
     }
 
     public Double getRotationalError(double currentRotation) {
-        if (mTargetRotation == null) {
-            return Double.NaN;
-        }
+        if (mTargetRotation == null) return Double.NaN;
         return mTargetRotation.getDegrees() - currentRotation;
     }
 
     public Double getRotationalTarget() {
-        if (mTargetRotation == null) {
-            return Double.NaN;
-        }
+        if (mTargetRotation == null) return Double.NaN;
         return mTargetRotation.getDegrees();
     }
 
     public boolean isFinished() {
         return mCurrentTrajectory != null && isFinished;
     }
-
 }

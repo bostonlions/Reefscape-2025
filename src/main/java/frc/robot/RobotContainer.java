@@ -22,9 +22,9 @@ import frc.robot.lib.swerve.SwerveModule;
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
  * and commands. Since Command-based is a "declarative" paradigm, very little robot logic should
  * actually be handled in the {@link Robot} periodic methods (other than the scheduler calls);
- * trigger->command mappings should be defined here, using the Trigger constructor
+ * trigger->command mappings should be defined here, using the {@link Trigger} constructor
  */
-public class RobotContainer {
+public final class RobotContainer {
     private ControlBoard controller = ControlBoard.getInstance();
     private Drive drive;
     private Elevator elevator;
@@ -40,7 +40,7 @@ public class RobotContainer {
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);
-        for (SwerveModule sm: drive.mModules) SmartDashboard.putData("SwerveModule_" + sm.name, sm);
+        for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(controller.getSwerveTranslation(), controller.getSwerveRotation()),
@@ -95,13 +95,13 @@ public class RobotContainer {
         );
         new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onTrue(
             new InstantCommand(() -> algae.nudgeDrive(-1, true), algae)
-        );        
+        );
         new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onTrue(
             new InstantCommand(() -> algae.nudgeDrive(1, true), algae)
         );
         new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onFalse(
             new InstantCommand(() -> algae.nudgeDrive(-1, false), algae)
-        );        
+        );
         new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onFalse(
             new InstantCommand(() -> algae.nudgeDrive(1, false), algae)
         );
