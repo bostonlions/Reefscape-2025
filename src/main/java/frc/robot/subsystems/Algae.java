@@ -28,14 +28,12 @@ import static frc.robot.Constants.AlgaeConstants.angles;
 
 public class Algae extends SubsystemBase {
     private boolean mDebug = true;
-    private boolean mIsNudging = false;
     private static Algae mInstance;
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;
     private BeamBreak mBeamBreak;
     private CANcoder mCANcoder;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
-    private double resetTS = 0.;
     public enum PositionState { UP, DOWN }
     private enum DriveState {
         IDLE, INTAKE_NO_ALGAE, INTAKE_WITH_ALGAE, LOADED, UNLOADING_WITH_ALGAE, UNLOADING_NO_ALGAE
@@ -94,6 +92,7 @@ public class Algae extends SubsystemBase {
         angleMotorConfig.Feedback.RotorToSensorRatio = AlgaeConstants.angleGearRatio;
         setConfigs();
         initTrimmer();
+        setState();
     }
 
     public void setConfigs() {
@@ -131,22 +130,18 @@ public class Algae extends SubsystemBase {
         if (mDebug) System.out.println("setDriveSpeed: " + rps);
         mPeriodicIO.D_demand = rps * AlgaeConstants.driveGearRatio;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
-        // TODO - do we need to explicitly decouple from angle motor or is a new setControl enough?
     }
 
     // Use xbox triggers to turn the drive wheel a bit in or out so operator can get a better grip on the ball
-    public void nudgeDrive(int direction, boolean run) {
-        if (mDebug) System.out.println("nudgeDriveIn: ");
-
-        if (run){
-            mIsNudging = true;
-            mPeriodicIO.D_demand = direction * 3 * AlgaeConstants.driveGearRatio;
-            mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
-        } else {
-            if (mIsNudging) {
-                mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
-            }
-            mIsNudging = false;
+    public void nudgeDrive(int direction) {
+        switch(mPeriodicIO.driveState) {
+            case IDLE:
+            case LOADED:
+                mPeriodicIO.D_demand = direction * AlgaeConstants.nudgeSpeed * AlgaeConstants.driveGearRatio;
+                mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
+                break;
+            default:
+                System.out.println("Algae nudgeDrive ignored, already driving");
         }
     }
  
@@ -163,23 +158,23 @@ public class Algae extends SubsystemBase {
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case UNLOADING_NO_ALGAE:
-            if (mDebug) System.out.println("toggleDrive UNLOADING_NO_ALGAE");
+                if (mDebug) System.out.println("toggleDrive UNLOADING_NO_ALGAE");
 
                 mPeriodicIO.driveState = DriveState.INTAKE_NO_ALGAE;
                 break;
             case INTAKE_NO_ALGAE:
-            if (mDebug) System.out.println("toggleDrive INTAKE_NO_ALGAE");
-            mPeriodicIO.driveState = DriveState.IDLE;
+                if (mDebug) System.out.println("toggleDrive INTAKE_NO_ALGAE");
+                mPeriodicIO.driveState = DriveState.IDLE;
                 break;
             case INTAKE_WITH_ALGAE:
-            if (mDebug)  System.out.println("toggleDrive INTAKE_WITH_ALGAE");
+                if (mDebug)  System.out.println("toggleDrive INTAKE_WITH_ALGAE");
             case LOADED:
-            if (mDebug) System.out.println("toggleDrive LOADED");
-            mPeriodicIO.driveState = DriveState.UNLOADING_WITH_ALGAE;
+                if (mDebug) System.out.println("toggleDrive LOADED");
+                mPeriodicIO.driveState = DriveState.UNLOADING_WITH_ALGAE;
                 break;
             case UNLOADING_WITH_ALGAE:
-            if (mDebug) System.out.println("toggleDrive UNLOADING_WITH_ALGAE");
-            mPeriodicIO.driveState = DriveState.LOADED;
+                if (mDebug) System.out.println("toggleDrive UNLOADING_WITH_ALGAE");
+                mPeriodicIO.driveState = DriveState.LOADED;
         }
         setState();
     }
