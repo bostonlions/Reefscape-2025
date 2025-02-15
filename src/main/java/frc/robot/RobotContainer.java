@@ -43,7 +43,11 @@ public final class RobotContainer {
         for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
         drive.setDefaultCommand(
             new RunCommand(
-                () -> drive.setTargetSpeeds(controller.getSwerveTranslation(), controller.getSwerveRotation()),
+                () -> drive.setTargetSpeeds(
+                    controller.getSwerveTranslation(),
+                    controller.getSwerveRotation(),
+                    controller.driver.getRawButton(1)
+                ),
                 drive
             )
         );
@@ -57,11 +61,9 @@ public final class RobotContainer {
         SmartDashboard.putData(elevator);
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(
             new InstantCommand(elevator::stepDown, elevator)
-            // new FunctionalCommand(elevator::stepDown, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(
             new InstantCommand(elevator::stepUp, elevator)
-            // new FunctionalCommand(elevator::stepUp, ()->{}, (v)->{}, elevator::doneMoving, elevator)
         );
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(
             new InstantCommand(elevator::markMin, elevator)
@@ -93,34 +95,32 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.B)).onTrue(
             new InstantCommand(algae :: toggleDrive, algae)
         );
-        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onTrue(
-            new InstantCommand(() -> algae.nudgeDrive(-1, true), algae)
-        );
-        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onTrue(
-            new InstantCommand(() -> algae.nudgeDrive(1, true), algae)
-        );
-        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)).onFalse(
-            new InstantCommand(() -> algae.nudgeDrive(-1, false), algae)
-        );
-        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)).onFalse(
-            new InstantCommand(() -> algae.nudgeDrive(1, false), algae)
-        );
+        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
+            .onTrue(new InstantCommand(() -> algae.nudgeDrive(-1), algae))
+            .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));
+        new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
+            .onTrue(new InstantCommand(() -> algae.nudgeDrive(1), algae))
+            .onFalse(new InstantCommand(() -> algae.nudgeDrive(0), algae));
 
 
-        /* TRIMMER - all subsystems can add items to be adjusted */
+        /*
+         * TRIMMER - all subsystems can add items to be adjusted
+         * These commands are marked to still run in disabled mode, so we can
+         * tweak parameters and choose auto commands prior to the match starting.
+        */
         trimmer = Trimmer.getInstance();
         SmartDashboard.putData(trimmer);
         new Trigger(() -> (controller.operator.getController().getPOV() == 270)).onTrue(
-            new InstantCommand(trimmer::nextSubsystem, trimmer)
+            new InstantCommand(trimmer::nextSubsystem, trimmer).ignoringDisable(true)
         );
         new Trigger(() -> (controller.operator.getController().getPOV() == 90)).onTrue(
-            new InstantCommand(trimmer::nextItem, trimmer)
+            new InstantCommand(trimmer::nextItem, trimmer).ignoringDisable(true)
         );
         new Trigger(() -> (controller.operator.getController().getPOV() == 0)).onTrue(
-            new InstantCommand(trimmer::incrementItem, trimmer)
+            new InstantCommand(trimmer::incrementItem, trimmer).ignoringDisable(true)
         );
         new Trigger(() -> (controller.operator.getController().getPOV() == 180)).onTrue(
-            new InstantCommand(trimmer::decrementItem, trimmer)
+            new InstantCommand(trimmer::decrementItem, trimmer).ignoringDisable(true)
         );
     }
 

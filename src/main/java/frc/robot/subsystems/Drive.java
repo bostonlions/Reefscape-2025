@@ -88,13 +88,23 @@ public class Drive extends SubsystemBase {
         mPeriodicIO.des_chassis_speeds = speeds;
     }
 
-    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            targetSpeed.getX(),
-            targetSpeed.getY(),
-            targetRotationRate,
-            getHeading()
-        );
+    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe) {
+        ChassisSpeeds speeds;
+        mPeriodicIO.strafeMode = strafe;
+        if (strafe) {
+            speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+                targetSpeed.getX(),
+                targetSpeed.getY(),
+                targetRotationRate
+            );
+        } else {
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                targetSpeed.getX(),
+                targetSpeed.getY(),
+                targetRotationRate,
+                getHeading()
+            );
+        }
         feedTeleopSetpoint(speeds);
     }
 
@@ -376,6 +386,7 @@ public class Drive extends SubsystemBase {
         };
         Rotation2d heading = new Rotation2d();
         Rotation2d pitch = new Rotation2d();
+        boolean strafeMode = false;
 
         // Outputs
         ModuleState[] des_module_states = new ModuleState[] {
@@ -400,6 +411,7 @@ public class Drive extends SubsystemBase {
 
         builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
+        builder.addBooleanProperty("Strafe Mode", () -> mPeriodicIO.strafeMode, null);
         builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);
         builder.addDoubleProperty("Timestamp", () -> mPeriodicIO.timestamp, null);
         builder.addDoubleProperty("Trajectory X Error", () -> mMotionPlanner.getXError(getPose().getX(), Timer.getFPGATimestamp()), null);

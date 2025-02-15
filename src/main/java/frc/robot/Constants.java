@@ -199,7 +199,7 @@ public class Constants {
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
             entry(Position.L3, 0.725),
-            entry(Position.L4, 1.4),
+            entry(Position.L4, 1.38),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
@@ -297,6 +297,8 @@ public class Constants {
     public static final class AlgaeConstants {
         public static final double angleGearRatio = (57./15)*5;
         public static final double driveGearRatio = 2.;  // TODO figure out the actual number
+
+        public static final double nudgeSpeed = 3.;
 
         public static final double extraGroundIntakeRotations = .07; //.009 // should be the amount of secconds it takes to stop
         public static final double groundIntakeSpeed = 18; //was .5
