@@ -10,6 +10,9 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.lib.swerve.SwerveModule;
@@ -123,6 +126,20 @@ public class Drive extends SubsystemBase {
         if (mControlState != DriveControlState.VELOCITY) mControlState = DriveControlState.VELOCITY;
     }
 
+    public Command trajectoryCommand(Trajectory trajectory, double heading) {
+        return new FunctionalCommand(
+            () -> setTrajectory(trajectory, Rotation2d.fromDegrees(heading)),
+            () -> {},
+            (b) -> {},
+            () -> mMotionPlanner.isFinished(),
+            this
+        );
+    }
+
+    public Command headingCommand(double heading) {
+        return new InstantCommand(() -> setAutoHeading(Rotation2d.fromDegrees(heading)), this);
+    }
+
     public void setTrajectory(Trajectory trajectory, Rotation2d heading) {
         mMotionPlanner.setTrajectory(trajectory, heading, getPose());
         mControlState = DriveControlState.PATH_FOLLOWING;
@@ -130,6 +147,7 @@ public class Drive extends SubsystemBase {
 
     public void setAutoHeading(Rotation2d new_heading) {
         mMotionPlanner.setTargetHeading(new_heading);
+        mControlState = DriveControlState.PATH_FOLLOWING;
     }
 
     // Stops drive without orienting modules

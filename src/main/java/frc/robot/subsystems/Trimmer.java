@@ -6,6 +6,8 @@ import java.util.List;
 
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Trimmer extends SubsystemBase {
@@ -54,23 +56,37 @@ public class Trimmer extends SubsystemBase {
         for (int i = 0; i < itemsArray.length; i++) itemsArray[i] = items.get(currentSubsystemIndex).get(i).name;
     }
 
-    public void nextSubsystem() {
-        currentSubsystemIndex = (currentSubsystemIndex + 1) % subsystems.size();
-        currentItemIndex = 0;
-        setItem();
+    /*
+     * Commands
+     * These commands are marked to still run in disabled mode, so we can
+     * tweak parameters and choose auto commands prior to the match starting.
+     */
+
+    public Command nextSubsystemCommand() {
+        return new InstantCommand(() -> {
+            currentSubsystemIndex = (currentSubsystemIndex + 1) % subsystems.size();
+            currentItemIndex = 0;
+            setItem();
+        }, this).ignoringDisable(true);
     }
 
-    public void nextItem() {
-        currentItemIndex = (currentItemIndex + 1) % items.get(currentSubsystemIndex).size();
-        setItem();
+    public Command nextItemCommand() {
+        return new InstantCommand(() -> {
+            currentItemIndex = (currentItemIndex + 1) % items.get(currentSubsystemIndex).size();
+            setItem();
+        }, this).ignoringDisable(true);
     }
 
-    public void incrementItem() {
-        items.get(currentSubsystemIndex).get(currentItemIndex).inc.accept(true);
+    public Command incrementItemCommand() {
+        return new InstantCommand(() -> {
+            items.get(currentSubsystemIndex).get(currentItemIndex).inc.accept(true);
+        }, this).ignoringDisable(true);
     }
 
-    public void decrementItem() {
-        items.get(currentSubsystemIndex).get(currentItemIndex).inc.accept(false);
+    public Command decrementItemCommand() {
+        return new InstantCommand(() -> {
+            items.get(currentSubsystemIndex).get(currentItemIndex).inc.accept(false);
+        }, this).ignoringDisable(true);
     }
 
     public final class Item {
@@ -105,10 +121,10 @@ public class Trimmer extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Trimmer");
-        builder.addStringProperty("Subsystem", () -> currentSubsystem, null);
-        builder.addStringProperty("Item", () -> currentItem.name, null);
-        builder.addDoubleProperty("Value", () -> currentItem.getter.getAsDouble(), null);
-        builder.addStringArrayProperty("Subsystems", () -> subsystemsArray, null);
-        builder.addStringArrayProperty("Items", () -> itemsArray, null);
+        builder.addStringProperty("1. Subsystems", () -> String.join("\n", subsystemsArray), null);
+        builder.addStringProperty("2. Selected Subsystem", () -> currentSubsystem, null);
+        builder.addStringProperty("3. Selected Item", () -> currentItem.name, null);
+        builder.addDoubleProperty("4. Value", () -> currentItem.getter.getAsDouble(), null);
+        builder.addStringProperty("5. Items", () -> String.join("\n", itemsArray), null);
     }
 }

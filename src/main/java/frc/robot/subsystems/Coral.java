@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -40,6 +42,9 @@ public class Coral extends SubsystemBase {
         mPeriodicIO.extraUnloadRotations = CoralConstants.extraUnloadRotations;
         initTrimmer();
     }
+
+    /* Commands */
+    public Command toggleCommand() { return new InstantCommand(this::activateCoral, this); }
 
     public void disable() {
         // TODO
@@ -166,13 +171,13 @@ public class Coral extends SubsystemBase {
         builder.setSafeState(this::disable);
         builder.setActuator(true);
 
-        builder.addDoubleProperty("Coral Angle (degrees)", () -> mPeriodicIO.position_degrees, null);
-        builder.addDoubleProperty("Coral Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("Coral Demand", () -> mPeriodicIO.demand, null);
-        builder.addDoubleProperty("Coral Velocity rps", () -> mPeriodicIO.velocity_rps, null);
-        builder.addDoubleProperty("Coral Volts", () -> mPeriodicIO.output_voltage, null);
-        builder.addDoubleProperty("Coral Current", () -> mPeriodicIO.current, null);
-        builder.addStringProperty("Coral State", () -> mPeriodicIO.state.toString(), null);
+        builder.addDoubleProperty("Angle (degrees)", () -> mPeriodicIO.position_degrees, null);
+        builder.addDoubleProperty("Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Demand", () -> mPeriodicIO.demand, null);
+        builder.addDoubleProperty("Velocity rps", () -> mPeriodicIO.velocity_rps, null);
+        builder.addDoubleProperty("Volts", () -> mPeriodicIO.output_voltage, null);
+        builder.addDoubleProperty("Current", () -> mPeriodicIO.current, null);
+        builder.addStringProperty("State", () -> mPeriodicIO.state.toString(), null);
     }
 
     public void initTrimmer() {

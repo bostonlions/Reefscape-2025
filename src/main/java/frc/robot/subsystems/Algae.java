@@ -5,7 +5,8 @@ import static java.util.Map.entry;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -95,6 +96,14 @@ public class Algae extends SubsystemBase {
         setState();
     }
 
+    /* Commands */
+    public Command upCommand() { return new InstantCommand(() -> this.setPosition(PositionState.UP), this); }
+    public Command downCommand() { return new InstantCommand(() -> this.setPosition(PositionState.DOWN), this); }
+    public Command toggleDriveCommand() { return new InstantCommand(this :: toggleDrive, this); }
+    public Command nudgeRightCommand() { return new InstantCommand(() -> this.nudgeDrive(-1)); }
+    public Command nudgeLeftCommand() { return new InstantCommand(() -> this.nudgeDrive(1)); }
+    public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudgeDrive(0)); }
+
     public void setConfigs() {
         mDriveMotor.getConfigurator().apply(driveMotorConfig);
         mDriveMotor.setPosition(0);
@@ -103,9 +112,9 @@ public class Algae extends SubsystemBase {
 
     public double getCanCoderPosition() {
         return Util.placeIn0To360Scope(
-                mCANcoder.getAbsolutePosition().getValueAsDouble() * 360 - AlgaeConstants.cancoderOffset);
+            mCANcoder.getAbsolutePosition().getValueAsDouble() * 360 - AlgaeConstants.cancoderOffset
+        );
     }
-
 
     public void disable() {
         // TODO
@@ -144,8 +153,8 @@ public class Algae extends SubsystemBase {
                 System.out.println("Algae nudgeDrive ignored, already driving");
         }
     }
- 
- 
+
+
 
     public void setPosition(PositionState newPosition) {
         if (mDebug) System.out.println("setPosition: " + newPosition);
@@ -187,7 +196,7 @@ public class Algae extends SubsystemBase {
         mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : DOWN_SPEEDS).get(mPeriodicIO.driveState);
         if (mDebug)  System.out.println("setState targetPosition: " + mPeriodicIO.targetPosition);
         if (mDebug) System.out.println("setState targetSpeed: " + mPeriodicIO.targetSpeed);
- 
+
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
         if (mPeriodicIO.targetSpeed != 0) {
             if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
@@ -235,7 +244,7 @@ public class Algae extends SubsystemBase {
             case INTAKE_NO_ALGAE:
                 if (mBeamBreak.get()) {
 
-                    
+
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (isUp ?
                             (AlgaeConstants.extraReefIntakeRotations /*/ AlgaeConstants.reefIntakeSpeed*/) :

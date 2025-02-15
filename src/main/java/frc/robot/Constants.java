@@ -21,9 +21,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
+// import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
+// import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.lib.Util.Conversions;
@@ -167,13 +167,13 @@ public class Constants {
             kMaxAngularSpeed, kMaxAngularAccel);
 
         // Static factory for creating trajectory configs
-        public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
-            TrajectoryConfig config = new TrajectoryConfig(maxSpeed, maxAccel);
-            config.setStartVelocity(startSpeed);
-            config.setEndVelocity(endSpeed);
-            config.addConstraint(new CentripetalAccelerationConstraint(10.0));
-            return config;
-        }
+        // public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
+        //     TrajectoryConfig config = new TrajectoryConfig(maxSpeed, maxAccel);
+        //     config.setStartVelocity(startSpeed);
+        //     config.setEndVelocity(endSpeed);
+        //     config.addConstraint(new CentripetalAccelerationConstraint(10.0));
+        //     return config;
+        // }
     }
 
     public static final class ElevatorConstants {
