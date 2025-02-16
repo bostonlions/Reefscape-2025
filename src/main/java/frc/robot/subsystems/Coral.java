@@ -180,7 +180,7 @@ public class Coral extends SubsystemBase {
         builder.addStringProperty("State", () -> mPeriodicIO.state.toString(), null);
     }
 
-    public void initTrimmer() {
+    private void initTrimmer() {
         Trimmer trimmer = Trimmer.getInstance();
         trimmer.add(
             "Coral",

@@ -27,35 +27,40 @@ public final class Auton extends SubsystemBase {
         entry(
             "Flip Algae",
             algae.upCommand()
-            .andThen(_wait(1.))
+            .andThen(sleep(1.))
             .andThen(algae.downCommand())
         ),
         entry(
             "Toggle Coral",
             coral.toggleCommand()
-            .andThen(_wait(1.))
+            .andThen(sleep(1.))
             .andThen(coral.toggleCommand())
         ),
         entry(
             "Elevator Up/Down",
             elevator.stepUpCommand()
             .andThen(elevator.stepToCommand(Position.L3))
-            .andThen(_wait(3.))
+            .andThen(sleep(3.))
             .andThen(elevator.stepToCommand(Position.LOAD))
         ),
         entry(
             "Turn around",
             drive.headingCommand(90)
-            .andThen(_wait(2.))
+            .andThen(sleep(2.))
             .andThen(drive.headingCommand(180))
-            .andThen(_wait(2.))
+            .andThen(sleep(2.))
             .andThen(drive.headingCommand(270))
             .andThen(drive.headingCommand(0))
         ),
         entry(
             "Drive Test",
-            _wait(2) // need to bring in AutoTrajectory stuff
-            // drive.trajectoryCommand(..., 0)
+            drive.trajectoryCommand("paths/test.path", 1., 2., 0.)
+            .andThen(sleep(1.))
+            .andThen(elevator.stepToCommand(Position.L2))
+            .andThen(coral.toggleCommand())
+            .andThen(sleep(1.))
+            .andThen(coral.toggleCommand())
+            .andThen(elevator.stepToCommand(Position.LOAD))
         )
     );
 
@@ -71,7 +76,7 @@ public final class Auton extends SubsystemBase {
         initTrimmer();
     }
 
-    private static Command _wait(double secs) {
+    private static Command sleep(double secs) {
         return new WaitCommand(secs);
     }
 
@@ -91,7 +96,6 @@ public final class Auton extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        Trimmer trimmer = Trimmer.getInstance();
-        trimmer.add("Auton", "Command", () -> (double) commandIdx, this::inc);
+        Trimmer.getInstance().add("Auton", "Command", () -> (double) commandIdx, this::inc);
     }
 }

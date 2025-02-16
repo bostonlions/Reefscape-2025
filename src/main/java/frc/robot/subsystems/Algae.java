@@ -340,7 +340,7 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Target speed", () -> mPeriodicIO.targetSpeed, null);
     }
 
-    public void initTrimmer() {
+    private void initTrimmer() {
         Trimmer trimmer = Trimmer.getInstance();
         trimmer.add(
             "Algae",

@@ -1,5 +1,9 @@
 package frc.robot.subsystems;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +11,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -16,6 +26,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.lib.swerve.SwerveModule;
+import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.FieldDimensions;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
 import frc.robot.lib.drivers.Pigeon;
@@ -126,6 +138,10 @@ public class Drive extends SubsystemBase {
         if (mControlState != DriveControlState.VELOCITY) mControlState = DriveControlState.VELOCITY;
     }
 
+    public Command trajectoryCommand(String filePath, double maxSpeed, double maxAccel, double heading) {
+        return trajectoryCommand(getTrajectory(filePath, maxSpeed, maxAccel), heading);
+    }
+
     public Command trajectoryCommand(Trajectory trajectory, double heading) {
         return new FunctionalCommand(
             () -> setTrajectory(trajectory, Rotation2d.fromDegrees(heading)),
@@ -138,6 +154,58 @@ public class Drive extends SubsystemBase {
 
     public Command headingCommand(double heading) {
         return new InstantCommand(() -> setAutoHeading(Rotation2d.fromDegrees(heading)), this);
+    }
+
+    public static Trajectory getTrajectory(String filePath, double maxSpeed, double maxAccel) {
+        return getTrajectory(filePath, getNewTrajConfig(maxSpeed, maxAccel));
+    }
+
+    public static Trajectory getTrajectory(String filePath, TrajectoryConfig config) {
+        TrajectoryGenerator.ControlVectorList controlVectors = new TrajectoryGenerator.ControlVectorList();
+        File file = Filesystem.getDeployDirectory().toPath().resolve(filePath).toFile();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            boolean skippedFirst = false;
+            String line = reader.readLine();
+            while (line != null) {
+                if (!skippedFirst || !line.contains(",")) {
+                    skippedFirst = true;
+                    line = reader.readLine();
+                    continue;
+                }
+                final String[] split = line.split(",");
+                final double x = Double.parseDouble(split[0]);
+                final double xTan = Double.parseDouble(split[2]);
+                final double y = Double.parseDouble(split[1]) + FieldDimensions.width;
+                final double yTan = Double.parseDouble(split[3]);
+
+                // if (Robot.flip_trajectories) {
+                //     x = FieldLayout.kFieldLength - x;
+                //     x_tan *= -1;
+                // }
+                controlVectors.add(new Spline.ControlVector(
+                    new double[] {x, xTan, 0},
+                    new double[] {y, yTan, 0}
+                ));
+
+                line = reader.readLine();
+            }
+            return TrajectoryGenerator.generateTrajectory(controlVectors, config);
+        } catch (IOException e) {
+            DriverStation.reportError("Unable to open trajectory: " + filePath, e.getStackTrace());
+            return null;
+        }
+    }
+
+    private static TrajectoryConfig getNewTrajConfig(double maxSpeed, double maxAccel) {
+        return getNewTrajConfig(maxSpeed, maxAccel, 0, 0);
+    }
+
+    private static TrajectoryConfig getNewTrajConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
+        return new TrajectoryConfig(maxSpeed, maxAccel)
+            .setStartVelocity(startSpeed)
+            .setEndVelocity(endSpeed)
+            .addConstraint(new CentripetalAccelerationConstraint(AutonConstants.kMaxCentripetalAccel));
     }
 
     public void setTrajectory(Trajectory trajectory, Rotation2d heading) {
@@ -308,7 +376,9 @@ public class Drive extends SubsystemBase {
         for (SwerveModule mod: mModules) mod.resetToAbsolute();
     }
 
-    public void zeroGyro() { zeroGyro(0.); }
+    public void zeroGyro() {
+        zeroGyro(0.);
+    }
 
     public void zeroGyro(double reset) {
         mPigeon.setYaw(reset);
@@ -340,12 +410,12 @@ public class Drive extends SubsystemBase {
         );
         // TODO: are the above all the states? (if so we always enter the if)
         if (isOpenLoop || isNotOpenLoop) {
-            for (SwerveModule mod : mModules) mod.setDesiredState(mPeriodicIO.des_module_states
-                [mod.moduleNumber()], isOpenLoop);
+            for (SwerveModule mod : mModules) mod.setDesiredState(
+                mPeriodicIO.des_module_states[mod.moduleNumber()], isOpenLoop
+            );
         }
 
-        /* read and write module periodic io */
-        for (SwerveModule mod: mModules) mod.periodic();
+        for (SwerveModule mod: mModules) mod.periodic(); // read and write module periodic io
     }
 
     public ModuleState[] getModuleStates() {
