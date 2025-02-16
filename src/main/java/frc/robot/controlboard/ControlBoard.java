@@ -52,8 +52,8 @@ public final class ControlBoard {
             strafeAxis = getRightYaw();
         }
 
-        forwardAxis = forwardAxis * speedFactor;
-        strafeAxis = strafeAxis * speedFactor;
+        forwardAxis *= speedFactor;
+        strafeAxis *= speedFactor;
 
         SmartDashboard.putNumber("Raw Y", forwardAxis);
         SmartDashboard.putNumber("Raw X", strafeAxis);
@@ -73,7 +73,7 @@ public final class ControlBoard {
         }
     }
 
-    private double scaledDeadband(double value, double maxValue, double deadband) {
+    private static double scaledDeadband(double value, double maxValue, double deadband) {
         double deadbandedValue = (Math.abs(value) > Math.abs(deadband)) ? value : 0.;
         if (Util.epsilonEquals(deadbandedValue, 0., 1e-12)) return 0.;
         return Math.signum(deadbandedValue) * ((Math.abs(deadbandedValue) - deadband) / (maxValue - deadband));
@@ -106,7 +106,6 @@ public final class ControlBoard {
 
     public SwerveCardinal getSwerveSnap() {
         // CARDINAL SNAPS
-
         switch (operator.getController().getPOV()) {
             case kDpadUp: return SwerveCardinal.FORWARD;
             case kDpadLeft: return SwerveCardinal.RIGHT;
