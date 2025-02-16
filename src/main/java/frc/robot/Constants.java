@@ -21,18 +21,18 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-// import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-// import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.lib.Util.Conversions;
 
-public class Constants {
-    public static final class SwerveConstants {
-        // robot loop time - but only used now by swerve
-        public static final double kLooperDt = 0.02;
+public final class Constants {
+    public static final class FieldDimensions {
+        public static final double width = 8.; // in meters; TODO: get the right value for this
+    }
 
+    public static final class SwerveConstants {
+        public static final double kLooperDt = 0.02; // robot loop time - but only used now by swerve
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
 
         // Drivetrain Constants
@@ -162,25 +162,17 @@ public class Constants {
         // Constraint for the motion profilied robot angle controller (Radians)
         public static final double kMaxAngularSpeed = 2 * Math.PI;
         public static final double kMaxAngularAccel = 2 * Math.PI * kMaxAngularSpeed;
+        public static final double kMaxCentripetalAccel = 10.;
 
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-            kMaxAngularSpeed, kMaxAngularAccel);
-
-        // Static factory for creating trajectory configs
-        // public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
-        //     TrajectoryConfig config = new TrajectoryConfig(maxSpeed, maxAccel);
-        //     config.setStartVelocity(startSpeed);
-        //     config.setEndVelocity(endSpeed);
-        //     config.addConstraint(new CentripetalAccelerationConstraint(10.0));
-        //     return config;
-        // }
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+            new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAccel);
     }
 
     public static final class ElevatorConstants {
         public static final double gearRatio = 9.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
-        public static final double positionError = Conversions.inchesToMeters(0.25);
-        public static final double limitTorque = 30;
+        public static final double positionError = Units.inchesToMeters(0.25);
+        public static final double limitTorque = 30.;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
 

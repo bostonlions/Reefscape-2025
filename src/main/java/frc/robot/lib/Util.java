@@ -1,6 +1,6 @@
 package frc.robot.lib;
 
-public class Util {
+public final class Util {
     public static double limit(double v, double maxMagnitude) {
         return Math.min(maxMagnitude, Math.max(-maxMagnitude, v));
     }
@@ -41,14 +41,6 @@ public class Util {
 
         public static double metersToRotations(double meters, double circumference, double gearRatio) {
             return meters * gearRatio / circumference;
-        }
-
-        public static double metersToInches(double meters) {
-            return meters / 0.0254;
-        }
-
-        public static double inchesToMeters(double inches) {
-            return inches * 0.0254;
         }
     }
 }

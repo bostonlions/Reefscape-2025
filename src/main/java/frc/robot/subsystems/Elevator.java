@@ -3,8 +3,10 @@ package frc.robot.subsystems;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static edu.wpi.first.math.util.Units.metersToInches;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -46,7 +48,11 @@ public class Elevator extends SubsystemBase {
     public Command stepUpCommand() { return new InstantCommand(this::stepUp, this); }
     public Command stepDownCommand() { return new InstantCommand(this::stepDown, this); }
     public Command markMinCommand() { return new InstantCommand(this::markMin, this); }
-    public Command stepToCommand(Position p) { return new InstantCommand(() -> { setTarget(p); }, this); }
+    public Command stepToCommand(Position p) {
+        return new FunctionalCommand(
+            () -> { setTarget(p); }, () -> {}, (b) -> {}, this::doneMoving, this
+        );
+    }
 
     private void setMotorConfig(TalonFXConfiguration config) {
         mMain.getConfigurator().apply(config);
@@ -171,7 +177,7 @@ public class Elevator extends SubsystemBase {
         builder.setActuator(true);
 
         builder.addDoubleProperty("Position Meters", () -> mPeriodicIO.height, null);
-        builder.addDoubleProperty("Position Inches", () -> Conversions.metersToInches(mPeriodicIO.height), null);
+        builder.addDoubleProperty("Position Inches", () -> metersToInches(mPeriodicIO.height), null);
         builder.addDoubleProperty("Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
         builder.addBooleanProperty("Moving", () -> mPeriodicIO.moving, null);
         builder.addDoubleProperty("Demand", () -> mPeriodicIO.demand, null);
@@ -182,7 +188,7 @@ public class Elevator extends SubsystemBase {
         builder.addStringProperty("State", () -> mPeriodicIO.targetPosition.toString(), null);
     }
 
-    public void initTrimmer() {
+    private void initTrimmer() {
         Trimmer trimmer = Trimmer.getInstance();
         trimmer.add(
             "Elevator",

@@ -93,7 +93,7 @@ public final class RobotContainer {
          * TRIMMER - all subsystems can add items to be adjusted
          * These commands are marked to run in disabled mode, so we can
          * tweak parameters and choose auto commands prior to the match starting.
-        */
+         */
         trimmer = Trimmer.getInstance();
         SmartDashboard.putData(trimmer);
         new Trigger(() -> (controller.operator.getController().getPOV() == 270)).onTrue(trimmer.nextSubsystemCommand());
@@ -107,6 +107,8 @@ public final class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+        // TODO: we need the equivalent of getStartingPose from last year,
+        // and then: drive.resetOdometry(autoCommand.getStartingPose())
         return auton.getCommand();
     }
 }

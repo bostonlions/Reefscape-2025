@@ -100,8 +100,7 @@ public class ClimberHook extends SubsystemBase {
         );
         mPeriodicIO.current = mMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.velocity = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) /
-            ClimberHookConstants.gearRatio;
+        mPeriodicIO.velocity = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / ClimberHookConstants.gearRatio;
 
         // Have we hit the top or bottom?
         if ((mPeriodicIO.current < -ClimberHookConstants.limitTorque) &&
@@ -121,8 +120,7 @@ public class ClimberHook extends SubsystemBase {
         // Have we finished moving?
         if (mPeriodicIO.moving &&
             Util.epsilonEquals(mPeriodicIO.extension, mPeriodicIO.targetExtension, ClimberHookConstants.extensionTolerance)
-        )
-            mPeriodicIO.moving = false;
+        ) mPeriodicIO.moving = false;
     }
 
     @Override
