@@ -21,7 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
  * Furthermore, odometry can be used for latency compensation when using
  * computer-vision systems.
  */
-public class SwerveDriveOdometry {
+public final class SwerveDriveOdometry {
 	private final SwerveDriveKinematics m_kinematics;
 	private Pose2d m_poseMeters;
 

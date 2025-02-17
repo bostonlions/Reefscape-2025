@@ -28,7 +28,7 @@ import static frc.robot.Constants.AlgaeConstants.driveMotorConfig;
 import static frc.robot.Constants.AlgaeConstants.angles;
 
 public class Algae extends SubsystemBase {
-    private boolean mDebug = true;
+    private boolean mDebug = false;
     private static Algae mInstance;
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;

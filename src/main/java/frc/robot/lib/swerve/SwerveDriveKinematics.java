@@ -14,6 +14,7 @@ import edu.wpi.first.math.MathUsageId;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 /**
@@ -36,12 +37,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
  * <p>Forward kinematics is also used for odometry -- determining the position of the robot on the
  * field using encoders and a gyro.
  */
-public class SwerveDriveKinematics {
+public final class SwerveDriveKinematics {
   private final SimpleMatrix m_inverseKinematics;
   private final SimpleMatrix m_forwardKinematics;
 
   private final int m_numModules;
-  private final Translation2d[] m_modules;
+  public final Translation2d[] m_modules;
   private final ModuleState[] m_moduleStates;
   private Translation2d m_prevCoR = new Translation2d();
 
