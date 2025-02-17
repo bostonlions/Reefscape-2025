@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
 import frc.robot.lib.swerve.SwerveModule;
@@ -166,12 +165,13 @@ public final class Drive extends SubsystemBase {
         try {
             PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
 
-            System.out.println(path.getWaypoints());
-            System.out.println(path.getAllPathPoints().stream().map(e->e.position).toList());
-            System.out.println(List.of(AutonConstants.moduleTranslations));
-            PathPlannerTrajectory traj = path.generateTrajectory(mPeriodicIO.meas_chassis_speeds, getHeading(), AutonConstants.pathPlannerConfig);
-            System.out.println(pathName + " trajectory time: " + traj.getTotalTimeSeconds() + ", state speeds: " + traj.getStates().stream().map(e->e.fieldSpeeds).toList());
-            System.out.println(pathName + " trajectory time: " + traj.getTotalTimeSeconds() + ", state poses: " + traj.getStates().stream().map(e->e.pose).toList());
+            // /* TO DEBUG */
+            // System.out.println(path.getWaypoints());
+            // System.out.println(path.getAllPathPoints().stream().map(e->e.position).toList());
+            // System.out.println(List.of(AutonConstants.moduleTranslations));
+            // PathPlannerTrajectory traj = path.generateTrajectory(mPeriodicIO.meas_chassis_speeds, getHeading(), AutonConstants.pathPlannerConfig);
+            // System.out.println(pathName + " trajectory time: " + traj.getTotalTimeSeconds() + ", state speeds: " + traj.getStates().stream().map(e->e.fieldSpeeds).toList());
+            // System.out.println(pathName + " trajectory time: " + traj.getTotalTimeSeconds() + ", state poses: " + traj.getStates().stream().map(e->e.pose).toList());
             
             return new InstantCommand(() -> {
                 if (isFirstPath) path.getStartingHolonomicPose().ifPresent(
@@ -180,18 +180,18 @@ public final class Drive extends SubsystemBase {
             }).andThen(new FollowPathCommand(
                 path,
                 () -> {
-                    System.out.println("getPose: " + this.getPose());
+                    // System.out.println("getPose: " + this.getPose());
                     return this.getPose();
                 },
                 () -> {
-                    System.out.println("getSpeeds " + mPeriodicIO.meas_chassis_speeds);
+                    // System.out.println("getSpeeds " + mPeriodicIO.meas_chassis_speeds);
                     return mPeriodicIO.meas_chassis_speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 },
                 (ChassisSpeeds setPointSpeeds, DriveFeedforwards dff) -> { // TODO: do we need dff?
                     mControlState = DriveControlState.PATH_FOLLOWING;
                     mPeriodicIO.des_chassis_speeds = setPointSpeeds;
                     updateSetpoint();
-                    System.out.println("path following " + setPointSpeeds + ". At " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute");
+                    // System.out.println("path following " + setPointSpeeds + ". At " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute");
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
                 AutonConstants.ppHolonomicDriveController,
                 AutonConstants.pathPlannerConfig,

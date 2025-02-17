@@ -44,7 +44,9 @@ public class Coral extends SubsystemBase {
     }
 
     /* Commands */
-    public Command toggleCommand() { return new InstantCommand(this::activateCoral, this); }
+    public Command toggleCommand() {
+        return new InstantCommand(this::activateCoral, this);
+    }
 
     public void disable() {
         // TODO
@@ -64,6 +66,7 @@ public class Coral extends SubsystemBase {
 
     /** To start or interrupt a load or unload upon a button push */
     public void activateCoral() {
+        System.out.println("Coral activated");
         if (mPeriodicIO.state == State.IDLE) {
             setSetpoint(mPeriodicIO.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;

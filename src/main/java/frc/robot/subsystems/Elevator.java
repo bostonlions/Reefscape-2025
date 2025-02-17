@@ -51,7 +51,7 @@ public class Elevator extends SubsystemBase {
     public Command markMinCommand() { return new InstantCommand(this::markMin, this); }
     public Command stepToCommand(Position p) {
         return new FunctionalCommand(
-            () -> { setTarget(p); },
+            () -> { System.out.println("Elevator stepped to " + p); setTarget(p); },
             () -> {},
             (b) -> {},
             () -> mPeriodicIO.targetPosition == p && doneMoving(),

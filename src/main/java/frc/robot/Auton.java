@@ -26,34 +26,42 @@ public final class Auton extends SubsystemBase {
     private static final Map<String, Command> commands = Map.ofEntries(
         entry(
             "Drive Test",
-            drive.followPathCommand("test", true)
+            drive.followPathCommand("test1", true)
             .andThen(debug(() -> "Done driving at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
+            .andThen(coral.toggleCommand())
             .andThen(sleep(1.))
+            .andThen(coral.toggleCommand())
+            .andThen(elevator.stepUpCommand())  // shouldn't need this but for now it seems to help
             .andThen(elevator.stepToCommand(Position.L2))
-            .andThen(coral.toggleCommand())
-            .andThen(sleep(1.))
-            .andThen(coral.toggleCommand())
             .andThen(elevator.stepToCommand(Position.LOAD))
-        ),
-        entry(
-            "Flip Algae",
-            algae.upCommand()
-            .andThen(sleep(1.))
-            .andThen(algae.downCommand())
-        ),
-        entry(
-            "Toggle Coral",
-            coral.toggleCommand()
-            .andThen(sleep(1.))
-            .andThen(coral.toggleCommand())
-        ),
-        entry(
-            "Elevator Up/Down",
-            elevator.stepUpCommand()
-            .andThen(elevator.stepToCommand(Position.L3))
-            .andThen(sleep(3.))
-            .andThen(elevator.stepToCommand(Position.LOAD))
+            .andThen(debug(() -> "About to run path test2"))
+            .andThen(drive.followPathCommand("test2", false))
+            .andThen(debug(() -> "test2 path has been run"))
+            .andThen(algae.upCommand())
+            .andThen(sleep(1))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(2))
+            .andThen(algae.toggleDriveCommand())
         )//,
+        // entry(
+        //     "Flip Algae",
+        //     algae.upCommand()
+        //     .andThen(sleep(1.))
+        //     .andThen(algae.downCommand())
+        // ),
+        // entry(
+        //     "Toggle Coral",
+        //     coral.toggleCommand()
+        //     .andThen(sleep(1.))
+        //     .andThen(coral.toggleCommand())
+        // ),
+        // entry(
+        //     "Elevator Up/Down",
+        //     elevator.stepUpCommand()
+        //     .andThen(elevator.stepToCommand(Position.L3))
+        //     .andThen(sleep(3.))
+        //     .andThen(elevator.stepToCommand(Position.LOAD))
+        // ),
         // entry(
         //     "Turn around",
         //     drive.headingCommand(90)

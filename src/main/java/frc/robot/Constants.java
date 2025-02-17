@@ -184,7 +184,10 @@ public final class Constants {
                 SwerveConstants.wheelDiameter/2,
                 SwerveConstants.maxAttainableSpeed,
                 1., // TODO: get this right?
+
+                // .withReduction here is VERY IMPORTANT! Autonomous drive WILL NOT WORK WITHOUT IT
                 DCMotor.getKrakenX60(1).withReduction(SwerveConstants.driveGearRatio),
+
                 60., // TODO: get this right?
                 4
             ),
