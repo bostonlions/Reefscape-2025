@@ -18,13 +18,11 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Trimmer;
 
 public final class Auton extends SubsystemBase {
-    private static Auton mInstance;
-    private int commandIdx = 0;
-    private static Algae algae = Algae.getInstance();
-    private static Coral coral = Coral.getInstance();
-    private static Elevator elevator = Elevator.getInstance();
-    private static Drive drive = Drive.getInstance();
-
+    private static Auton mInstance = null;
+    private static final Algae algae = Algae.getInstance();
+    private static final Coral coral = Coral.getInstance();
+    private static final Elevator elevator = Elevator.getInstance();
+    private static final Drive drive = Drive.getInstance();
     private static final Map<String, Command> commands = Map.ofEntries(
         entry(
             "Drive Test",
@@ -66,6 +64,8 @@ public final class Auton extends SubsystemBase {
         //     .andThen(drive.headingCommand(0))
         // )
     );
+
+    private int commandIdx = 0;
 
     private static final String[] commandNames = commands.keySet().toArray(new String[0]);
     private static final String allCommands = String.join("\n", commandNames);

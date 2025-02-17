@@ -174,9 +174,9 @@ public final class Constants {
 
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
             new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAccel);
-        
+
         public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
-        
+
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
             50., // TODO: get this right?
             50.*0.64/12., // TODO: get this right?
@@ -184,7 +184,7 @@ public final class Constants {
                 SwerveConstants.wheelDiameter/2,
                 SwerveConstants.maxAttainableSpeed,
                 1., // TODO: get this right?
-                DCMotor.getKrakenX60(1),
+                DCMotor.getKrakenX60(1).withReduction(SwerveConstants.driveGearRatio),
                 60., // TODO: get this right?
                 4
             ),

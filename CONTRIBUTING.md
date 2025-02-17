@@ -1,6 +1,6 @@
 # Useful links for writing code for this project:
 
-- [where the code goes](https://github.com/bostonlions/Reefscape-2025/tree/main/src/main/java/frc/robot)
+- [where the code goes and where to find some useful things to use to code for this project](https://github.com/bostonlions/Reefscape-2025/tree/main/src/main/java/frc/robot)
 - [java api](https://docs.oracle.com/javase/8/docs/api/overview-summary.html)
 - wpilib:
   - [Higher-level docs](https://docs.wpilib.org/en/stable/)
