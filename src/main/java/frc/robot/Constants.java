@@ -218,7 +218,7 @@ public final class Constants {
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
             entry(Position.L3, 0.725),
-            entry(Position.L4, 1.38),
+            entry(Position.L4, 1.4),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
@@ -291,7 +291,7 @@ public final class Constants {
         public static final double loadSpeed = 0.75;
         public static final double extraLoadRotations = 0.01; // if this is 0 we never break from case statement
         public static final double unloadSpeed = 1.;
-        public static final double extraUnloadRotations = 0.1;
+        public static final double extraUnloadRotations = 0.2;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
@@ -345,7 +345,7 @@ public final class Constants {
             entry(Position.MIN, -94.),
             entry(Position.STOW_DOWN, -94.),
             entry(Position.PROCESSOR, -59.),
-            entry(Position.LOADED_DOWN, -55.),
+            entry(Position.LOADED_DOWN, -85.),
             entry(Position.GROUND_INTAKE, -68.),
             entry(Position.REEF, 45.),
             entry(Position.BARGE, 80.),
