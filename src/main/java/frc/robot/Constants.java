@@ -21,14 +21,22 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.lib.Util.Conversions;
+import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public final class Constants {
     public static final class FieldDimensions {
-        public static final double width = 8.; // in meters; TODO: get the right value for this
+        public static final double width = 8.052; // in meters
     }
 
     public static final class SwerveConstants {
@@ -166,6 +174,30 @@ public final class Constants {
 
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
             new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAccel);
+
+        public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
+
+        public static final RobotConfig pathPlannerConfig = new RobotConfig(
+            50., // TODO: get this right?
+            50.*0.64/12., // TODO: get this right?
+            new ModuleConfig(
+                SwerveConstants.wheelDiameter/2,
+                SwerveConstants.maxAttainableSpeed,
+                1., // TODO: get this right?
+
+                // .withReduction here is VERY IMPORTANT! Autonomous drive WILL NOT WORK WITHOUT IT
+                DCMotor.getKrakenX60(1).withReduction(SwerveConstants.driveGearRatio),
+
+                60., // TODO: get this right?
+                4
+            ),
+            moduleTranslations[0], moduleTranslations[1], moduleTranslations[2], moduleTranslations[3]
+        );
+
+        public static final PPHolonomicDriveController ppHolonomicDriveController = new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+            new PIDConstants(5., 0., 0.), // Translation PID constants
+            new PIDConstants(5., 0., 0.) // Rotation PID constants
+        );
     }
 
     public static final class ElevatorConstants {
@@ -208,9 +240,9 @@ public final class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(60)
+                .withMotionMagicCruiseVelocity(50)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(90))
+                .withMotionMagicAcceleration(50))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));

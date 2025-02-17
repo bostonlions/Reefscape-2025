@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -21,23 +22,28 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
 import frc.robot.lib.swerve.SwerveModule;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.FieldDimensions;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
+import frc.robot.lib.Util;
 import frc.robot.lib.drivers.Pigeon;
-import frc.robot.lib.swerve.ChassisSpeeds;
 import frc.robot.lib.swerve.DriveMotionPlanner;
 import frc.robot.lib.swerve.ModuleState;
 import frc.robot.lib.swerve.SwerveDriveOdometry;
 import frc.robot.lib.swerve.SwerveDriveKinematics;
 
-public class Drive extends SubsystemBase {
+public final class Drive extends SubsystemBase {
     public SwerveModule[] mModules;
     private Pigeon mPigeon = Pigeon.getInstance();
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -90,8 +96,7 @@ public class Drive extends SubsystemBase {
             DriveControlState.HEADING_CONTROL) mControlState = DriveControlState.OPEN_LOOP;
 
         if (mControlState == DriveControlState.HEADING_CONTROL) {
-            if (Math.abs(speeds.omegaRadiansPerSecond) > 1.0) mControlState = DriveControlState.OPEN_LOOP;
-            else {
+            if (Math.abs(speeds.omegaRadiansPerSecond) > 1.) mControlState = DriveControlState.OPEN_LOOP; else {
                 double x = speeds.vxMetersPerSecond;
                 double y = speeds.vyMetersPerSecond;
                 double omega = mMotionPlanner.calculateRotationalAdjustment(mPeriodicIO.heading_setpoint.getRadians(),
@@ -107,7 +112,7 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds speeds;
         mPeriodicIO.strafeMode = strafe;
         if (strafe) {
-            speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+            speeds = new ChassisSpeeds( //ChassisSpeeds.fromRobotRelativeSpeeds(
                 targetSpeed.getX(),
                 targetSpeed.getY(),
                 targetRotationRate
@@ -154,6 +159,60 @@ public class Drive extends SubsystemBase {
 
     public Command headingCommand(double heading) {
         return new InstantCommand(() -> setAutoHeading(Rotation2d.fromDegrees(heading)), this);
+    }
+
+    public Command followPathCommand(String pathName, boolean isFirstPath) {
+        try {
+            PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+
+            // /* TO DEBUG */
+            // System.out.println(path.getWaypoints());
+            // System.out.println(path.getAllPathPoints().stream().map(e->e.position).toList());
+            // System.out.println(List.of(AutonConstants.moduleTranslations));
+            // PathPlannerTrajectory traj = path.generateTrajectory(mPeriodicIO.meas_chassis_speeds, getHeading(), AutonConstants.pathPlannerConfig);
+            // System.out.println(pathName + " trajectory time: " + traj.getTotalTimeSeconds() + ", state speeds: " + traj.getStates().stream().map(e->e.fieldSpeeds).toList());
+            // System.out.println(pathName + " trajectory time: " + traj.getTotalTimeSeconds() + ", state poses: " + traj.getStates().stream().map(e->e.pose).toList());
+            
+            return new InstantCommand(() -> {
+                if (isFirstPath) path.getStartingHolonomicPose().ifPresent(
+                    (pose) -> { System.out.println("resetOdometry " + pose); resetOdometry(pose); }
+                );
+            }).andThen(new FollowPathCommand(
+                path,
+                () -> {
+                    // System.out.println("getPose: " + this.getPose());
+                    return this.getPose();
+                },
+                () -> {
+                    // System.out.println("getSpeeds " + mPeriodicIO.meas_chassis_speeds);
+                    return mPeriodicIO.meas_chassis_speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                },
+                (ChassisSpeeds setPointSpeeds, DriveFeedforwards dff) -> { // TODO: do we need dff?
+                    mControlState = DriveControlState.PATH_FOLLOWING;
+                    mPeriodicIO.des_chassis_speeds = setPointSpeeds;
+                    updateSetpoint();
+                    // System.out.println("path following " + setPointSpeeds + ". At " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute");
+                }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
+                AutonConstants.ppHolonomicDriveController,
+                AutonConstants.pathPlannerConfig,
+                () -> {
+                    // // Boolean supplier that controls when the path will be mirrored for the red alliance.
+                    // // This will flip the path being followed to the red side of the field.
+                    // // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                    // var alliance = DriverStation.getAlliance(); // TODO: do we want this?
+                    // if (alliance.isPresent()) return alliance.get() == DriverStation.Alliance.Red; // TODO: do we want this?
+                    return false;
+                },
+                this
+            ));
+        } catch (Exception e) {
+            System.out.println(
+                "\n------------------------------------------------\n" +
+                "Big oops: " + e.getMessage() + "\n\n" + e.getStackTrace() +
+                "\n------------------------------------------------\n"
+            );
+            return Commands.none();
+        }
     }
 
     public static Trajectory getTrajectory(String filePath, double maxSpeed, double maxAccel) {
@@ -318,7 +377,11 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds prev_chassis_speeds = kKinematics.toChassisSpeeds(prev_module_states);
         ModuleState[] target_module_states = kKinematics.toModuleStates(wanted_speeds);
 
-        if (wanted_speeds.epsilonEquals(new ChassisSpeeds(), 1e-12)) {
+        if (
+            Util.epsilonEquals(wanted_speeds.vxMetersPerSecond, 0., 1e-12) &&
+            Util.epsilonEquals(wanted_speeds.vyMetersPerSecond, 0., 1e-12) &&
+            Util.epsilonEquals(wanted_speeds.omegaRadiansPerSecond, 0., 1e-12)
+        ) {
             for (int i = 0; i < target_module_states.length; i++) {
                 target_module_states[i].speedMetersPerSecond = 0.;
                 target_module_states[i].angle = prev_module_states[i].angle;

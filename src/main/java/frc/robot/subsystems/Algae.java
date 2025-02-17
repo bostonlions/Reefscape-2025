@@ -28,7 +28,7 @@ import static frc.robot.Constants.AlgaeConstants.driveMotorConfig;
 import static frc.robot.Constants.AlgaeConstants.angles;
 
 public class Algae extends SubsystemBase {
-    private boolean mDebug = true;
+    private boolean mDebug = false;
     private static Algae mInstance;
     private TalonFX mDriveMotor;
     private TalonFX mAngleMotor;
@@ -99,7 +99,7 @@ public class Algae extends SubsystemBase {
     /* Commands */
     public Command upCommand() { return new InstantCommand(() -> this.setPosition(PositionState.UP), this); }
     public Command downCommand() { return new InstantCommand(() -> this.setPosition(PositionState.DOWN), this); }
-    public Command toggleDriveCommand() { return new InstantCommand(this :: toggleDrive, this); }
+    public Command toggleDriveCommand() { return new InstantCommand(this::toggleDrive, this); }
     public Command nudgeRightCommand() { return new InstantCommand(() -> this.nudgeDrive(-1)); }
     public Command nudgeLeftCommand() { return new InstantCommand(() -> this.nudgeDrive(1)); }
     public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudgeDrive(0)); }
@@ -157,13 +157,14 @@ public class Algae extends SubsystemBase {
 
 
     public void setPosition(PositionState newPosition) {
-        if (mDebug) System.out.println("setPosition: " + newPosition);
+        System.out.println("setPosition: " + newPosition);
         if (newPosition == mPeriodicIO.requestedPosition) return;
         mPeriodicIO.requestedPosition = newPosition;
         setState();
     }
 
     public void toggleDrive() {
+        System.out.println("Algae drive toggled");
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case UNLOADING_NO_ALGAE:

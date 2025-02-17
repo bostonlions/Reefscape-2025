@@ -44,7 +44,9 @@ public class Coral extends SubsystemBase {
     }
 
     /* Commands */
-    public Command toggleCommand() { return new InstantCommand(this::activateCoral, this); }
+    public Command toggleCommand() {
+        return new InstantCommand(this::activateCoral, this);
+    }
 
     public void disable() {
         // TODO
@@ -64,9 +66,7 @@ public class Coral extends SubsystemBase {
 
     /** To start or interrupt a load or unload upon a button push */
     public void activateCoral() {
-        System.out.println("activateCoral - mPeriodicIO.state: " + mPeriodicIO.state); // a helpful tool for debugging
-
-
+        System.out.println("Coral activated");
         if (mPeriodicIO.state == State.IDLE) {
             setSetpoint(mPeriodicIO.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
@@ -118,32 +118,20 @@ public class Coral extends SubsystemBase {
                 break;
 
             case LOADING_NO_CORAL:
-                System.out.println("periodic - mBeamBreak: " + mBeamBreak.get());
-
                 if (mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (mPeriodicIO.extraLoadRotations / mPeriodicIO.loadSpeed));
                     mPeriodicIO.state = State.LOADING_WITH_CORAL;
                 }
-
-                System.out.println("LOADING_NO_CORAL - stopTime: " + mPeriodicIO.stopTime);
-                System.out.println("LOADING_NO_CORAL - extraLoadRotations: " + mPeriodicIO.extraLoadRotations);
-                System.out.println("LOADING_NO_CORAL - loadSpeed: " + mPeriodicIO.loadSpeed);
-
                 // continue without waiting for next periodic loop, if no wait time after the load
                 if (mPeriodicIO.extraLoadRotations > 0) break;
             case LOADING_WITH_CORAL:
-                System.out.println("LOADING_WITH_CORAL - mPeriodicIO.stopTime: " + mPeriodicIO.stopTime);
-                System.out.println("LOADING_WITH_CORAL - System.currentTimeMillis(): " + System.currentTimeMillis());
-
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     setSetpoint(0);
                     mPeriodicIO.state = State.LOADED;
                 }
                 break;
             case UNLOADING_WITH_CORAL:
-                System.out.println("UNLOADING_WITH_CORAL periodic - mBeamBreak: " + mBeamBreak.get());
-
                 if (!mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (mPeriodicIO.extraUnloadRotations / mPeriodicIO.unloadSpeed));

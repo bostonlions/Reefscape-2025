@@ -42,6 +42,7 @@ public class Elevator extends SubsystemBase {
         setNeutralBrake(false);
         mPeriodicIO.moving = false;
         initTrimmer();
+        stepDown();
     }
 
     /* Commands */
@@ -50,7 +51,11 @@ public class Elevator extends SubsystemBase {
     public Command markMinCommand() { return new InstantCommand(this::markMin, this); }
     public Command stepToCommand(Position p) {
         return new FunctionalCommand(
-            () -> { setTarget(p); }, () -> {}, (b) -> {}, this::doneMoving, this
+            () -> { System.out.println("Elevator stepped to " + p); setTarget(p); },
+            () -> {},
+            (b) -> {},
+            () -> mPeriodicIO.targetPosition == p && doneMoving(),
+            this
         );
     }
 
@@ -123,6 +128,9 @@ public class Elevator extends SubsystemBase {
     }
 
     public void markMin() {
+        mPeriodicIO.targetPosition = Position.MIN;
+        mPeriodicIO.targetHeight = heights.get(Position.MIN);
+        mPeriodicIO.moving = false;
         mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
     }
 

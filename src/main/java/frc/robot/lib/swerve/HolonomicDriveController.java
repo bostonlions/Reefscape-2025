@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 
@@ -29,7 +30,7 @@ import edu.wpi.first.math.util.Units;
  * drivetrain should
  * point toward. This heading reference is profiled for smoothness.
  */
-public class HolonomicDriveController {
+public final class HolonomicDriveController {
     private Pose2d m_poseError = new Pose2d();
     private Rotation2d m_rotationError = new Rotation2d();
     private Pose2d m_poseTolerance = new Pose2d();
