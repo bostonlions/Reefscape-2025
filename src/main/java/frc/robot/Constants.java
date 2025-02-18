@@ -218,7 +218,7 @@ public final class Constants {
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
             entry(Position.L3, 0.725),
-            entry(Position.L4, 1.4),
+            entry(Position.L4, 1.37),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
@@ -240,9 +240,9 @@ public final class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(50)
+                .withMotionMagicCruiseVelocity(75)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(50))
+                .withMotionMagicAcceleration(150))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
@@ -289,7 +289,7 @@ public final class Constants {
     public static final class CoralConstants {
         public static final double gearRatio = 4.;
         public static final double loadSpeed = 0.75;
-        public static final double extraLoadRotations = 0.01; // if this is 0 we never break from case statement
+        public static final double extraLoadRotations = 0.03; // if this is 0 we never break from case statement
         public static final double unloadSpeed = 1.;
         public static final double extraUnloadRotations = 0.2;
 
