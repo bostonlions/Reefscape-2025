@@ -217,7 +217,7 @@ public final class Constants {
             entry(Position.PROCESSOR, 0.01),
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
-            entry(Position.L3, 0.725),
+            entry(Position.L3, 0.75),
             entry(Position.L4, 1.37),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
