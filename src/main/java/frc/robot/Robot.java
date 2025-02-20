@@ -22,6 +22,8 @@ public final class Robot extends TimedRobot {
     /** This function is run when the robot is first started up and should be used for any initialization code. */
     public Robot() {
         m_robotContainer = new RobotContainer();
+
+        //This pre-loads Icahces) the autonomous system so it runs better
         FollowPathCommand.warmupCommand().schedule();
     }
 
@@ -51,6 +53,8 @@ public final class Robot extends TimedRobot {
     /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
     @Override
     public void autonomousInit() {
+        System.out.println("autonomousInit INIT Called");
+
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         if (m_autonomousCommand != null) m_autonomousCommand.schedule(); // schedule the autonomous command
     }
@@ -61,9 +65,13 @@ public final class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        // This makes sure that the autonomous stops running when teleop starts running. If you want
-        // the autonomous to continue until interrupted by another command, remove this line or
-        // comment it out.
+        System.out.println("teleop INIT Called");
+        CommandScheduler.getInstance().cancelAll(); // Cancels all running commands at the start
+
+        // This makes sure that the autonomous stops running when
+        // teleop starts running. If you want the autonomous to
+        // continue until interrupted by another command, remove
+        // this line or comment it out.
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
     }
 

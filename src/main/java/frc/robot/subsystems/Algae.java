@@ -217,7 +217,7 @@ public class Algae extends SubsystemBase {
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
         if (mPeriodicIO.targetSpeed != 0) {
             if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
-
+            
             setDriveSpeed(mPeriodicIO.targetSpeed);
         }
     }

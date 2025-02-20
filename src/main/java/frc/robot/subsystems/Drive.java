@@ -144,18 +144,18 @@ public final class Drive extends SubsystemBase {
             }).andThen(new FollowPathCommand(
                 path,
                 () -> {
-                    // System.out.println("getPose: " + this.getPose());
-                    return this.getPose();
+                    //System.out.println("getPose: " + this.getPose());
+                    return this.getPose();  
                 },
                 () -> {
-                    // System.out.println("getSpeeds " + mPeriodicIO.meas_chassis_speeds);
-                    return mPeriodicIO.meas_chassis_speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                    //System.out.println("getSpeeds " + mPeriodicIO.meas_chassis_speeds);
+                    return mPeriodicIO.meas_chassis_speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE 
                 },
                 (ChassisSpeeds setPointSpeeds, DriveFeedforwards dff) -> { // TODO: do we need dff?
                     mControlState = DriveControlState.PATH_FOLLOWING;
                     mPeriodicIO.des_chassis_speeds = setPointSpeeds;
                     updateSetpoint();
-                    // System.out.println("path following " + setPointSpeeds + ". At " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute");
+                    //System.out.println("path following " + setPointSpeeds + ". At " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute");
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
                 AutonConstants.ppHolonomicDriveController,
                 AutonConstants.pathPlannerConfig,
@@ -298,6 +298,9 @@ public final class Drive extends SubsystemBase {
         mPeriodicIO.meas_chassis_speeds = kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
         mPeriodicIO.heading = mPigeon.getYaw();
         mPeriodicIO.pitch = mPigeon.getPitch();
+
+        // Update odometry so we track where we are on the field
+        mOdometry.update(mPeriodicIO.heading, getModuleStates());
 
         /* write periodic outputs */
         updateSetpoint();

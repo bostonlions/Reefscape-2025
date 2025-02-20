@@ -43,14 +43,14 @@ public final class Constants {
         public static final double trackWidth = Units.inchesToMeters(24.25);
         public static final double wheelBase = Units.inchesToMeters(24.25);
 
-        public static final double wheelDiameter = Units.inchesToMeters(3.85);
+        public static final double wheelDiameter = Units.inchesToMeters(4); // was 3.85 but tire is 4 w/tread
 
         /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
-        public static final double driveGearRatio = 4.7628; // ((5.3 / 1.07) / 1.04) ?
+        public static final double driveGearRatio = 6.12; // was 4.7628 // ((5.3 / 1.07) / 1.04) ?
         public static final double angleGearRatio = 150./7;
 
         // Swerve Profiling Values
-        public static final double maxSpeed = 4.8; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
+        public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
         public static final double maxAccel = 1.;
         public static final double maxAngularVelocity = 8.0; //was 8.0 toggled to 2.0
         public static final double maxAngularAccel = 1.;
@@ -171,17 +171,17 @@ public final class Constants {
         public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
 
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
-            50., // TODO: get this right?
-            50.*0.64/12., // TODO: get this right?
+            60., // TODO: get this right?
+            3.873, // TODO: get this right?
             new ModuleConfig(
                 SwerveConstants.wheelDiameter/2,
                 SwerveConstants.maxAttainableSpeed,
-                1., // TODO: get this right?
+                1.15, // TODO: get this right? Loooked up online and think 1.15 is correct
 
                 // .withReduction here is VERY IMPORTANT! Autonomous drive WILL NOT WORK WITHOUT IT
                 DCMotor.getKrakenX60(1).withReduction(SwerveConstants.driveGearRatio),
 
-                60., // TODO: get this right?
+                111., // TODO: get this right? was 60 changed to 111 per pathplanner suggestion
                 4
             ),
             moduleTranslations[0], moduleTranslations[1], moduleTranslations[2], moduleTranslations[3]
@@ -210,8 +210,8 @@ public final class Constants {
             entry(Position.PROCESSOR, 0.01),
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
-            entry(Position.L3, 0.725),
-            entry(Position.L4, 1.38),
+            entry(Position.L3, 0.75),
+            entry(Position.L4, 1.37),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
@@ -233,9 +233,9 @@ public final class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(50)
+                .withMotionMagicCruiseVelocity(75)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(50))
+                .withMotionMagicAcceleration(120))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
@@ -282,9 +282,9 @@ public final class Constants {
     public static final class CoralConstants {
         public static final double gearRatio = 4.;
         public static final double loadSpeed = 0.75;
-        public static final double extraLoadRotations = 0.01; // if this is 0 we never break from case statement
+        public static final double extraLoadRotations = 0.03; // if this is 0 we never break from case statement
         public static final double unloadSpeed = 1.;
-        public static final double extraUnloadRotations = 0.1;
+        public static final double extraUnloadRotations = 0.2;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
@@ -338,7 +338,7 @@ public final class Constants {
             entry(Position.MIN, -94.),
             entry(Position.STOW_DOWN, -94.),
             entry(Position.PROCESSOR, -59.),
-            entry(Position.LOADED_DOWN, -55.),
+            entry(Position.LOADED_DOWN, -85.),
             entry(Position.GROUND_INTAKE, -68.),
             entry(Position.REEF, 45.),
             entry(Position.BARGE, 80.),
