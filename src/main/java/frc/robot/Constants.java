@@ -47,7 +47,7 @@ public final class Constants {
         public static final double trackWidth = Units.inchesToMeters(24.25);
         public static final double wheelBase = Units.inchesToMeters(24.25);
 
-        public static final double wheelDiameter = Units.inchesToMeters(3.85); // was 3.85 but tire is 4 w/tread
+        public static final double wheelDiameter = Units.inchesToMeters(4); // was 3.85 but tire is 4 w/tread
 
         // can tune this value by driving a certain distance and multiplying a const to
         // fix the error
