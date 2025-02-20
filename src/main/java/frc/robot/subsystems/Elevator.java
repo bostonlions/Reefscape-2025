@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import static edu.wpi.first.math.util.Units.metersToInches;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -14,14 +16,13 @@ import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import frc.robot.Ports;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Position;
+
 import static frc.robot.Constants.ElevatorConstants.heights;
 import static frc.robot.Constants.ElevatorConstants.positionOrder;
 import static frc.robot.Constants.ElevatorConstants.motorConfig;
-import frc.robot.Ports;
-import frc.robot.lib.Util;
-import frc.robot.lib.Util.Conversions;
 
 public class Elevator extends SubsystemBase {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -41,6 +42,7 @@ public class Elevator extends SubsystemBase {
 
         setNeutralBrake(false);
         mPeriodicIO.moving = false;
+
         initTrimmer();
         stepDown();
     }
@@ -76,12 +78,12 @@ public class Elevator extends SubsystemBase {
         setNeutralBrake(false);
     }
 
-    public double metersToRotations(double distance) {
-        return Conversions.metersToRotations(distance, ElevatorConstants.wheelCircumference, ElevatorConstants.gearRatio);
+    private static double metersToRotations(double distance) {
+        return (distance / ElevatorConstants.wheelCircumference) * ElevatorConstants.gearRatio;
     }
 
-    public double rotationsToMeters(double rotations) {
-        return Conversions.rotationsToMeters(rotations, ElevatorConstants.wheelCircumference, ElevatorConstants.gearRatio);
+    private static double rotationsToMeters(double rotations) {
+        return rotations * ElevatorConstants.wheelCircumference / ElevatorConstants.gearRatio;
     }
 
     public void setSetpointMotionMagic(double distance) {
@@ -131,6 +133,7 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.targetPosition = Position.MIN;
         mPeriodicIO.targetHeight = heights.get(Position.MIN);
         mPeriodicIO.moving = false;
+
         mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
     }
 
@@ -173,9 +176,8 @@ public class Elevator extends SubsystemBase {
         }
 
         /* Have we finished moving? */
-        if (mPeriodicIO.moving &&
-            Util.epsilonEquals(mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance)
-        ) mPeriodicIO.moving = false;
+        if (mPeriodicIO.moving && MathUtil.isNear(mPeriodicIO.height, mPeriodicIO.targetHeight,
+            ElevatorConstants.heightTolerance)) mPeriodicIO.moving = false;
     }
 
     @Override
@@ -198,6 +200,7 @@ public class Elevator extends SubsystemBase {
 
     private void initTrimmer() {
         Trimmer trimmer = Trimmer.getInstance();
+
         trimmer.add(
             "Elevator",
             "Up-Down 1cm",

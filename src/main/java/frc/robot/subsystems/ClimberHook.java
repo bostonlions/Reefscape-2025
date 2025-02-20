@@ -5,16 +5,18 @@ import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import static edu.wpi.first.math.util.Units.degreesToRotations;
+
 import frc.robot.Constants.ClimberHookConstants;
 import frc.robot.Constants.ClimberHookConstants.Position;
-import static frc.robot.Constants.ClimberHookConstants.extensions;
 import frc.robot.Ports;
-import frc.robot.lib.Util;
-import frc.robot.lib.Util.Conversions;
+
+import static frc.robot.Constants.ClimberHookConstants.extensions;
 
 public class ClimberHook extends SubsystemBase {
     private static ClimberHook mInstance;
@@ -52,7 +54,7 @@ public class ClimberHook extends SubsystemBase {
     }
 
     public void setSetpointMotionMagic(double degrees) {
-        mPeriodicIO.demand = Conversions.degreesToRotation(degrees, ClimberHookConstants.gearRatio);
+        mPeriodicIO.demand = degreesToRotations(degrees) * ClimberHookConstants.gearRatio;
         mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
     }
 
@@ -95,9 +97,7 @@ public class ClimberHook extends SubsystemBase {
 
     @Override
     public void periodic() {
-        mPeriodicIO.extension = Conversions.rotationsToDegrees(
-            mMotor.getRotorPosition().getValueAsDouble(), ClimberHookConstants.gearRatio
-        );
+        mPeriodicIO.extension = mMotor.getRotorPosition().getValue().in(Units.Degrees) / ClimberHookConstants.gearRatio;
         mPeriodicIO.current = mMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
         mPeriodicIO.velocity = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / ClimberHookConstants.gearRatio;
@@ -106,21 +106,20 @@ public class ClimberHook extends SubsystemBase {
         if ((mPeriodicIO.current < -ClimberHookConstants.limitTorque) &&
             mPeriodicIO.velocity > -ClimberHookConstants.limitVelocity
         ) {
-            mMotor.setPosition(Conversions.degreesToRotation(extensions.get(Position.MIN),
-                ClimberHookConstants.gearRatio)); //mark min
+            mMotor.setPosition(degreesToRotations(extensions.get(Position.MIN)) *
+                ClimberHookConstants.gearRatio); //mark min
             setTarget(Position.IN);
         } else if ((mPeriodicIO.current > ClimberHookConstants.limitTorque) &&
             mPeriodicIO.velocity < ClimberHookConstants.limitVelocity
         ) {
-            mMotor.setPosition(Conversions.degreesToRotation(extensions.get(Position.MAX),
-                ClimberHookConstants.gearRatio)); //mark max
+            mMotor.setPosition(degreesToRotations(extensions.get(Position.MAX)) *
+                ClimberHookConstants.gearRatio); //mark max
             setTarget(Position.OUT);
         }
 
         // Have we finished moving?
-        if (mPeriodicIO.moving &&
-            Util.epsilonEquals(mPeriodicIO.extension, mPeriodicIO.targetExtension, ClimberHookConstants.extensionTolerance)
-        ) mPeriodicIO.moving = false;
+        if (mPeriodicIO.moving && MathUtil.isNear(mPeriodicIO.extension, mPeriodicIO.targetExtension,
+            ClimberHookConstants.extensionTolerance)) mPeriodicIO.moving = false;
     }
 
     @Override

@@ -17,7 +17,7 @@ public final class Pigeon {
         return mInstance;
     }
 
-    // Actual pigeon object
+    /** Actual pigeon object */
     private final Pigeon2 mGyro;
 
     // Configs

@@ -1,9 +1,8 @@
 package frc.robot.lib.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-
-import frc.robot.lib.Util;
 
 public final class ModuleState extends SwerveModulePosition {
     public double speedMetersPerSecond;
@@ -22,10 +21,11 @@ public final class ModuleState extends SwerveModulePosition {
         return new ModuleState(Double.NaN, angle, speedMetersPerSecond);
     }
 
-    public ModuleState optimize(Rotation2d currentAngle) {
-        double targetAngle = Util.placeInAppropriate0To360Scope(currentAngle.getDegrees(), this.angle.getDegrees());
+    public ModuleState optimize(Rotation2d currentAngle) { // TODO: use this
+        double currentDeg = currentAngle.getDegrees();
+        double targetAngle = MathUtil.inputModulus(angle.getDegrees(), currentDeg - 180, currentDeg + 180);
         double targetSpeed = this.speedMetersPerSecond;
-        double delta = targetAngle - currentAngle.getDegrees();
+        double delta = targetAngle - currentDeg;
         if (Math.abs(delta) > 90) {
             targetSpeed *= -1;
             targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);

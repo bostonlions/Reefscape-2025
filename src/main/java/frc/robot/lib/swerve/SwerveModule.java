@@ -1,9 +1,13 @@
 package frc.robot.lib.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import static edu.wpi.first.math.util.Units.degreesToRotations;
+import static edu.wpi.first.math.util.Units.rotationsToDegrees;
 
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -14,8 +18,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
-import frc.robot.lib.Util;
-import frc.robot.lib.Util.Conversions;
 
 public final class SwerveModule extends SubsystemBase {
     private mPeriodicIO mPeriodicIO = new mPeriodicIO();
@@ -33,8 +35,8 @@ public final class SwerveModule extends SubsystemBase {
     private static final double wheelCircumference = SwerveConstants.wheelDiameter * Math.PI;
 
     public SwerveModule(int moduleNumber, Constants moduleConstants) {
-        this.kModuleNumber = moduleNumber;
-        this.name = moduleConstants.name;
+        kModuleNumber = moduleNumber;
+        name = moduleConstants.name;
         kAngleOffset = moduleConstants.angleOffset;
 
         angleEncoder = new CANcoder(moduleConstants.cancoderID, Ports.CANBUS_DRIVE);
@@ -47,13 +49,13 @@ public final class SwerveModule extends SubsystemBase {
         resetToAbsolute();
     }
 
-    public void setConfigs() {
+    private void setConfigs() {
         angleEncoder.getConfigurator().apply(SwerveConstants.cancoderConfig);
         mAngleMotor.getConfigurator().apply(SwerveConstants.angleConfig);
         mDriveMotor.getConfigurator().apply(SwerveConstants.driveConfig);
     }
 
-    public static class Constants {
+    public static final class Constants {
         public final int driveMotorID;
         public final int angleMotorID;
         public final int cancoderID;
@@ -75,41 +77,49 @@ public final class SwerveModule extends SubsystemBase {
         double targetAngle = targetModuleState.angle.getDegrees();
 
         if (isOpenLoop) mPeriodicIO.targetVelocity = targetModuleState.speedMetersPerSecond;
-        else mPeriodicIO.targetVelocity = Util.limit(targetModuleState.speedMetersPerSecond, SwerveConstants.maxAttainableSpeed);
+        else mPeriodicIO.targetVelocity = MathUtil.clamp(
+            targetModuleState.speedMetersPerSecond,
+            -SwerveConstants.maxAttainableSpeed,
+            SwerveConstants.maxAttainableSpeed
+        );
 
         if (shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
             mPeriodicIO.targetVelocity = -mPeriodicIO.targetVelocity;
             targetAngle += 180.0;
         }
 
-        targetAngle = Util.placeInAppropriate0To360Scope(mPeriodicIO.rotationPosition, targetAngle);
+        targetAngle = MathUtil.inputModulus(targetAngle, mPeriodicIO.rotationPosition - 180,
+            mPeriodicIO.rotationPosition + 180);
 
-        mPeriodicIO.rotationDemand = Util.Conversions.degreesToRotation(targetAngle,
-            SwerveConstants.angleGearRatio); //this is a duplicate
+        mPeriodicIO.rotationDemand = degreesToRotations(targetAngle) *
+            SwerveConstants.angleGearRatio; //this is a duplicate
 
         if (isOpenLoop) {
             mPeriodicIO.driveControlMode = ControlModeState.PercentOutput;
             mPeriodicIO.driveDemand = mPeriodicIO.targetVelocity / SwerveConstants.maxSpeed;
         } else {
             mPeriodicIO.driveControlMode = ControlModeState.Velocity;
-            mPeriodicIO.driveDemand = Util.Conversions.MPSToRPS(mPeriodicIO.targetVelocity,
-                wheelCircumference, SwerveConstants.driveGearRatio);
+            mPeriodicIO.driveDemand = (mPeriodicIO.targetVelocity / wheelCircumference) *
+                SwerveConstants.driveGearRatio;
         }
     }
 
-    public void resetToAbsolute() {
-        double angle = Util.placeInAppropriate0To360Scope(mPeriodicIO.rotationPosition, getCanCoder() - kAngleOffset);
-        double absolutePosition = Util.Conversions.degreesToRotation(angle, SwerveConstants.angleGearRatio);
+    private void resetToAbsolute() {
+        double angle = MathUtil.inputModulus(getCanCoder() - kAngleOffset,
+            mPeriodicIO.rotationPosition - 180, mPeriodicIO.rotationPosition + 180);
+        double absolutePosition = degreesToRotations(angle) * SwerveConstants.angleGearRatio;
         mAngleMotor.setPosition(absolutePosition);
     }
 
     /** degrees */
-    public double getCanCoder() {
-        return Util.placeIn0To360Scope(angleEncoder.getAbsolutePosition().getValueAsDouble()*360);
+    private double getCanCoder() {
+        return MathUtil.inputModulus(angleEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+            0, 360);
     }
 
     public ModuleState getState() {
-        return new ModuleState(mPeriodicIO.drivePosition, edu.wpi.first.math.geometry.Rotation2d.fromDegrees(mPeriodicIO.rotationPosition), mPeriodicIO.velocity);
+        return new ModuleState(mPeriodicIO.drivePosition, edu.wpi.first.math.geometry.Rotation2d.
+            fromDegrees(mPeriodicIO.rotationPosition), mPeriodicIO.velocity);
     }
 
     @Override
@@ -118,20 +128,14 @@ public final class SwerveModule extends SubsystemBase {
 
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
-        mPeriodicIO.velocity = Util.Conversions.RPSToMPS(
-            mDriveMotor.getRotorVelocity().getValue().in(Units.RotationsPerSecond),
-            wheelCircumference, SwerveConstants.driveGearRatio
-        );
+        mPeriodicIO.velocity = mDriveMotor.getRotorVelocity().getValue().in(Units.RotationsPerSecond) *
+            wheelCircumference / SwerveConstants.driveGearRatio;
 
-        mPeriodicIO.rotationPosition = Util.Conversions.rotationsToDegrees(
-            mAngleMotor.getRotorPosition().getValue().in(Units.Rotations),
-            SwerveConstants.angleGearRatio
-        );
+        mPeriodicIO.rotationPosition = mAngleMotor.getRotorPosition().getValue().in(Units.Degrees) /
+            SwerveConstants.angleGearRatio;
 
-        mPeriodicIO.drivePosition = Util.Conversions.rotationsToMeters(
-            mDriveMotor.getRotorPosition().getValue().in(Units.Rotations),
-            wheelCircumference, SwerveConstants.driveGearRatio
-        );
+        mPeriodicIO.drivePosition = mDriveMotor.getRotorPosition().getValue().in(Units.Rotations) *
+            wheelCircumference / SwerveConstants.driveGearRatio;
 
         /* write periodic outputs */
 
@@ -140,10 +144,10 @@ public final class SwerveModule extends SubsystemBase {
             mPeriodicIO.targetVelocity = -mPeriodicIO.targetVelocity;
             targetAngle += 180.0;
         }
-        targetAngle = Util.placeInAppropriate0To360Scope(mPeriodicIO.rotationPosition, targetAngle);
+        targetAngle = MathUtil.inputModulus(targetAngle, mPeriodicIO.rotationPosition - 180,
+            mPeriodicIO.rotationPosition + 180);
 
-        mPeriodicIO.rotationDemand = Util.Conversions.degreesToRotation(targetAngle,
-            SwerveConstants.angleGearRatio);
+        mPeriodicIO.rotationDemand = degreesToRotations(targetAngle) * SwerveConstants.angleGearRatio;
 
         mAngleMotor.setControl(new PositionDutyCycle(mPeriodicIO.rotationDemand));
 
@@ -152,7 +156,7 @@ public final class SwerveModule extends SubsystemBase {
         ); else mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand)); // TODO: previously this had extra args: true, false, false, false - but I can't find a constructor with that signature
     }
 
-    public static class mPeriodicIO {
+    private static final class mPeriodicIO {
         // Inputs
         public double timestamp = 0.0;
         public double targetVelocity = 0.0;
@@ -172,14 +176,6 @@ public final class SwerveModule extends SubsystemBase {
         return kModuleNumber;
     }
 
-    public double angleOffset() {
-        return kAngleOffset;
-    }
-
-    public double getDriveMotorCurrent() {
-        return mDriveMotor.getStatorCurrent().getValue().in(Units.Amps);
-    }
-
     public void setDriveNeutralBrake(boolean wantBrake) {
         if (wantBrake) {
             mDriveMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -192,7 +188,7 @@ public final class SwerveModule extends SubsystemBase {
         }
     }
 
-    private final boolean shouldReverse(double goalAngle, double currentAngle) {
+    private boolean shouldReverse(double goalAngle, double currentAngle) {
         double diff = (goalAngle - currentAngle + 720.) % 360.;
         return diff > 90. && diff < 270.;
     }
@@ -203,7 +199,7 @@ public final class SwerveModule extends SubsystemBase {
         builder.addDoubleProperty("CANCODER Position", () -> getCanCoder(), null);
         builder.addDoubleProperty("Drive Position", () -> mPeriodicIO.drivePosition, null);
         builder.addDoubleProperty("Velocity", () -> mPeriodicIO.velocity, null);
-        builder.addDoubleProperty("Target Angle", () -> Conversions.rotationsToDegrees(mPeriodicIO.rotationDemand, SwerveConstants.angleGearRatio), null);
+        builder.addDoubleProperty("Target Angle", () -> rotationsToDegrees(mPeriodicIO.rotationDemand) / SwerveConstants.angleGearRatio, null);
         builder.addDoubleProperty("Target Velocity", () -> mPeriodicIO.targetVelocity, null);
         builder.addStringProperty("Control Mode", () -> mPeriodicIO.driveControlMode.toString(), null);
     }

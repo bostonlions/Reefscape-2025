@@ -1,4 +1,4 @@
-package frc.robot.controlboard;
+package frc.robot.lib.drivers;
 
 import frc.robot.Constants.ControllerConstants;
 
@@ -14,11 +14,11 @@ public final class CustomXboxController {
         Button(int id) { this.id = id; }
     }
 
-    CustomXboxController(int port) {
+    public CustomXboxController(int port) {
         mController = new XboxController(port);
     }
 
-    double getAxis(Side side, Axis axis) {
+    public double getAxis(Side side, Axis axis) {
         boolean left = side == Side.LEFT;
         boolean y = axis == Axis.Y;
         return mController.getRawAxis((left ? 0 : 4) + (y ? 1 : 0));
