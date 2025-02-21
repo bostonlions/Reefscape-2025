@@ -145,11 +145,11 @@ public final class Drive extends SubsystemBase {
                 path,
                 () -> {
                     //System.out.println("getPose: " + this.getPose());
-                    return this.getPose();  
+                    return this.getPose();
                 },
                 () -> {
                     //System.out.println("getSpeeds " + mPeriodicIO.meas_chassis_speeds);
-                    return mPeriodicIO.meas_chassis_speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE 
+                    return mPeriodicIO.meas_chassis_speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 },
                 (ChassisSpeeds setPointSpeeds, DriveFeedforwards dff) -> { // TODO: do we need dff?
                     mControlState = DriveControlState.PATH_FOLLOWING;
@@ -225,18 +225,6 @@ public final class Drive extends SubsystemBase {
 
         ModuleState[] prev_module_states = mPeriodicIO.des_module_states.clone(); // Get last setpoint to get differentials
         ChassisSpeeds prev_chassis_speeds = kKinematics.toChassisSpeeds(prev_module_states);
-        ModuleState[] target_module_states = kKinematics.toModuleStates(wanted_speeds);
-
-        if ( // TODO: this is discarded but we want it
-            MathUtil.isNear(wanted_speeds.vxMetersPerSecond, 0, 1e-12) &&
-            MathUtil.isNear(wanted_speeds.vyMetersPerSecond, 0, 1e-12) &&
-            MathUtil.isNear(wanted_speeds.omegaRadiansPerSecond, 0, 1e-12)
-        ) {
-            for (int i = 0; i < target_module_states.length; i++) {
-                target_module_states[i].speedMetersPerSecond = 0.;
-                target_module_states[i].angle = prev_module_states[i].angle;
-            }
-        }
 
         double dx = wanted_speeds.vxMetersPerSecond - prev_chassis_speeds.vxMetersPerSecond;
         double dy = wanted_speeds.vyMetersPerSecond - prev_chassis_speeds.vyMetersPerSecond;
@@ -266,14 +254,26 @@ public final class Drive extends SubsystemBase {
             min_omega_scalar *= max_omega_step;
         }
 
-        // TODO: we should be calling SwerveDriveKinematics.desaturateWheelSpeeds here,
-        // and somewhere we should be calling ModuleState.optimize
-        wanted_speeds = new ChassisSpeeds(
-            prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar,
-            prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar,
-            prev_chassis_speeds.omegaRadiansPerSecond + domega * min_omega_scalar
-        );
+        double finalVx = prev_chassis_speeds.vxMetersPerSecond + dx * min_translational_scalar;
+        double finalVy = prev_chassis_speeds.vyMetersPerSecond + dy * min_translational_scalar;
+        double finalOmega = prev_chassis_speeds.omegaRadiansPerSecond + domega * min_omega_scalar;
+
+        wanted_speeds = new ChassisSpeeds(finalVx, finalVy, finalOmega);
         ModuleState[] real_module_setpoints = kKinematics.toModuleStates(wanted_speeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(real_module_setpoints, SwerveConstants.maxAttainableSpeed);
+
+        // Ensure we don't alter angles if we're shooting for zero speed
+        if (
+            MathUtil.isNear(finalVx, 0, 1e-12) &&
+            MathUtil.isNear(finalVy, 0, 1e-12) &&
+            MathUtil.isNear(finalOmega, 0, 1e-12)
+        ) {
+            for (int i = 0; i < real_module_setpoints.length; i++) {
+                real_module_setpoints[i].speedMetersPerSecond = 0.;
+                real_module_setpoints[i].angle = prev_module_states[i].angle;
+            }
+        }
+
         mPeriodicIO.des_module_states = real_module_setpoints;
     }
 

@@ -6,6 +6,7 @@ package frc.robot.lib.swerve;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 /**
@@ -77,66 +78,66 @@ public final class SwerveDriveOdometry {
 		return newPose;
 	}
 
-	// /**
-	//  * Updates the robot's position on the field using forward kinematics and
-	//  * integration of the pose
-	//  * over time. This method automatically calculates the current time to calculate
-	//  * period
-	//  * (difference between two timestamps). The period is used to calculate the
-	//  * change in distance
-	//  * from a velocity. This also takes in an angle parameter which is used instead
-	//  * of the angular
-	//  * rate that is calculated from forward kinematics.
-	//  *
-	//  * @param gyroAngle       The angle reported by the gyroscope.
-	//  * @param modulePositions The current position of all swerve modules. Please
-	//  *                        provide the positions
-	//  *                        in the same order in which you instantiated your
-	//  *                        SwerveDriveKinematics.
-	//  * @return The new pose of the robot.
-	//  */
-	// private Pose2d update(Rotation2d gyroAngle, SwerveModulePosition[] modulePositions) { // TODO: do we need this?
-	// 	if (modulePositions.length != m_numModules) throw new IllegalArgumentException(
-	// 		"Number of modules is not consistent with number of wheel locations provided in constructor"
-	// 	);
+	/**
+	 * Updates the robot's position on the field using forward kinematics and
+	 * integration of the pose
+	 * over time. This method automatically calculates the current time to calculate
+	 * period
+	 * (difference between two timestamps). The period is used to calculate the
+	 * change in distance
+	 * from a velocity. This also takes in an angle parameter which is used instead
+	 * of the angular
+	 * rate that is calculated from forward kinematics.
+	 *
+	 * @param gyroAngle       The angle reported by the gyroscope.
+	 * @param modulePositions The current position of all swerve modules. Please
+	 *                        provide the positions
+	 *                        in the same order in which you instantiated your
+	 *                        SwerveDriveKinematics.
+	 * @return The new pose of the robot.
+	 */
+	public Pose2d update(Rotation2d gyroAngle, SwerveModulePosition[] modulePositions) { // TODO: do we need this?
+		if (modulePositions.length != m_numModules) throw new IllegalArgumentException(
+			"Number of modules is not consistent with number of wheel locations provided in constructor"
+		);
 
-	// 	SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[m_numModules];
-	// 	for (int index = 0; index < m_numModules; index++) {
-	// 		SwerveModulePosition current = modulePositions[index];
-	// 		SwerveModulePosition previous = m_previousModulePositions[index];
+		SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[m_numModules];
+		for (int index = 0; index < m_numModules; index++) {
+			SwerveModulePosition current = modulePositions[index];
+			SwerveModulePosition previous = m_previousModulePositions[index];
 
-	// 		moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters, current.angle);
-	// 		previous.distanceMeters = current.distanceMeters;
-	// 	}
+			moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters, current.angle);
+			previous.distanceMeters = current.distanceMeters;
+		}
 
-	// 	Twist2d twist = m_kinematics.toTwist2d(moduleDeltas);
-	// 	twist.dtheta = gyroAngle.minus(m_previousAngle).getRadians();
+		Twist2d twist = m_kinematics.toTwist2d(moduleDeltas);
+		twist.dtheta = gyroAngle.minus(m_previousAngle).getRadians();
 
-	// 	Pose2d newPose = m_poseMeters.exp(twist);
+		Pose2d newPose = m_poseMeters.exp(twist);
 
-	// 	m_previousAngle = gyroAngle;
-	// 	m_poseMeters = new Pose2d(newPose.getTranslation(), gyroAngle); //CHANGE THIS TODO:
+		m_previousAngle = gyroAngle;
+		m_poseMeters = new Pose2d(newPose.getTranslation(), gyroAngle); //CHANGE THIS TODO:
 
-	// 	return m_poseMeters;
-	// }
+		return m_poseMeters;
+	}
 
-	// private Pose2d update(SwerveModulePosition[] modulePositions) {
-	// 	if (modulePositions.length != m_numModules) throw new IllegalArgumentException(
-	// 		"Number of modules is not consistent with number of wheel locations provided in constructor"
-	// 	);
+	public Pose2d update(SwerveModulePosition[] modulePositions) {
+		if (modulePositions.length != m_numModules) throw new IllegalArgumentException(
+			"Number of modules is not consistent with number of wheel locations provided in constructor"
+		);
 
-	// 	SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[m_numModules];
-	// 	for (int index = 0; index < m_numModules; index++) {
-	// 		var current = modulePositions[index];
-	// 		var previous = m_previousModulePositions[index];
+		SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[m_numModules];
+		for (int index = 0; index < m_numModules; index++) {
+			var current = modulePositions[index];
+			var previous = m_previousModulePositions[index];
 
-	// 		moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters, current.angle);
-	// 		previous.distanceMeters = current.distanceMeters;
-	// 	}
+			moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters, current.angle);
+			previous.distanceMeters = current.distanceMeters;
+		}
 
-	// 	Twist2d twist = m_kinematics.toTwist2d(moduleDeltas);
+		Twist2d twist = m_kinematics.toTwist2d(moduleDeltas);
 
-	// 	Pose2d newPose = m_poseMeters.exp(twist);
-	// 	return newPose;
-	// }
+		Pose2d newPose = m_poseMeters.exp(twist);
+		return newPose;
+	}
 }

@@ -83,6 +83,7 @@ public final class SwerveModule extends SubsystemBase {
             SwerveConstants.maxAttainableSpeed
         );
 
+        // TODO - should this be ModuleState.optimize?
         if (shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
             mPeriodicIO.targetVelocity = -mPeriodicIO.targetVelocity;
             targetAngle += 180.0;

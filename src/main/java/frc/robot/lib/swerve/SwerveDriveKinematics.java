@@ -5,6 +5,7 @@
 package frc.robot.lib.swerve;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.ejml.simple.SimpleMatrix;
 
@@ -224,28 +225,29 @@ public final class SwerveDriveKinematics {
             chassisDeltaVector.get(2, 0));
     }
 
-    // /**
-    //  * Renormalizes the wheel speeds if any individual speed is above the specified maximum.
-    //  *
-    //  * <p> Sometimes, after inverse kinematics, the requested speed from one or more modules may be
-    //  * above the max attainable speed for the driving motor on that module. To fix this issue, one can
-    //  * reduce all the wheel speeds to make sure that all requested module speeds are at-or-below the
-    //  * absolute threshold, while maintaining the ratio of speeds between modules.
-    //  *
-    //  * @param moduleStates Reference to array of module states. The array will be mutated with the
-    //  *     normalized speeds!
-    //  * @param attainableMaxSpeedMetersPerSecond The absolute max speed that a module can reach.
-    //  */
-    // private static void desaturateWheelSpeeds( // TODO: do we need this?
-    //     ModuleState[] moduleStates, double attainableMaxSpeedMetersPerSecond) {
-    //     double realMaxSpeed = Collections.max(Arrays.asList(moduleStates)).speedMetersPerSecond;
-    //     if (realMaxSpeed > attainableMaxSpeedMetersPerSecond) {
-    //         for (ModuleState moduleState : moduleStates) {
-    //             moduleState.speedMetersPerSecond =
-    //                 moduleState.speedMetersPerSecond / realMaxSpeed * attainableMaxSpeedMetersPerSecond;
-    //         }
-    //     }
-    // }
+    /**
+     * Renormalizes the wheel speeds if any individual speed is above the specified maximum.
+     *
+     * <p> Sometimes, after inverse kinematics, the requested speed from one or more modules may be
+     * above the max attainable speed for the driving motor on that module. To fix this issue, one can
+     * reduce all the wheel speeds to make sure that all requested module speeds are at-or-below the
+     * absolute threshold, while maintaining the ratio of speeds between modules.
+     *
+     * @param moduleStates Reference to array of module states. The array will be mutated with the
+     *     normalized speeds!
+     * @param attainableMaxSpeedMetersPerSecond The absolute max speed that a module can reach.
+     */
+    public static void desaturateWheelSpeeds(
+        ModuleState[] moduleStates, double attainableMaxSpeedMetersPerSecond
+    ) {
+        double realMaxSpeed = Collections.max(Arrays.asList(moduleStates)).speedMetersPerSecond;
+        if (realMaxSpeed > attainableMaxSpeedMetersPerSecond) {
+            for (ModuleState moduleState : moduleStates) {
+                moduleState.speedMetersPerSecond =
+                    moduleState.speedMetersPerSecond / realMaxSpeed * attainableMaxSpeedMetersPerSecond;
+            }
+        }
+    }
 
     // /**
     //  * Renormalizes the wheel speeds if any individual speed is above the specified maximum, as well
