@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.Map;
 import java.util.function.Supplier;
+
 import static java.util.Map.entry;
 
 import edu.wpi.first.util.sendable.SendableBuilder;

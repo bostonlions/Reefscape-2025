@@ -35,15 +35,17 @@ public class Coral extends SubsystemBase {
         mMotor.getConfigurator().apply(CoralConstants.motorConfig);
         setWantNeutralBrake(true);
         mMotor.setPosition(0);
+
         mBeamBreak = new BeamBreak(Ports.CORAL_BEAM_BREAK);
+
         mPeriodicIO.loadSpeed = CoralConstants.loadSpeed;
         mPeriodicIO.unloadSpeed = CoralConstants.unloadSpeed;
         mPeriodicIO.extraLoadRotations = CoralConstants.extraLoadRotations;
         mPeriodicIO.extraUnloadRotations = CoralConstants.extraUnloadRotations;
+
         initTrimmer();
     }
 
-    /* Commands */
     public Command toggleCommand() {
         return new InstantCommand(this::activateCoral, this);
     }
@@ -67,6 +69,7 @@ public class Coral extends SubsystemBase {
     /** To start or interrupt a load or unload upon a button push */
     public void activateCoral() {
         System.out.println("Coral activated");
+
         if (mPeriodicIO.state == State.IDLE) {
             setSetpoint(mPeriodicIO.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
@@ -77,7 +80,6 @@ public class Coral extends SubsystemBase {
             setSetpoint(0);
             mPeriodicIO.state = mBeamBreak.get() ? State.LOADED : State.IDLE;
         }
-
     }
 
     public double getAngleDeg() {
@@ -129,8 +131,7 @@ public class Coral extends SubsystemBase {
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     setSetpoint(0);
                     mPeriodicIO.state = State.LOADED;
-                }
-                break;
+                } break;
             case UNLOADING_WITH_CORAL:
                 if (!mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
@@ -143,8 +144,7 @@ public class Coral extends SubsystemBase {
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     setSetpoint(0);
                     mPeriodicIO.state = State.IDLE;
-                }
-                break;
+                } break;
         }
 
         mPeriodicIO.position_degrees = mMotor.getRotorPosition().getValue().in(Units.Degrees) / CoralConstants.gearRatio;
@@ -170,6 +170,7 @@ public class Coral extends SubsystemBase {
 
     private void initTrimmer() {
         Trimmer trimmer = Trimmer.getInstance();
+
         trimmer.add(
             "Coral",
             "Load speed",

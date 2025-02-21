@@ -35,10 +35,10 @@ public final class Ports {
     public static final int CLIMBER_HOOK_DRIVE = 35;
 
     public static final int CORAL_DRIVE = 30;
-    public static final int CORAL_BEAM_BREAK = 9; // TODO: or 8???
+    public static final int CORAL_BEAM_BREAK = 9;
 
     public static final int ALGAE_DRIVE = 31;
     public static final int ALGAE_ANGLE = 34;
     public static final int ALGAE_CANCODER = 33;
-    public static final int ALGAE_BEAMBREAK = 8; // TODO: or 9???
+    public static final int ALGAE_BEAMBREAK = 8;
 }

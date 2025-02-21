@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.List;
 import java.util.Map;
+
 import static java.util.Map.entry;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -31,14 +32,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
-import frc.robot.lib.Util.Conversions;
 import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public final class Constants {
-    public static final class FieldDimensions {
-        public static final double width = 8.052; // in meters
-    }
-
     public static final class SwerveConstants {
         public static final double kLooperDt = 0.02; // robot loop time - but only used now by swerve
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
@@ -49,18 +45,17 @@ public final class Constants {
 
         public static final double wheelDiameter = Units.inchesToMeters(4); // was 3.85 but tire is 4 w/tread
 
-        // can tune this value by driving a certain distance and multiplying a const to
-        // fix the error
-        public static final double driveGearRatio = 6.12; // was 4.7628; // ((5.3 / 1.07) / 1.04) ?
-        public static final double angleGearRatio = 150./7; // 21.4285714
+        /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
+        public static final double driveGearRatio = 6.12; // was 4.7628 // ((5.3 / 1.07) / 1.04) ?
+        public static final double angleGearRatio = 150./7;
 
-        /* Swerve Profiling Values */
+        // Swerve Profiling Values
         public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
         public static final double maxAccel = 1.;
         public static final double maxAngularVelocity = 8.0; //was 8.0 toggled to 2.0
         public static final double maxAngularAccel = 1.;
 
-        // Max out at 85% to make sure speeds are attainable (4.6 mps)
+        /** Max out at 85% to make sure speeds are attainable (4.6 mps) */
         public static final double maxAttainableSpeed = maxSpeed * 0.85;
 
         public static final TalonFXConfiguration driveConfig = new TalonFXConfiguration()
@@ -70,13 +65,13 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(62)
                 .withSupplyCurrentLowerTime(0.1))
             .withVoltage(new VoltageConfigs()
-                .withPeakForwardVoltage(12.0)
-                .withPeakReverseVoltage(-12.0))
+                .withPeakForwardVoltage(12.)
+                .withPeakReverseVoltage(-12.))
             .withSlot0(new Slot0Configs()
                 .withKP(4.0)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKV(12.0 / Conversions.MPSToRPS(maxSpeed, wheelDiameter * Math.PI, driveGearRatio)))
+                .withKV(12. / ((maxSpeed / (wheelDiameter * Math.PI)) * driveGearRatio)))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive))
@@ -91,13 +86,13 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(25)
                 .withSupplyCurrentLowerTime(0.1))
             .withVoltage(new VoltageConfigs()
-                .withPeakForwardVoltage(12.0)
+                .withPeakForwardVoltage(12.)
                 .withPeakReverseVoltage(-12.0))
             .withSlot0(new Slot0Configs()
                 .withKP(0.6)
-                .withKI(0.0)
-                .withKD(0.0)
-                .withKV(0.0))
+                .withKI(0.)
+                .withKD(0.)
+                .withKV(0.))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withInverted(InvertedValue.Clockwise_Positive));
@@ -124,7 +119,6 @@ public final class Constants {
         }
 
         public static final KinematicLimits kUncappedLimits = new KinematicLimits(
-            // maxSpeed, Double.MAX_VALUE, maxAngularVelocity, Double.MAX_VALUE
             maxSpeed, maxAccel, maxAngularVelocity, maxAngularAccel
         );
 
@@ -146,15 +140,14 @@ public final class Constants {
         // - Align the bevel gears to the right side (from lookers perspective) on all the wheels.
         // - Make sure all the wheels are in line, then record canCoder offset values (in degrees)
         //   from shuffleboard
-
         public static final double FL_AngleOffset = 335.3027;
         public static final double FR_AngleOffset = 89.1211;
         public static final double BL_AngleOffset = 191.3379;
         public static final double BR_AngleOffset = 73.2129;
     }
 
-    // For DriveMotionPlanner
-    public static final class AutonConstants {
+    /** For DriveMotionPlanner */
+    public static final class AutonConstants { // TODO: clean up this class and others when auton sorted out
         public static final double snapP = 6.;
         public static final double snapI = 0.5;
         public static final double snapD = 0.2;
@@ -167,7 +160,7 @@ public final class Constants {
 
         public static final double kPThetaController = 2.75; // was 2, changed to 4 -- faster it turns = more wheels slip
 
-        // Constraint for the motion profilied robot angle controller (Radians)
+        // Constraints for the motion profilied robot angle controller (Radians)
         public static final double kMaxAngularSpeed = 2 * Math.PI;
         public static final double kMaxAngularAccel = 2 * Math.PI * kMaxAngularSpeed;
         public static final double kMaxCentripetalAccel = 10.;

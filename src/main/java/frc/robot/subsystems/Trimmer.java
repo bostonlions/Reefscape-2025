@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public final class Trimmer extends SubsystemBase {
     private static Trimmer mInstance;
-
     private List<String> subsystems;
     private List<List<Item>> items;
     private int currentSubsystemIndex;
@@ -89,11 +88,10 @@ public final class Trimmer extends SubsystemBase {
         }, this).ignoringDisable(true);
     }
 
-    public final class Item {
+    private static final class Item {
         public String name;
         public DoubleSupplier getter;
         public BooleanConsumer inc;
-        public Runnable dec;
 
         public Item(String name, DoubleSupplier getter, BooleanConsumer inc) {
             this.name = name;
@@ -103,7 +101,7 @@ public final class Trimmer extends SubsystemBase {
     }
 
     /**
-     * find the next larger increment of a value
+     * Find the next larger increment of a value
      * @param initial
      * @param min the minimum nonzero value to return
      * @param inc fraction of the value to add on

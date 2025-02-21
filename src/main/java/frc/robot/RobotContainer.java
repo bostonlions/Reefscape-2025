@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import frc.robot.subsystems.*;
-import frc.robot.controlboard.ControlBoard;
-import frc.robot.controlboard.CustomXboxController.Button;
-import frc.robot.controlboard.CustomXboxController.Side;
+import frc.robot.lib.drivers.ControlBoard;
+import frc.robot.lib.drivers.CustomXboxController.Button;
+import frc.robot.lib.drivers.CustomXboxController.Side;
 import frc.robot.lib.swerve.SwerveModule;
 
 /**
@@ -46,7 +46,7 @@ public final class RobotContainer {
                 () -> drive.setTargetSpeeds(
                     controller.getSwerveTranslation(),
                     controller.getSwerveRotation(),
-                    controller.driver.getRawButton(1)  // Left back button toggles strafe
+                    controller.driver.getRawButton(1) // Left back button toggles strafe
                 ),
                 drive
             )
@@ -107,8 +107,6 @@ public final class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        // TODO: we need the equivalent of getStartingPose from last year,
-        // and then: drive.resetOdometry(autoCommand.getStartingPose())
         return auton.getCommand();
     }
 }
