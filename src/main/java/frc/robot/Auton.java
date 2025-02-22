@@ -28,28 +28,45 @@ public final class Auton extends SubsystemBase {
     private static final Elevator elevator = Elevator.getInstance();
     private static final Drive drive = Drive.getInstance();
     private static final Map<String, Command> commands = Map.ofEntries(
-        entry(
-            "Drive Test",
-            drive.followPathCommand("CoralInTrough", true)
-            .andThen(debug(() -> "Done driving at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
+        entry("01 - Position 1",
+            drive.followPathCommand("Position1", true)
+            .andThen(elevator.stepToCommand(Position.L4))
             .andThen(coral.toggleCommand())
-            //.andThen(coral.toggleCommand())
-            //.andThen(sleep(1.))
-            //.andThen(coral.toggleCommand())
-            //.andThen(elevator.stepUpCommand())  // shouldn't need this but for now it seems to help
-            //.andThen(elevator.stepToCommand(Position.L2))
-            //.andThen(elevator.stepToCommand(Position.LOAD))
-            // .andThen(debug(() -> "About to run path test2"))
-            // .andThen(drive.followPathCommand("test2", false))
-            // .andThen(debug(() -> "test2 path has been run"))
-            // .andThen(algae.upCommand())
-            // .andThen(sleep(1))
-            // .andThen(algae.toggleDriveCommand())
-            // .andThen(sleep(2))
-            // .andThen(algae.toggleDriveCommand())
-        )//,
-        // entry(
-        //     "Parallel example",
+            .andThen(sleep(1))
+        ), entry("02 - Position 2",
+            drive.followPathCommand("Position2", true)
+            .andThen(elevator.stepToCommand(Position.L4))
+            .andThen(coral.toggleCommand())
+            .andThen(sleep(1))
+        ), entry("03 - Position 3",
+            drive.followPathCommand("Position3", true)
+            .andThen(elevator.stepToCommand(Position.L4))
+            .andThen(coral.toggleCommand())
+            .andThen(sleep(1))
+        )
+
+        /* EXAMPLE AUTON COMMANDS: */
+
+        // entry("drive test",
+        //     drive.followPathCommand("CoralInTrough", true)
+        //     .andThen(debug(() -> "Done driving at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
+        //     .andThen(elevator.stepToCommand(Position.L4))
+        //     .andThen(coral.toggleCommand())
+        //     .andThen(coral.toggleCommand())
+        //     .andThen(sleep(1.))
+        //     .andThen(coral.toggleCommand())
+        //     .andThen(elevator.stepUpCommand())  // shouldn't need this but for now it seems to help
+        //     .andThen(elevator.stepToCommand(Position.L2))
+        //     .andThen(elevator.stepToCommand(Position.LOAD))
+        //     .andThen(debug(() -> "About to run path test2"))
+        //     .andThen(drive.followPathCommand("test2", false))
+        //     .andThen(debug(() -> "test2 path has been run"))
+        //     .andThen(algae.upCommand())
+        //     .andThen(sleep(1))
+        //     .andThen(algae.toggleDriveCommand())
+        //     .andThen(sleep(2))
+        //     .andThen(algae.toggleDriveCommand())
+        // ), entry("Parallel example",
         //     new ParallelCommandGroup(
         //         drive.followPathCommand("backAwayFromReef", true),
         //         sleep(1.)
@@ -59,46 +76,28 @@ public final class Auton extends SubsystemBase {
         //         .andThen(sleep(1.))
         //         .andThen(elevator.stepToCommand(Position.LOAD))
         //     )
-        // )
-        // entry(
-        //     "Flip Algae 2",
-
+        // ), entry("Flip Algae 2",
         //     algae.upCommand()
         //     .andThen(sleep(1.))
         //     .andThen(debug(() -> "Flipped up 2 at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
         //     .andThen(algae.downCommand())
         //     .andThen(debug(() -> "Flipped down 2 at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
-
-        // )
-       //,
-        // entry(
-        //     "Toggle Coral",
+        // ), entry("Toggle Coral",
         //     coral.toggleCommand()
         //     .andThen(sleep(1.))
         //     .andThen(coral.toggleCommand())
-        // ),
-        // entry(
-        //     "Elevator Up/Down",
+        // ), entry("Elevator Up/Down",
         //     elevator.stepUpCommand()
         //     .andThen(elevator.stepToCommand(Position.L3))
         //     .andThen(sleep(3.))
         //     .andThen(elevator.stepToCommand(Position.LOAD))
-        // ),
-        // entry(
-        //     "Turn around",
-        //     drive.headingCommand(90)
-        //     .andThen(sleep(2.))
-        //     .andThen(drive.headingCommand(180))
-        //     .andThen(sleep(2.))
-        //     .andThen(drive.headingCommand(270))
-        //     .andThen(drive.headingCommand(0))
         // )
     );
 
     private int commandIdx = 0;
 
-    private static String[] commandNames;
-    private static final String allCommands = String.join("\n", commandNames);
+    private String[] commandNames;
+    private String allCommands;
 
     public static Auton getInstance() {
         if (mInstance == null) mInstance = new Auton();
@@ -108,6 +107,7 @@ public final class Auton extends SubsystemBase {
     private Auton() {
         commandNames = commands.keySet().toArray(new String[0]);
         Arrays.sort(commandNames);
+        allCommands = String.join("\n", commandNames);
         initTrimmer();
     }
 
@@ -120,7 +120,7 @@ public final class Auton extends SubsystemBase {
     }
 
     public Command getCommand() {
-        return commands.get(commandNames[commandIdx]);
+        return commands.get(commandNames[commandIdx]).andThen(elevator.stepToCommand(Position.LOAD)); // then elevator step to is to fix elevator issue
     }
 
     private void inc(boolean up) {

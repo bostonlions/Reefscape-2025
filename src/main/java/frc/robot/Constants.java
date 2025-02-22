@@ -316,7 +316,7 @@ public final class Constants {
         public static final double extraGroundIntakeTime = .07; //.009 // should be the amount of SECONDS it takes to stop
         public static final double groundIntakeSpeed = 18; //was 0.5
 
-        public static final double extraReefIntakeTime = .25; // should be the amount of SECONDS it takes to stop
+        public static final double extraReefIntakeTime = 0.5; // should be the amount of SECONDS it takes to stop
         public static final double reefIntakeSpeed = 14;
 
         public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
@@ -341,7 +341,7 @@ public final class Constants {
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
             entry(Position.GROUND_INTAKE, -57.),
-            entry(Position.REEF, 66.),
+            entry(Position.REEF, 60.),
             entry(Position.BARGE, 95.),
             entry(Position.LOADED_UP, 95.),
             entry(Position.STOW_UP, 95.),
@@ -367,7 +367,7 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.035)
+                .withKP(0.02)
                 .withKI(0.)
                 .withKD(0.)
                 .withKV(0.)

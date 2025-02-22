@@ -44,6 +44,11 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.moving = false;
 
         initTrimmer();
+
+        markMin(); // so elevator must start at min pos upon robot start
+
+        // shouldn't need these but they fix our issue
+        stepUp();
         stepDown();
     }
 

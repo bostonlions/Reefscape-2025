@@ -55,7 +55,7 @@ public final class RobotContainer {
         );
         // Right back button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
-            new InstantCommand(drive::zeroGyro)
+            new InstantCommand(drive::zeroGyro).ignoringDisable(true)
         );
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */

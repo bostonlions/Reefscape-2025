@@ -279,7 +279,6 @@ public final class Drive extends SubsystemBase {
 
         // Update odometry so we track where we are on the field
         mOdometry.update(mPeriodicIO.heading, getModuleStates());
-        System.out.println("hi we are roboting: " + mPeriodicIO.heading);
 
         updateSetpoint();
 
