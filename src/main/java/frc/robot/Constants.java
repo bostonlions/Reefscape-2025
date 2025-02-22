@@ -313,22 +313,22 @@ public final class Constants {
 
         public static final double nudgeSpeed = 3.;
 
-        public static final double extraGroundIntakeRotations = .07; //.009 // should be the amount of seconds it takes to stop
+        public static final double extraGroundIntakeRotations = .07; //.009 // should be the amount of SECONDS it takes to stop
         public static final double groundIntakeSpeed = 18; //was 0.5
 
-        public static final double extraReefIntakeRotations = .25; // should be the amount of seconds it takes to stop
+        public static final double extraReefIntakeRotations = .25; // should be the amount of SECONDS it takes to stop
         public static final double reefIntakeSpeed = 14;
 
-        public static final double extraProcessorUnloadRotations = 1.;
+        public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
         public static final double processorUnloadSpeed = 18.;
 
-        public static final double extraBargeUnloadRotations = 2.;
+        public static final double extraBargeUnloadRotations = 2.; // should be the amount of ROTATIONS it takes to stop
         public static final double bargeUnloadSpeed = 18;
 
         // Set the cancoder offset to its reading in degrees at exactly horizontal
         // to get that value, set cancoderOffset=o load the code to the robot and
         // look at smart dashboard for the CANCoder Position when it is horizontal
-        public static final double cancoderOffset = -112.5; // -144.759;  38??
+        public static final double cancoderOffset = -27.9;//-112.5; // -144.759;  38??
 
         public enum Position {
             MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
