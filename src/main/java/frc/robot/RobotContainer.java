@@ -15,6 +15,7 @@ import frc.robot.subsystems.*;
 import frc.robot.lib.drivers.ControlBoard;
 import frc.robot.lib.drivers.CustomXboxController.Button;
 import frc.robot.lib.drivers.CustomXboxController.Side;
+import frc.robot.lib.drivers.CustomXboxController.Axis;
 import frc.robot.lib.swerve.SwerveModule;
 
 /**
@@ -28,7 +29,7 @@ public final class RobotContainer {
     private final ControlBoard controller = ControlBoard.getInstance();
     private final Drive drive;
     private final Elevator elevator;
-    // private final ClimberHook climberHook;
+    private final ClimberHook climberHook;
     private final Coral coral;
     private final Algae algae;
     private final Trimmer trimmer;
@@ -64,11 +65,15 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(elevator.markMinCommand());
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
-        // climberHook = ClimberHook.getInstance();
-        // SmartDashboard.putData(climberHook);
-        // new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(
-        //     new InstantCommand(climberHook::toggleTarget, climberHook)
-        // );
+        climberHook = ClimberHook.getInstance();
+        SmartDashboard.putData(climberHook);
+        // new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(climberHook.toggleCommand());
+        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) < -0.5)
+            .onTrue(climberHook.nudgeUpCommand())
+            .onFalse(climberHook.nudgeStopCommand());
+        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) > 0.5)
+            .onTrue(climberHook.nudgeDownCommand())
+            .onFalse(climberHook.nudgeStopCommand());
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();

@@ -242,13 +242,14 @@ public final class Constants {
     }
 
     public static final class ClimberHookConstants {
-        public static final double gearRatio = 4.6*25;
+        public static final double gearRatio = 36.;
         public static final double limitTorque = 100.;
         public static final double limitVelocity = 0.1;
         public static final double extensionTolerance = 0.5;
 
         public static final double fastSpeed = 100;
         public static final double slowSpeed = 10;
+        public static final double nudgeSpeed = 2.;
 
         public enum Position { MIN, IN, OUT, MAX, MANUAL }
         public static final Map<Position, Double> extensions = Map.ofEntries(
