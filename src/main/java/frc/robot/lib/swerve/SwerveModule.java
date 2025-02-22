@@ -3,7 +3,6 @@ package frc.robot.lib.swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.math.util.Units.degreesToRotations;
@@ -83,10 +82,9 @@ public final class SwerveModule extends SubsystemBase {
             SwerveConstants.maxAttainableSpeed
         );
 
-        // TODO - should this be ModuleState.optimize?
         if (shouldReverse(targetAngle, mPeriodicIO.rotationPosition)) {
             mPeriodicIO.targetVelocity = -mPeriodicIO.targetVelocity;
-            targetAngle += 180.0;
+            targetAngle += 180;
         }
 
         targetAngle = MathUtil.inputModulus(targetAngle, mPeriodicIO.rotationPosition - 180,
@@ -127,8 +125,6 @@ public final class SwerveModule extends SubsystemBase {
     public void periodic() {
         /* read periodic inputs */
 
-        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-
         mPeriodicIO.velocity = mDriveMotor.getRotorVelocity().getValue().in(Units.RotationsPerSecond) *
             wheelCircumference / SwerveConstants.driveGearRatio;
 
@@ -154,16 +150,15 @@ public final class SwerveModule extends SubsystemBase {
 
         if (mPeriodicIO.driveControlMode == ControlModeState.Velocity) mDriveMotor.setControl(
             new VelocityTorqueCurrentFOC(mPeriodicIO.driveDemand)
-        ); else mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand)); // TODO: previously this had extra args: true, false, false, false - but I can't find a constructor with that signature
+        ); else mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.driveDemand));
     }
 
     private static final class mPeriodicIO {
         // Inputs
-        public double timestamp = 0.0;
-        public double targetVelocity = 0.0;
-        public double rotationPosition = 0.0;
-        public double drivePosition = 0.0;
-        public double velocity = 0.0;
+        public double targetVelocity = 0.;
+        public double rotationPosition = 0.;
+        public double drivePosition = 0.;
+        public double velocity = 0.;
 
         // Outputs
         public ControlModeState driveControlMode = ControlModeState.PercentOutput;
@@ -171,7 +166,7 @@ public final class SwerveModule extends SubsystemBase {
         public double driveDemand;
     }
 
-    private enum ControlModeState{ PercentOutput, Velocity }
+    private enum ControlModeState { PercentOutput, Velocity }
 
     public int moduleNumber() {
         return kModuleNumber;
@@ -180,18 +175,16 @@ public final class SwerveModule extends SubsystemBase {
     public void setDriveNeutralBrake(boolean wantBrake) {
         if (wantBrake) {
             mDriveMotor.setNeutralMode(NeutralModeValue.Brake);
-            // TODO does this also want to be Brake?
             mAngleMotor.setNeutralMode(NeutralModeValue.Coast);
         } else {
             mDriveMotor.setNeutralMode(NeutralModeValue.Coast);
-            // Brake angle motors when coasting drive
             mAngleMotor.setNeutralMode(NeutralModeValue.Brake);
         }
     }
 
     private boolean shouldReverse(double goalAngle, double currentAngle) {
-        double diff = (goalAngle - currentAngle + 720.) % 360.;
-        return diff > 90. && diff < 270.;
+        double diff = MathUtil.inputModulus(goalAngle - currentAngle, -180, 180);
+        return Math.abs(diff) > 90.;
     }
 
     @Override

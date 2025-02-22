@@ -312,10 +312,10 @@ public final class Constants {
 
         public static final double nudgeSpeed = 3.;
 
-        public static final double extraGroundIntakeRotations = .07; //.009 // should be the amount of secconds it takes to stop
-        public static final double groundIntakeSpeed = 18; //was .5
+        public static final double extraGroundIntakeRotations = .07; //.009 // should be the amount of seconds it takes to stop
+        public static final double groundIntakeSpeed = 18; //was 0.5
 
-        public static final double extraReefIntakeRotations = .25; // should be the amount of secconds it takes to stop
+        public static final double extraReefIntakeRotations = .25; // should be the amount of seconds it takes to stop
         public static final double reefIntakeSpeed = 14;
 
         public static final double extraProcessorUnloadRotations = 1.;

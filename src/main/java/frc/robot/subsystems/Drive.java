@@ -40,9 +40,7 @@ public final class Drive extends SubsystemBase {
     private SwerveConstants.KinematicLimits mKinematicLimits = SwerveConstants.kUncappedLimits;
     private SwerveDriveKinematics kKinematics;
     private static Drive mInstance;
-    public enum DriveControlState { // TODO: which aren't needed?
-        FORCE_ORIENT, OPEN_LOOP, HEADING_CONTROL, VELOCITY, PATH_FOLLOWING, AUTO_BALANCE
-    }
+    public enum DriveControlState { FORCE_ORIENT, OPEN_LOOP, PATH_FOLLOWING }
 
     public static Drive getInstance() {
         if (mInstance == null) mInstance = new Drive();
@@ -78,20 +76,7 @@ public final class Drive extends SubsystemBase {
     // }
 
     private void feedTeleopSetpoint(ChassisSpeeds speeds) {
-        if (mControlState != DriveControlState.OPEN_LOOP && mControlState !=
-            DriveControlState.HEADING_CONTROL) mControlState = DriveControlState.OPEN_LOOP;
-
-        if (mControlState == DriveControlState.HEADING_CONTROL) {
-            if (Math.abs(speeds.omegaRadiansPerSecond) > 1.) mControlState = DriveControlState.OPEN_LOOP;
-            else {
-                double x = speeds.vxMetersPerSecond;
-                double y = speeds.vyMetersPerSecond;
-                double omega = mMotionPlanner.calculateRotationalAdjustment(mPeriodicIO.heading_setpoint.getRadians(),
-                    mPeriodicIO.heading.getRadians()); // I put a neg sign here fyi
-                mPeriodicIO.des_chassis_speeds = new ChassisSpeeds(x, y, omega);
-                return;
-            }
-        }
+        if (mControlState != DriveControlState.OPEN_LOOP) mControlState = DriveControlState.OPEN_LOOP;
         mPeriodicIO.des_chassis_speeds = speeds;
     }
 
@@ -151,7 +136,7 @@ public final class Drive extends SubsystemBase {
                     //System.out.println("getSpeeds " + mPeriodicIO.meas_chassis_speeds);
                     return mPeriodicIO.meas_chassis_speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 },
-                (ChassisSpeeds setPointSpeeds, DriveFeedforwards dff) -> { // TODO: do we need dff?
+                (ChassisSpeeds setPointSpeeds, DriveFeedforwards dff/*unused; not needed*/) -> {
                     mControlState = DriveControlState.PATH_FOLLOWING;
                     mPeriodicIO.des_chassis_speeds = setPointSpeeds;
                     updateSetpoint();
@@ -159,14 +144,7 @@ public final class Drive extends SubsystemBase {
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
                 AutonConstants.ppHolonomicDriveController,
                 AutonConstants.pathPlannerConfig,
-                () -> {
-                    // // Boolean supplier that controls when the path will be mirrored for the red alliance.
-                    // // This will flip the path being followed to the red side of the field.
-                    // // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                    // var alliance = DriverStation.getAlliance(); // TODO: do we want this?
-                    // if (alliance.isPresent()) return alliance.get() == DriverStation.Alliance.Red; // TODO: do we want this?
-                    return false;
-                },
+                () -> false,
                 this
             ));
         } catch (Exception e) {
@@ -302,21 +280,10 @@ public final class Drive extends SubsystemBase {
         // Update odometry so we track where we are on the field
         mOdometry.update(mPeriodicIO.heading, getModuleStates());
 
-        /* write periodic outputs */
         updateSetpoint();
-        boolean isOpenLoop = (
-            mControlState == DriveControlState.OPEN_LOOP || mControlState == DriveControlState.HEADING_CONTROL
-        );
-        boolean isNotOpenLoop = (
-            mControlState == DriveControlState.PATH_FOLLOWING || mControlState == DriveControlState.VELOCITY
-            || mControlState == DriveControlState.AUTO_BALANCE || mControlState == DriveControlState.FORCE_ORIENT
-        );
-        // TODO: are the above all the states? (if so we always enter the if)
-        if (isOpenLoop || isNotOpenLoop) {
-            for (SwerveModule mod : mModules) mod.setDesiredState(
-                mPeriodicIO.des_module_states[mod.moduleNumber()], isOpenLoop
-            );
-        }
+
+        for (SwerveModule mod : mModules) mod.setDesiredState(mPeriodicIO.des_module_states
+            [mod.moduleNumber()], mControlState == DriveControlState.OPEN_LOOP);
 
         for (SwerveModule mod: mModules) mod.periodic(); // read and write module periodic io
     }
@@ -377,7 +344,6 @@ public final class Drive extends SubsystemBase {
             new ModuleState(),
             new ModuleState()
         };
-        Rotation2d heading_setpoint = new Rotation2d();
     }
 
     // private void setConfigs() { // TODO: make trimmer for drive (which will use this)

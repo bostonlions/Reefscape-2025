@@ -217,7 +217,7 @@ public class Algae extends SubsystemBase {
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
         if (mPeriodicIO.targetSpeed != 0) {
             if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
-            
+
             setDriveSpeed(mPeriodicIO.targetSpeed);
         }
     }
@@ -261,12 +261,10 @@ public class Algae extends SubsystemBase {
         switch (mPeriodicIO.driveState) {
             case INTAKE_NO_ALGAE:
                 if (mBeamBreak.get()) {
-                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
-                        (isUp ? // TODO: these extra rotations variables should represent rotations, right?
-                            (AlgaeConstants.extraReefIntakeRotations /*/ AlgaeConstants.reefIntakeSpeed*/) :
-                            (AlgaeConstants.extraGroundIntakeRotations /*/ AlgaeConstants.groundIntakeSpeed*/)
-                        )
-                    );
+                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 * (isUp ?
+                        (AlgaeConstants.extraReefIntakeRotations /*/ AlgaeConstants.reefIntakeSpeed*/) :
+                        (AlgaeConstants.extraGroundIntakeRotations /*/ AlgaeConstants.groundIntakeSpeed*/)
+                    ));
                     mPeriodicIO.driveState = DriveState.INTAKE_WITH_ALGAE;
                 }
 
