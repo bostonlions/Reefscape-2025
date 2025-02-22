@@ -28,8 +28,9 @@ public final class Auton extends SubsystemBase {
     private static final Map<String, Command> commands = Map.ofEntries(
         entry(
             "Drive Test",
-            drive.followPathCommand("backAwayFromReef", true)
+            drive.followPathCommand("CoralInTrough", true)
             .andThen(debug(() -> "Done driving at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
+            .andThen(coral.toggleCommand())
             //.andThen(coral.toggleCommand())
             //.andThen(sleep(1.))
             //.andThen(coral.toggleCommand())
@@ -44,19 +45,19 @@ public final class Auton extends SubsystemBase {
             // .andThen(algae.toggleDriveCommand())
             // .andThen(sleep(2))
             // .andThen(algae.toggleDriveCommand())
-        ),
-        entry(
-            "Parallel example",
-            new ParallelCommandGroup(
-                drive.followPathCommand("backAwayFromReef", true),
-                sleep(1.)
-                .andThen(elevator.stepToCommand(Position.L2))
-                .andThen(algae.toggleDriveCommand())
-                .andThen(coral.toggleCommand())
-                .andThen(sleep(1.))
-                .andThen(elevator.stepToCommand(Position.LOAD))
-            )
-        )
+        )//,
+        // entry(
+        //     "Parallel example",
+        //     new ParallelCommandGroup(
+        //         drive.followPathCommand("backAwayFromReef", true),
+        //         sleep(1.)
+        //         .andThen(elevator.stepToCommand(Position.L2))
+        //         .andThen(algae.toggleDriveCommand())
+        //         .andThen(coral.toggleCommand())
+        //         .andThen(sleep(1.))
+        //         .andThen(elevator.stepToCommand(Position.LOAD))
+        //     )
+        // )
         // entry(
         //     "Flip Algae 2",
         

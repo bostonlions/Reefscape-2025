@@ -85,7 +85,12 @@ public class ClimberHook extends SubsystemBase {
      */
     public void nudge(int direction) {
         double speed = direction * mPeriodicIO.nudgeSpeed * ClimberHookConstants.gearRatio;
-        mMotor.setControl(new MotionMagicVelocityDutyCycle(speed));
+        if (direction != 0) {
+            mMotor.setControl(new MotionMagicVelocityDutyCycle(speed));
+        } else {
+            mMotor.setPosition(0.);
+            mMotor.setControl(new MotionMagicDutyCycle(0.));
+        }
     }
 
     public void toggleTarget() {

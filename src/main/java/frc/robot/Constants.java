@@ -46,7 +46,7 @@ public final class Constants {
         public static final double wheelDiameter = Units.inchesToMeters(4); // was 3.85 but tire is 4 w/tread
 
         /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
-        public static final double driveGearRatio = 4.7628; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?
+        public static final double driveGearRatio = 6.3; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?  maybe 4.7628
         public static final double angleGearRatio = 150./7;
 
         // Swerve Profiling Values
