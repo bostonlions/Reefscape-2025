@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
-// import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -60,8 +59,7 @@ public class Coral extends SubsystemBase {
     }
 
     public void setSetpoint(double speed) {
-        mPeriodicIO.demand = speed; // * CoralConstants.gearRatio;
-        // mMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.demand));
+        mPeriodicIO.demand = speed;
         if (speed == 0) mMotor.setControl(new NeutralOut());
         else mMotor.setControl(new DutyCycleOut(speed));
     }

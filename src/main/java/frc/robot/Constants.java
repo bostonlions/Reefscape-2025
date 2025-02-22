@@ -46,7 +46,7 @@ public final class Constants {
         public static final double wheelDiameter = Units.inchesToMeters(4); // was 3.85 but tire is 4 w/tread
 
         /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
-        public static final double driveGearRatio = 6.12; // was 4.7628 // ((5.3 / 1.07) / 1.04) ?
+        public static final double driveGearRatio = 4.7628; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?
         public static final double angleGearRatio = 150./7;
 
         // Swerve Profiling Values
@@ -249,7 +249,7 @@ public final class Constants {
 
         public static final double fastSpeed = 100;
         public static final double slowSpeed = 10;
-        public static final double nudgeSpeed = 2.;
+        public static final double nudgeSpeed = 0.5;
 
         public enum Position { MIN, IN, OUT, MAX, MANUAL }
         public static final Map<Position, Double> extensions = Map.ofEntries(
@@ -267,7 +267,7 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(30)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.6)
+                .withKP(0.02)
                 .withKI(0.0)
                 .withKD(0.0)
                 .withKV(0.0))
@@ -313,10 +313,10 @@ public final class Constants {
 
         public static final double nudgeSpeed = 3.;
 
-        public static final double extraGroundIntakeRotations = .07; //.009 // should be the amount of SECONDS it takes to stop
+        public static final double extraGroundIntakeTime = .07; //.009 // should be the amount of SECONDS it takes to stop
         public static final double groundIntakeSpeed = 18; //was 0.5
 
-        public static final double extraReefIntakeRotations = .25; // should be the amount of SECONDS it takes to stop
+        public static final double extraReefIntakeTime = .25; // should be the amount of SECONDS it takes to stop
         public static final double reefIntakeSpeed = 14;
 
         public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
@@ -328,7 +328,7 @@ public final class Constants {
         // Set the cancoder offset to its reading in degrees at exactly horizontal
         // to get that value, set cancoderOffset=o load the code to the robot and
         // look at smart dashboard for the CANCoder Position when it is horizontal
-        public static final double cancoderOffset = -27.9;//-112.5; // -144.759;  38??
+        public static final double cancoderOffset = -27.0;//-112.5; // -144.759;  38??
 
         public enum Position {
             MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
@@ -336,18 +336,30 @@ public final class Constants {
 
         // Angles in degrees from horizontal:
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -94.),
-            entry(Position.STOW_DOWN, -94.),
-            entry(Position.PROCESSOR, -59.),
-            entry(Position.LOADED_DOWN, -85.),
-            entry(Position.GROUND_INTAKE, -68.),
-            entry(Position.REEF, 45.),
-            entry(Position.BARGE, 80.),
-            entry(Position.LOADED_UP, 80.),
-            entry(Position.STOW_UP, 100.),
-            entry(Position.MAX, 90.)
+            entry(Position.MIN, -82.),
+            entry(Position.STOW_DOWN, -82.),
+            entry(Position.PROCESSOR, -50.),
+            entry(Position.LOADED_DOWN, -63.),
+            entry(Position.GROUND_INTAKE, -57.),
+            entry(Position.REEF, 66.),
+            entry(Position.BARGE, 95.),
+            entry(Position.LOADED_UP, 95.),
+            entry(Position.STOW_UP, 95.),
+            entry(Position.MAX, 115.)
         );
-
+        // small motion range for testing only
+        // public static final Map<Position, Double> angles = Map.ofEntries(
+        //     entry(Position.MIN, -8.),
+        //     entry(Position.STOW_DOWN, 8.),
+        //     entry(Position.PROCESSOR, -5.),
+        //     entry(Position.LOADED_DOWN, -6.),
+        //     entry(Position.GROUND_INTAKE, -5.),
+        //     entry(Position.REEF, 6.),
+        //     entry(Position.BARGE, 9.),
+        //     entry(Position.LOADED_UP, 9.),
+        //     entry(Position.STOW_UP, 9.),
+        //     entry(Position.MAX, 11.)
+        // );
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
                 .withSupplyCurrentLimitEnable(true)

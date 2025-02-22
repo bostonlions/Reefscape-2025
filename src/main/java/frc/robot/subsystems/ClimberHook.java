@@ -25,6 +25,7 @@ public class ClimberHook extends SubsystemBase {
     private static ClimberHook mInstance;
     private TalonFX mMotor;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private TalonFXConfiguration motorConfig;
 
     public static ClimberHook getInstance() {
         if (mInstance == null) mInstance = new ClimberHook();
@@ -33,7 +34,8 @@ public class ClimberHook extends SubsystemBase {
 
     private ClimberHook() {
         mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_OPS);
-        setConfig(ClimberHookConstants.motorConfig);
+        motorConfig = ClimberHookConstants.motorConfig;
+        setConfig();
 
         setWantNeutralBrake(true);
         setZero();
@@ -46,8 +48,8 @@ public class ClimberHook extends SubsystemBase {
     public Command nudgeDownCommand() { return new InstantCommand(() -> this.nudge(1)); }
     public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudge(0)); }
 
-    private void setConfig(TalonFXConfiguration config) {
-        mMotor.getConfigurator().apply(config);
+    private void setConfig() {
+        mMotor.getConfigurator().apply(motorConfig);
     }
 
     public void disable() {
@@ -73,7 +75,6 @@ public class ClimberHook extends SubsystemBase {
         ClimberHookConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = (
             p == Position.OUT ? ClimberHookConstants.fastSpeed : ClimberHookConstants.slowSpeed
         );
-        setConfig(ClimberHookConstants.motorConfig);
         setWantNeutralBrake(true);
         setSetpointMotionMagic(mPeriodicIO.targetExtension);
     }
@@ -164,6 +165,24 @@ public class ClimberHook extends SubsystemBase {
             "Nudge speed",
             () -> mPeriodicIO.nudgeSpeed,
             (up) -> {mPeriodicIO.nudgeSpeed = Trimmer.increment(mPeriodicIO.nudgeSpeed, 0.01, 0.2, up);}
+        );
+        trimmer.add(
+            "Climberhook",
+            "kP",
+            () -> motorConfig.Slot0.kP,
+            (up) -> {motorConfig.Slot0.kP = Trimmer.increment(motorConfig.Slot0.kP, 0.01, 0.2, up); setConfig();}
+        );
+        trimmer.add(
+            "Climberhook",
+            "kI",
+            () -> motorConfig.Slot0.kI,
+            (up) -> {motorConfig.Slot0.kI = Trimmer.increment(motorConfig.Slot0.kI, 0.01, 0.2, up); setConfig();}
+        );
+        trimmer.add(
+            "Climberhook",
+            "kD",
+            () -> motorConfig.Slot0.kD,
+            (up) -> {motorConfig.Slot0.kD = Trimmer.increment(motorConfig.Slot0.kD, 0.01, 0.2, up); setConfig();}
         );
     }
 }
