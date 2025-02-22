@@ -200,6 +200,7 @@ public final class Constants {
         public static final double limitTorque = 30.;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
+        public static final double resetSpeed = 10.;
 
         // Heights in meters
         // TODO: values are placeholders. Are LOAD, PROCESSOR, and L1 all the same?

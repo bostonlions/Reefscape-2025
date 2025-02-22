@@ -64,6 +64,7 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(elevator.stepDownCommand());
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(elevator.stepUpCommand());
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(elevator.markMinCommand());
+        new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(elevator.forceDownCommand());
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
