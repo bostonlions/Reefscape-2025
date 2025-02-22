@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import static java.util.Map.entry;
 
+import java.util.Arrays;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -60,7 +62,7 @@ public final class Auton extends SubsystemBase {
         // )
         // entry(
         //     "Flip Algae 2",
-        
+
         //     algae.upCommand()
         //     .andThen(sleep(1.))
         //     .andThen(debug(() -> "Flipped up 2 at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
@@ -95,7 +97,7 @@ public final class Auton extends SubsystemBase {
 
     private int commandIdx = 0;
 
-    private static final String[] commandNames = commands.keySet().toArray(new String[0]);
+    private static String[] commandNames;
     private static final String allCommands = String.join("\n", commandNames);
 
     public static Auton getInstance() {
@@ -104,6 +106,8 @@ public final class Auton extends SubsystemBase {
     }
 
     private Auton() {
+        commandNames = commands.keySet().toArray(new String[0]);
+        Arrays.sort(commandNames);
         initTrimmer();
     }
 

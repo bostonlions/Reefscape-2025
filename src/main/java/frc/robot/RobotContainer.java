@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -113,5 +114,10 @@ public final class RobotContainer {
 
     public Command getAutonomousCommand() {
         return auton.getCommand();
+    }
+
+    public void teleopInit() {
+        System.out.println("teleopInit: stopping drive");
+        drive.setTargetSpeeds(new Translation2d(), 0, false);
     }
 }

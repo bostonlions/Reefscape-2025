@@ -256,7 +256,7 @@ public final class Drive extends SubsystemBase {
     }
 
     public void zeroGyro() {
-        zeroGyro(0.);
+        zeroGyro(180.);
     }
 
     private void zeroGyro(double reset) {
