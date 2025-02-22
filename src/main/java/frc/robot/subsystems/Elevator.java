@@ -13,6 +13,7 @@ import static edu.wpi.first.math.util.Units.metersToInches;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -56,6 +57,7 @@ public class Elevator extends SubsystemBase {
     public Command stepUpCommand() { return new InstantCommand(this::stepUp, this); }
     public Command stepDownCommand() { return new InstantCommand(this::stepDown, this); }
     public Command markMinCommand() { return new InstantCommand(this::markMin, this); }
+    public Command forceDownCommand() { return new InstantCommand(this::forceDown, this); }
     public Command stepToCommand(Position p) {
         return new FunctionalCommand(
             () -> { System.out.println("Elevator stepped to " + p); setTarget(p); },
@@ -140,6 +142,11 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.moving = false;
 
         mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
+    }
+
+    /** Lower the elevator slowly until it recognizes that it's stuck at the bottom. */
+    public void forceDown() {
+        mMain.setControl(new MotionMagicVelocityDutyCycle(-ElevatorConstants.resetSpeed));
     }
 
     private static final class PeriodicIO {
