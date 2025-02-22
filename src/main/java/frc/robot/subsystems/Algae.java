@@ -102,9 +102,9 @@ public class Algae extends SubsystemBase {
     public Command upCommand() { return new InstantCommand(() -> this.setPosition(PositionState.UP), this); }
     public Command downCommand() { return new InstantCommand(() -> this.setPosition(PositionState.DOWN), this); }
     public Command toggleDriveCommand() { return new InstantCommand(this::toggleDrive, this); }
-    public Command nudgeRightCommand() { return new InstantCommand(() -> this.nudgeDrive(-1)); }
-    public Command nudgeLeftCommand() { return new InstantCommand(() -> this.nudgeDrive(1)); }
-    public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudgeDrive(0)); }
+    public Command nudgeRightCommand() { return new InstantCommand(() -> this.nudgeDrive(-1), this); }
+    public Command nudgeLeftCommand() { return new InstantCommand(() -> this.nudgeDrive(1), this); }
+    public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudgeDrive(0), this); }
 
     public void setConfigs() {
         mDriveMotor.getConfigurator().apply(driveMotorConfig);
@@ -217,7 +217,7 @@ public class Algae extends SubsystemBase {
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
         if (mPeriodicIO.targetSpeed != 0) {
             if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
-            
+
             setDriveSpeed(mPeriodicIO.targetSpeed);
         }
     }

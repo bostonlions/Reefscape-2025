@@ -2,12 +2,15 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.math.util.Units.degreesToRotations;
@@ -34,7 +37,14 @@ public class ClimberHook extends SubsystemBase {
 
         setWantNeutralBrake(true);
         setZero();
+        initTrimmer();
     }
+
+    /* Commands */
+    public Command toggleCommand() { return new InstantCommand(this::toggleTarget, this); }
+    public Command nudgeUpCommand() { return new InstantCommand(() -> this.nudge(-1)); }
+    public Command nudgeDownCommand() { return new InstantCommand(() -> this.nudge(1)); }
+    public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudge(0)); }
 
     private void setConfig(TalonFXConfiguration config) {
         mMotor.getConfigurator().apply(config);
@@ -68,6 +78,15 @@ public class ClimberHook extends SubsystemBase {
         setSetpointMotionMagic(mPeriodicIO.targetExtension);
     }
 
+    /**
+     * Use xbox left joystick up/down to manually move in/out.
+     * Edit the nudge speed with the trimmer.
+     */
+    public void nudge(int direction) {
+        double speed = direction * mPeriodicIO.nudgeSpeed * ClimberHookConstants.gearRatio;
+        mMotor.setControl(new MotionMagicVelocityDutyCycle(speed));
+    }
+
     public void toggleTarget() {
         double midpoint = (extensions.get(Position.IN) + extensions.get(Position.OUT)) / 2;
         if (mPeriodicIO.extension > midpoint) setTarget(Position.IN); else setTarget(Position.OUT);
@@ -93,6 +112,7 @@ public class ClimberHook extends SubsystemBase {
         private double targetExtension;
         private double demand;
         private double manualTargetExtension = extensions.get(Position.IN);
+        private double nudgeSpeed = ClimberHookConstants.nudgeSpeed;
     }
 
     @Override
@@ -134,5 +154,16 @@ public class ClimberHook extends SubsystemBase {
         builder.addDoubleProperty("Velocity rad_s", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty("Volts", () -> mPeriodicIO.output_voltage, null);
         builder.addDoubleProperty("Current", () -> mPeriodicIO.current, null);
+    }
+
+    private void initTrimmer() {
+        Trimmer trimmer = Trimmer.getInstance();
+
+        trimmer.add(
+            "Climberhook",
+            "Nudge speed",
+            () -> mPeriodicIO.nudgeSpeed,
+            (up) -> {mPeriodicIO.nudgeSpeed = Trimmer.increment(mPeriodicIO.nudgeSpeed, 0.01, 0.2, up);}
+        );
     }
 }
