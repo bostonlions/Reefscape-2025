@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static frc.robot.Constants.ElevatorConstants.positionError;
 import static java.util.Map.entry;
 
 import java.util.Arrays;
@@ -43,7 +44,38 @@ public final class Auton extends SubsystemBase {
             .andThen(elevator.stepToCommand(Position.L4))
             .andThen(coral.toggleCommand())
             .andThen(sleep(1))
-        )
+
+        ), entry("04 - pos2 with algae",
+            new ParallelCommandGroup(
+                drive.followPathCommand("Position2", true),
+                algae.upCommand()
+                .andThen(sleep(1))
+                .andThen(elevator.stepToCommand(Position.L4))
+            )
+            .andThen(coral.toggleCommand())
+            .andThen(sleep(.3))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("FromCoralToAlgae", false),
+                elevator.stepToCommand(Position.LOAD)
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(1.3))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("FrontReefToBarge", false),
+                elevator.stepToCommand(Position.BARGE)
+                //.andThen(sleep(.5))
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(.25))
+            .andThen(drive.followPathCommand("BackUpFromBarge", true))
+
+        )//, entry ("Test", 
+        //     drive.followPathCommand("Position2", true)
+        //     .andThen(drive.followPathCommand("FromCoralToAlgae", false))
+        //     .andThen(drive.followPathCommand("FrontReefToBarge", false))
+        //     .andThen(drive.followPathCommand("BackUpFromBarge", true))
+        //     //.andThen(drive.followPathCommand("BackUpFromBarge", false))
+        // )
 
         /* EXAMPLE AUTON COMMANDS: */
 

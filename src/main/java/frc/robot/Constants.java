@@ -197,10 +197,11 @@ public final class Constants {
         public static final double gearRatio = 9.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
-        public static final double limitTorque = 30.;
+        public static final double bottomLimitTorque = 30.;
+        public static final double topLimitTorque = 50;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
-        public static final double resetSpeed = 10.;
+        public static final double resetSpeed = 0.1;
 
         // Heights in meters
         // TODO: values are placeholders. Are LOAD, PROCESSOR, and L1 all the same?
@@ -318,7 +319,7 @@ public final class Constants {
         public static final double groundIntakeSpeed = 18; //was 0.5
 
         public static final double extraReefIntakeTime = 0.5; // should be the amount of SECONDS it takes to stop
-        public static final double reefIntakeSpeed = 14;
+        public static final double reefIntakeSpeed = 16;
 
         public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
         public static final double processorUnloadSpeed = 18.;
@@ -342,7 +343,7 @@ public final class Constants {
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
             entry(Position.GROUND_INTAKE, -57.),
-            entry(Position.REEF, 60.),
+            entry(Position.REEF, 50.),
             entry(Position.BARGE, 95.),
             entry(Position.LOADED_UP, 95.),
             entry(Position.STOW_UP, 95.),
