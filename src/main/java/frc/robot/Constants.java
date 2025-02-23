@@ -157,15 +157,14 @@ public final class Constants {
         public static final double topLimitTorque = 50;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
-        public static final double resetSpeed = 0.1;
+        public static final double resetDutyCycle = 0.1;
 
         // Heights in meters
-        // TODO: values are placeholders. Are LOAD, PROCESSOR, and L1 all the same?
-        public enum Position { MIN, LOAD, PROCESSOR, L1, L2, L3, L4, BARGE, MAX, MANUAL }
+        // TODO: values are placeholders. Are LOAD, and L1 all the same?
+        public enum Position { MIN, LOAD, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.),
-            entry(Position.LOAD, 0.001),
-            entry(Position.PROCESSOR, 0.01),
+            entry(Position.LOAD, 0.003),
             entry(Position.L1, 0.12),
             entry(Position.L2, 0.32),
             entry(Position.L3, 0.75),
@@ -176,7 +175,7 @@ public final class Constants {
         );
         // These are the positions you can access with step up and down
         public static final List<Position> positionOrder = List.of(
-            Position.LOAD, Position.PROCESSOR, Position.L1, Position.L2, Position.L3, Position.L4, Position.BARGE
+            Position.LOAD, Position.L1, Position.L2, Position.L3, Position.L4, Position.BARGE
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()

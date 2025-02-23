@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static edu.wpi.first.math.util.Units.metersToInches;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -148,7 +150,8 @@ public class Elevator extends SubsystemBase {
     /** Lower the elevator slowly until it recognizes that it's stuck at the bottom. */
     public void forceDown() {
         System.out.println("Elevator forceDown");
-        mMain.setControl(new MotionMagicVelocityVoltage(-ElevatorConstants.resetSpeed));
+        mPeriodicIO.targetHeight = -1000.; // tell it we're going down, so we don't check the upper height limit
+        mMain.setControl(new DutyCycleOut(-ElevatorConstants.resetDutyCycle));
     }
 
     private static final class PeriodicIO {
@@ -182,14 +185,16 @@ public class Elevator extends SubsystemBase {
 
         /* Have we hit the top or bottom? */
         if ((mPeriodicIO.torqueCurrent < -ElevatorConstants.bottomLimitTorque) &&
-            mPeriodicIO.velocity > -ElevatorConstants.limitVelocity
+            (mPeriodicIO.velocity > -ElevatorConstants.limitVelocity) &&
+            (mPeriodicIO.targetHeight < mPeriodicIO.height)
         ) {
             System.out.println("Elevator bottom limit hit, marking min height");
             markMin();
             setTarget(positionOrder.get(0));
         }
         else if ((mPeriodicIO.torqueCurrent > ElevatorConstants.topLimitTorque) &&
-            mPeriodicIO.velocity < ElevatorConstants.limitVelocity
+            (mPeriodicIO.velocity < ElevatorConstants.limitVelocity) &&
+            (mPeriodicIO.targetHeight > mPeriodicIO.height)
         ) {
             System.out.println("Elevator top limit hit, marking max height");
             mMain.setPosition(metersToRotations(heights.get(Position.MAX))); //mark max
