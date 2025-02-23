@@ -21,7 +21,7 @@ import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -44,7 +44,7 @@ public final class Constants {
         /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
         public static final double driveGearRatio = 6.3; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?  maybe 4.7628
         public static final double angleGearRatio = 150./7;
-        public static final double couplingGearRatio = 14./50; // TODO: check if this value is right
+        public static final double couplingGearRatio = 50./14; // TODO: check if this value is right
 
         public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
         public static final double maxAngularVelocity = 8.; //was 8. toggled to 2.0
@@ -65,7 +65,7 @@ public final class Constants {
                 .withKP(0.03)
                 .withKI(0.)
                 .withKD(0.)
-                .withKV(12. / ((maxSpeed / (wheelDiameter * Math.PI)) * driveGearRatio)))
+                .withKV(0.124))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive))
@@ -83,10 +83,12 @@ public final class Constants {
                 .withPeakForwardVoltage(12.)
                 .withPeakReverseVoltage(-12.0))
             .withSlot0(new Slot0Configs()
-                .withKP(0.03)
+                .withKP(1.2)
                 .withKI(0.)
                 .withKD(0.)
-                .withKV(0.))
+                .withKS(0.)
+                .withKV(1.)
+                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withInverted(InvertedValue.Clockwise_Positive));

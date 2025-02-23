@@ -14,7 +14,10 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
@@ -90,15 +93,19 @@ public final class SwerveDrive extends SubsystemBase {
             false, false, false
         )
         .withCouplingGearRatio(SwerveConstants.couplingGearRatio)
-        .withDriveInertia(3.873) // TODO: get this right?
         .withDriveMotorGains(SwerveConstants.driveConfig.Slot0)
         .withDriveMotorGearRatio(SwerveConstants.driveGearRatio)
         .withDriveMotorInitialConfigs(SwerveConstants.driveConfig)
+        .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
+        .withDriveMotorType(DriveMotorArrangement.TalonFX_Integrated)
         .withEncoderInitialConfigs(SwerveConstants.cancoderConfig)
         .withFeedbackSource(SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder)
         .withSteerMotorGains(SwerveConstants.angleConfig.Slot0)
         .withSteerMotorGearRatio(SwerveConstants.angleGearRatio)
         .withSteerMotorInitialConfigs(SwerveConstants.angleConfig)
+        .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
+        .withSteerMotorType(SteerMotorArrangement.TalonFX_Integrated)
+        .withSpeedAt12Volts(SwerveConstants.maxSpeed)
         .withWheelRadius(SwerveConstants.wheelDiameter / 2);
     }
 
@@ -165,12 +172,14 @@ public final class SwerveDrive extends SubsystemBase {
                 new SwerveRequest.ApplyRobotSpeeds()
                     .withSpeeds(requestedSpeeds)
                     .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+                    .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             );
         } else {
             driveTrain.setControl(
                 new SwerveRequest.ApplyFieldSpeeds()
                     .withSpeeds(requestedSpeeds)
                     .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+                    .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             );
         }
     }
