@@ -73,7 +73,7 @@ public class Elevator extends SubsystemBase {
         mFollower.setNeutralMode(wantedMode);
     }
 
-    public void disable() {
+    private void disable() {
         setSetpointMotionMagic(mPeriodicIO.height);
         setNeutralBrake(false);
     }
@@ -107,7 +107,7 @@ public class Elevator extends SubsystemBase {
                 for(int i = 0; i < positionOrder.size(); i++)
                     if (heights.get(positionOrder.get(i)) > mPeriodicIO.manualTargetHeight) return i - 1;
                 return positionOrder.size();
-            } //else:
+            }
             for(int i = positionOrder.size() - 1; i >= 0; i--)
                 if (heights.get(positionOrder.get(i)) < mPeriodicIO.manualTargetHeight) return i + 1;
             return -1;

@@ -49,7 +49,7 @@ public class Coral extends SubsystemBase {
         return new InstantCommand(this::activateCoral, this);
     }
 
-    public void disable() {
+    private void disable() {
         // TODO
     }
 

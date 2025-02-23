@@ -120,7 +120,7 @@ public class Algae extends SubsystemBase {
         );
     }
 
-    public void disable() {
+    private void disable() {
         // TODO
     }
 
@@ -261,7 +261,7 @@ public class Algae extends SubsystemBase {
         switch (mPeriodicIO.driveState) {
             case INTAKE_NO_ALGAE:
                 if (mBeamBreak.get()) {
-                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 * 
+                    mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (isUp ? AlgaeConstants.extraReefIntakeTime : AlgaeConstants.extraGroundIntakeTime)
                     );
                     mPeriodicIO.driveState = DriveState.INTAKE_WITH_ALGAE;

@@ -52,7 +52,7 @@ public class ClimberHook extends SubsystemBase {
         mMotor.getConfigurator().apply(motorConfig);
     }
 
-    public void disable() {
+    private void disable() {
         // TODO
     }
 

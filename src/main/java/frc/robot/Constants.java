@@ -48,6 +48,7 @@ public final class Constants {
         /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
         public static final double driveGearRatio = 4.7628; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?
         public static final double angleGearRatio = 150./7;
+        public static final double couplingGearRatio = 14./50; // TODO: check if this value is right
 
         // Swerve Profiling Values
         public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
@@ -171,17 +172,17 @@ public final class Constants {
         public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
 
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
-            60., // TODO: get this right?
+            57.,
             3.873, // TODO: get this right?
             new ModuleConfig(
                 SwerveConstants.wheelDiameter/2,
                 SwerveConstants.maxAttainableSpeed,
-                1.15, // TODO: get this right? Loooked up online and think 1.15 is correct
+                1.15,
 
                 // .withReduction here is VERY IMPORTANT! Autonomous drive WILL NOT WORK WITHOUT IT
                 DCMotor.getKrakenX60(1).withReduction(SwerveConstants.driveGearRatio),
 
-                111., // TODO: get this right? was 60 changed to 111 per pathplanner suggestion
+                111.,
                 4
             ),
             moduleTranslations[0], moduleTranslations[1], moduleTranslations[2], moduleTranslations[3]

@@ -16,7 +16,6 @@ import frc.robot.lib.drivers.ControlBoard;
 import frc.robot.lib.drivers.CustomXboxController.Button;
 import frc.robot.lib.drivers.CustomXboxController.Side;
 import frc.robot.lib.drivers.CustomXboxController.Axis;
-import frc.robot.lib.swerve.SwerveModule;
 
 /**
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
@@ -27,7 +26,7 @@ import frc.robot.lib.swerve.SwerveModule;
  */
 public final class RobotContainer {
     private final ControlBoard controller = ControlBoard.getInstance();
-    private final Drive drive;
+    private final SwerveDrive drive;
     private final Elevator elevator;
     private final ClimberHook climberHook;
     private final Coral coral;
@@ -39,9 +38,9 @@ public final class RobotContainer {
         CameraServer.startAutomaticCapture(); // Start the Camera
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
-        drive = Drive.getInstance();
+        drive = SwerveDrive.getInstance();
         SmartDashboard.putData(drive);
-        for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
+        // for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(

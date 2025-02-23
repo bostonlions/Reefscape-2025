@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorConstants.Position;
 import frc.robot.subsystems.Algae;
 import frc.robot.subsystems.Coral;
-import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Trimmer;
 
@@ -24,7 +24,7 @@ public final class Auton extends SubsystemBase {
     private static final Algae algae = Algae.getInstance();
     private static final Coral coral = Coral.getInstance();
     private static final Elevator elevator = Elevator.getInstance();
-    private static final Drive drive = Drive.getInstance();
+    private static final SwerveDrive drive = SwerveDrive.getInstance();
     private static final Map<String, Command> commands = Map.ofEntries(
         entry(
             "Drive Test",
@@ -59,7 +59,7 @@ public final class Auton extends SubsystemBase {
         )
         // entry(
         //     "Flip Algae 2",
-        
+
         //     algae.upCommand()
         //     .andThen(sleep(1.))
         //     .andThen(debug(() -> "Flipped up 2 at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
@@ -120,7 +120,6 @@ public final class Auton extends SubsystemBase {
 
     private void inc(boolean up) {
         commandIdx = (commandIdx + commands.size() + (up ? 1 : -1)) % commands.size();
-
     }
 
     @Override
