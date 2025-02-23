@@ -46,7 +46,7 @@ public final class Constants {
         public static final double wheelDiameter = Units.inchesToMeters(4); // was 3.85 but tire is 4 w/tread
 
         /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
-        public static final double driveGearRatio = 4.7628; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?
+        public static final double driveGearRatio = 6.3; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?  maybe 4.7628
         public static final double angleGearRatio = 150./7;
         public static final double couplingGearRatio = 14./50; // TODO: check if this value is right
 
@@ -198,9 +198,11 @@ public final class Constants {
         public static final double gearRatio = 9.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
-        public static final double limitTorque = 30.;
+        public static final double bottomLimitTorque = 30.;
+        public static final double topLimitTorque = 50;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
+        public static final double resetSpeed = 0.1;
 
         // Heights in meters
         // TODO: values are placeholders. Are LOAD, PROCESSOR, and L1 all the same?
@@ -317,8 +319,8 @@ public final class Constants {
         public static final double extraGroundIntakeTime = .07; //.009 // should be the amount of SECONDS it takes to stop
         public static final double groundIntakeSpeed = 18; //was 0.5
 
-        public static final double extraReefIntakeTime = .25; // should be the amount of SECONDS it takes to stop
-        public static final double reefIntakeSpeed = 14;
+        public static final double extraReefIntakeTime = 0.5; // should be the amount of SECONDS it takes to stop
+        public static final double reefIntakeSpeed = 16;
 
         public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
         public static final double processorUnloadSpeed = 18.;
@@ -342,7 +344,7 @@ public final class Constants {
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
             entry(Position.GROUND_INTAKE, -57.),
-            entry(Position.REEF, 66.),
+            entry(Position.REEF, 50.),
             entry(Position.BARGE, 95.),
             entry(Position.LOADED_UP, 95.),
             entry(Position.STOW_UP, 95.),
@@ -368,7 +370,7 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.035)
+                .withKP(0.02)
                 .withKI(0.)
                 .withKD(0.)
                 .withKV(0.)

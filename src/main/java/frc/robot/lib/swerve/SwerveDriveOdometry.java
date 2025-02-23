@@ -100,6 +100,7 @@ public final class SwerveDriveOdometry {
             "Number of modules is not consistent with number of wheel locations provided in constructor"
         );
 
+        
         SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[m_numModules];
         for (int index = 0; index < m_numModules; index++) {
             SwerveModulePosition current = modulePositions[index];
@@ -116,7 +117,8 @@ public final class SwerveDriveOdometry {
 
         m_previousAngle = gyroAngle;
 
-        return new Pose2d(newPose.getTranslation(), gyroAngle);
+        m_poseMeters = new Pose2d(newPose.getTranslation(), gyroAngle);
+        return m_poseMeters;
     }
 
     public Pose2d update(SwerveModulePosition[] modulePositions) {
@@ -133,6 +135,7 @@ public final class SwerveDriveOdometry {
             previous.distanceMeters = current.distanceMeters;
         }
 
-        return m_poseMeters.exp(m_kinematics.toTwist2d(moduleDeltas));
+        m_poseMeters = m_poseMeters.exp(m_kinematics.toTwist2d(moduleDeltas));
+        return m_poseMeters;
     }
 }

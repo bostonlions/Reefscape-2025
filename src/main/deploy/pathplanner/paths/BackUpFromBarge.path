@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.084733606557378,
-        "y": 0.5305840163934442
+        "x": 7.7805,
+        "y": 3.2059999999999995
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.9099385245901646,
-        "y": 0.5545594262295097
+        "x": 7.530507734147771,
+        "y": 3.2040335275063225
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.33452868852459,
-        "y": 1.8492315573770486
+        "x": 7.218545427550823,
+        "y": 3.2059999999999995
       },
       "prevControl": {
-        "x": 5.646209016393442,
-        "y": 1.2498463114754088
+        "x": 7.468545016115221,
+        "y": 3.206453561056153
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.5,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 500.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -57.30053887899812
+    "rotation": -179.91165019789202
   },
   "reversed": false,
   "folder": "ReefScape",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -0.7252242990593415
+    "rotation": 179.85566929688233
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

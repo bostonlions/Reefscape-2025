@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -53,7 +54,7 @@ public final class RobotContainer {
         );
         // Right back button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
-            new InstantCommand(drive::zeroGyro)
+            new InstantCommand(drive::zeroGyro).ignoringDisable(true)
         );
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */
@@ -62,6 +63,7 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(elevator.stepDownCommand());
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(elevator.stepUpCommand());
         new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(elevator.markMinCommand());
+        new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(elevator.forceDownCommand());
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
@@ -112,5 +114,10 @@ public final class RobotContainer {
 
     public Command getAutonomousCommand() {
         return auton.getCommand();
+    }
+
+    public void teleopInit() {
+        System.out.println("teleopInit: stopping drive");
+        drive.setTargetSpeeds(new Translation2d(), 0, false);
     }
 }
