@@ -37,7 +37,7 @@ public final class SwerveDrive extends SubsystemBase {
     private static SwerveDrive instance;
     private SwerveDrivetrain<TalonFX, TalonFX, CANcoder> driveTrain;
     private boolean strafeMode;
-    private ChassisSpeeds requestedSpeeds;
+    private ChassisSpeeds requestedSpeeds = new ChassisSpeeds();
     /** Robot relative */
     public List<Pair<Double, Double>> swerveModulePositions = new ArrayList<>();
 
@@ -159,7 +159,7 @@ public final class SwerveDrive extends SubsystemBase {
     public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe) {
         strafeMode = strafe;
         requestedSpeeds = new ChassisSpeeds(targetSpeed.getX(), targetSpeed.getY(), targetRotationRate);
-
+        
         if (strafe) {
             driveTrain.setControl(
                 new SwerveRequest.ApplyRobotSpeeds()
@@ -195,6 +195,19 @@ public final class SwerveDrive extends SubsystemBase {
         builder.addDoubleProperty("Measured X speed (m_s)", () -> driveTrain.getState().Speeds.vxMetersPerSecond, null);
         builder.addDoubleProperty("Measured Y speed (m_s)", () -> driveTrain.getState().Speeds.vyMetersPerSecond, null);
         builder.addDoubleProperty("Measured Rotation rate (rad_s)", () -> driveTrain.getState().Speeds.omegaRadiansPerSecond, null);
+
+        builder.addDoubleProperty("FR angle voltage", () -> driveTrain.getModules()[0].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FR drive voltage", () -> driveTrain.getModules()[0].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FR cancoder", () -> driveTrain.getModules()[0].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("FL angle voltage", () -> driveTrain.getModules()[1].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FL drive voltage", () -> driveTrain.getModules()[1].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FL cancoder", () -> driveTrain.getModules()[1].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("BR angle voltage", () -> driveTrain.getModules()[2].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BR drive voltage", () -> driveTrain.getModules()[2].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BR cancoder", () -> driveTrain.getModules()[2].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("BL angle voltage", () -> driveTrain.getModules()[3].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BL drive voltage", () -> driveTrain.getModules()[3].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BL cancoder", () -> driveTrain.getModules()[3].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
     }
 
     private void initTrimmer() { // TODO (will use this trimmer for PID - will use Steve's PID finding method with this)

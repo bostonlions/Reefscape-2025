@@ -62,7 +62,7 @@ public final class Constants {
                 .withPeakForwardVoltage(12.)
                 .withPeakReverseVoltage(-12.))
             .withSlot0(new Slot0Configs()
-                .withKP(0.6)
+                .withKP(0.03)
                 .withKI(0.)
                 .withKD(0.)
                 .withKV(12. / ((maxSpeed / (wheelDiameter * Math.PI)) * driveGearRatio)))
@@ -83,7 +83,7 @@ public final class Constants {
                 .withPeakForwardVoltage(12.)
                 .withPeakReverseVoltage(-12.0))
             .withSlot0(new Slot0Configs()
-                .withKP(0.6)
+                .withKP(0.03)
                 .withKI(0.)
                 .withKD(0.)
                 .withKV(0.))
@@ -124,20 +124,20 @@ public final class Constants {
                 4
             ),
             new Translation2d(
-                SwerveDrive.getInstance().swerveModulePositions.get(4).getFirst(),
-                SwerveDrive.getInstance().swerveModulePositions.get(4).getSecond()
-            ),
-            new Translation2d(
-                SwerveDrive.getInstance().swerveModulePositions.get(2).getFirst(),
-                SwerveDrive.getInstance().swerveModulePositions.get(2).getSecond()
-            ),
-            new Translation2d(
                 SwerveDrive.getInstance().swerveModulePositions.get(3).getFirst(),
                 SwerveDrive.getInstance().swerveModulePositions.get(3).getSecond()
             ),
             new Translation2d(
                 SwerveDrive.getInstance().swerveModulePositions.get(1).getFirst(),
                 SwerveDrive.getInstance().swerveModulePositions.get(1).getSecond()
+            ),
+            new Translation2d(
+                SwerveDrive.getInstance().swerveModulePositions.get(2).getFirst(),
+                SwerveDrive.getInstance().swerveModulePositions.get(2).getSecond()
+            ),
+            new Translation2d(
+                SwerveDrive.getInstance().swerveModulePositions.get(0).getFirst(),
+                SwerveDrive.getInstance().swerveModulePositions.get(0).getSecond()
             )
         );
 
