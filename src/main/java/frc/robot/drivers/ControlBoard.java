@@ -1,8 +1,8 @@
-package frc.robot.lib.drivers;
+package frc.robot.drivers;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.Ports;
-import frc.robot.subsystems.Drive;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -58,18 +58,17 @@ public final class ControlBoard {
 
             double scaled_x = MathUtil.applyDeadband(forwardAxis, Math.abs(deadband_vector.getX()));
             double scaled_y = MathUtil.applyDeadband(strafeAxis, Math.abs(deadband_vector.getY()));
-            return new Translation2d(scaled_x, scaled_y).times(Drive.getInstance().getKinematicLimits().kMaxDriveVelocity);
+            return new Translation2d(scaled_x, scaled_y).times(SwerveConstants.maxSpeed);
         }
     }
 
     /** Driver method */
     public double getSwerveRotation() {
         double rotAxis = ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw();
-        rotAxis = ControllerConstants.invertRAxis ? rotAxis : -rotAxis;
-        rotAxis *= speedFactor;
+        rotAxis = (ControllerConstants.invertRAxis ? rotAxis : -rotAxis) * speedFactor;
 
         if (Math.abs(rotAxis) < kSwerveDeadband) return 0.;
-        return Drive.getInstance().getKinematicLimits().kMaxAngularVelocity *
+        return SwerveConstants.maxAngularVelocity *
             (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband)) / (1 - kSwerveDeadband);
     }
 

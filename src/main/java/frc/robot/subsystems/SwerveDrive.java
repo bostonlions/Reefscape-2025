@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -19,6 +22,7 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -34,6 +38,8 @@ public final class SwerveDrive extends SubsystemBase {
     private SwerveDrivetrain<TalonFX, TalonFX, CANcoder> driveTrain;
     private boolean strafeMode;
     private ChassisSpeeds requestedSpeeds;
+    /** Robot relative */
+    public List<Pair<Double, Double>> swerveModulePositions = new ArrayList<>();
 
     public static SwerveDrive getInstance() {
         if (instance == null) instance = new SwerveDrive();
@@ -49,19 +55,19 @@ public final class SwerveDrive extends SubsystemBase {
                 .withPigeon2Configs(new Pigeon2Configuration()),
             getNewSMConstants(
                 Ports.FR_ROTATION, Ports.FR_DRIVE, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset,
-                1, 1
+                (byte) 1, (byte) 1
             ),
             getNewSMConstants(
                 Ports.FL_ROTATION, Ports.FL_DRIVE, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset,
-                -1, 1
+                (byte) -1, (byte) 1
             ),
             getNewSMConstants(
                 Ports.BR_ROTATION, Ports.BR_DRIVE, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset,
-                1, -1
+                (byte) 1, (byte) -1
             ),
             getNewSMConstants(
                 Ports.BL_ROTATION, Ports.BL_DRIVE, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset,
-                -1, -1
+                (byte) -1, (byte) -1
             )
         );
     }
@@ -69,13 +75,18 @@ public final class SwerveDrive extends SubsystemBase {
     private SwerveModuleConstants<
         TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
     > getNewSMConstants(
-        int anglePort, int drivePort, int CANPort, double CANcoderOffset, int xSign, int ySign
+        int anglePort, int drivePort, int CANPort, double CANcoderOffset, byte xSign, byte ySign
     ) {
+        swerveModulePositions.add(new Pair<Double, Double>(
+            xSign * SwerveConstants.trackWidth / 2, ySign * SwerveConstants.wheelBase / 2
+        ));
+
         return new SwerveModuleConstantsFactory<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
         >().createModuleConstants(
             anglePort, drivePort, CANPort, CANcoderOffset,
-            xSign * SwerveConstants.trackWidth / 2, ySign * SwerveConstants.wheelBase / 2,
+            swerveModulePositions.get(swerveModulePositions.size() - 1).getFirst(),
+            swerveModulePositions.get(swerveModulePositions.size() - 1).getSecond(),
             false, false, false
         )
         .withCouplingGearRatio(SwerveConstants.couplingGearRatio)
@@ -169,7 +180,7 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     @Override
-    public void initSendable(SendableBuilder builder) { // TODO
+    public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Swerve Drive");
         builder.setSafeState(this::disable);
         builder.setActuator(true);
@@ -186,7 +197,7 @@ public final class SwerveDrive extends SubsystemBase {
         builder.addDoubleProperty("Measured Rotation rate (rad_s)", () -> driveTrain.getState().Speeds.omegaRadiansPerSecond, null);
     }
 
-    private void initTrimmer() { // TODO
+    private void initTrimmer() { // TODO (will use this trimmer for PID - will use Steve's PID finding method with this)
         Trimmer trimmer = Trimmer.getInstance();
     }
 }

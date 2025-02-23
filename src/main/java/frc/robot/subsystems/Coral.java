@@ -12,8 +12,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Ports;
-import frc.robot.lib.drivers.BeamBreak;
 import frc.robot.Constants.CoralConstants;
+import frc.robot.drivers.BeamBreak;
 
 public class Coral extends SubsystemBase {
     private static Coral mInstance;

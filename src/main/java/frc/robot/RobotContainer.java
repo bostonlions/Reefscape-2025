@@ -12,11 +12,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
-import frc.robot.subsystems.*;
-import frc.robot.lib.drivers.ControlBoard;
-import frc.robot.lib.drivers.CustomXboxController.Button;
-import frc.robot.lib.drivers.CustomXboxController.Side;
-import frc.robot.lib.drivers.CustomXboxController.Axis;
+import frc.robot.drivers.ControlBoard;
+import frc.robot.drivers.CustomXboxController.Axis;
+import frc.robot.drivers.CustomXboxController.Button;
+import frc.robot.drivers.CustomXboxController.Side;
+import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.ClimberHook;
+import frc.robot.subsystems.Coral;
+import frc.robot.subsystems.Algae;
+import frc.robot.subsystems.Trimmer;
 
 /**
  * This class is where the bulk of the robot should be declared, including subsystems, OI devices,
@@ -26,7 +31,7 @@ import frc.robot.lib.drivers.CustomXboxController.Axis;
  * constructor for the {@link Trigger}s
  */
 public final class RobotContainer {
-    private final ControlBoard controller = ControlBoard.getInstance();
+    private final ControlBoard controller;
     private final SwerveDrive drive;
     private final Elevator elevator;
     private final ClimberHook climberHook;
@@ -36,12 +41,13 @@ public final class RobotContainer {
     private final Auton auton;
 
     public RobotContainer() {
+        controller = ControlBoard.getInstance();
+
         CameraServer.startAutomaticCapture(); // Start the Camera
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = SwerveDrive.getInstance();
         SmartDashboard.putData(drive);
-        // for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(
@@ -116,8 +122,8 @@ public final class RobotContainer {
         return auton.getCommand();
     }
 
-    public void teleopInit() {
-        System.out.println("teleopInit: stopping drive");
+    /** To give the {@link SwerveDrive} a clear request if teleop is interrupted */
+    public void teleopInit() { // TODO: test this
         drive.setTargetSpeeds(new Translation2d(), 0, false);
     }
 }

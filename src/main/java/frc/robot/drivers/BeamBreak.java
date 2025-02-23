@@ -1,4 +1,4 @@
-package frc.robot.lib.drivers;
+package frc.robot.drivers;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 

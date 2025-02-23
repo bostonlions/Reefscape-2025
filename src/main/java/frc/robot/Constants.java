@@ -29,16 +29,12 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
-import frc.robot.lib.swerve.SwerveDriveKinematics;
+import frc.robot.subsystems.SwerveDrive;
 
 public final class Constants {
     public static final class SwerveConstants {
-        public static final double kLooperDt = 0.02; // robot loop time - but only used now by swerve
-        public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
-
         // Drivetrain Constants
         public static final double trackWidth = Units.inchesToMeters(24.25);
         public static final double wheelBase = Units.inchesToMeters(24.25);
@@ -50,11 +46,8 @@ public final class Constants {
         public static final double angleGearRatio = 150./7;
         public static final double couplingGearRatio = 14./50; // TODO: check if this value is right
 
-        // Swerve Profiling Values
         public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
-        public static final double maxAccel = 1.;
-        public static final double maxAngularVelocity = 8.0; //was 8.0 toggled to 2.0
-        public static final double maxAngularAccel = 1.;
+        public static final double maxAngularVelocity = 8.; //was 8. toggled to 2.0
 
         /** Max out at 85% to make sure speeds are attainable (4.6 mps) */
         public static final double maxAttainableSpeed = maxSpeed * 0.85;
@@ -103,43 +96,11 @@ public final class Constants {
                 .withAbsoluteSensorDiscontinuityPoint(1.0)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
 
-        public static final class KinematicLimits {
-            public double kMaxDriveVelocity; // m/s
-            public double kMaxAccel; // m/s^2
-            public double kMaxAngularVelocity; // rad/s
-            public double kMaxAngularAccel; // rad/s^2
-
-            public KinematicLimits(
-                double kMaxDriveVelocity, double kMaxAccel, double kMaxAngularVelocity, double kMaxAngularAccel
-            ) {
-                this.kMaxDriveVelocity = kMaxDriveVelocity;
-                this.kMaxAccel = kMaxAccel;
-                this.kMaxAngularVelocity = kMaxAngularVelocity;
-                this.kMaxAngularAccel = kMaxAngularAccel;
-            }
-        }
-
-        public static final KinematicLimits kUncappedLimits = new KinematicLimits(
-            maxSpeed, maxAccel, maxAngularVelocity, maxAngularAccel
-        );
-
-        // public static final KinematicLimits kScoringLimits = new KinematicLimits(
-        //     2.0, Double.MAX_VALUE, Math.PI, 10 * Math.PI
-        // );
-
-        // public static final KinematicLimits kLoadingStationLimits = new KinematicLimits(
-        //     1.5, Double.MAX_VALUE, maxAngularVelocity, Double.MAX_VALUE
-        // );
-
-        // public static final KinematicLimits kAutoLimits = new KinematicLimits(
-        //     maxAttainableSpeed, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE
-        // );
-
         // MODULE CANCODER ANGLE OFFSETS
         // To calibrate:
         // - Tip the robot up on its back side
         // - Align the bevel gears to the right side (from lookers perspective) on all the wheels.
-        // - Make sure all the wheels are in line, then record canCoder offset values (in degrees)
+        // - Make sure all the wheels are in line, then record CANcoder offset values (in degrees)
         //   from shuffleboard
         public static final double FL_AngleOffset = 335.3027;
         public static final double FR_AngleOffset = 89.1211;
@@ -147,30 +108,7 @@ public final class Constants {
         public static final double BR_AngleOffset = 73.2129;
     }
 
-    /** For DriveMotionPlanner */
-    public static final class AutonConstants { // TODO: clean up this class and others when auton sorted out
-        public static final double snapP = 6.;
-        public static final double snapI = 0.5;
-        public static final double snapD = 0.2;
-
-        public static final double kPXController = 6.7;
-        public static final double kPYController = 6.7;
-
-        public static final double kDXController = 0.;
-        public static final double kDYController = 0.;
-
-        public static final double kPThetaController = 2.75; // was 2, changed to 4 -- faster it turns = more wheels slip
-
-        // Constraints for the motion profilied robot angle controller (Radians)
-        public static final double kMaxAngularSpeed = 2 * Math.PI;
-        public static final double kMaxAngularAccel = 2 * Math.PI * kMaxAngularSpeed;
-        public static final double kMaxCentripetalAccel = 10.;
-
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-            new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAccel);
-
-        public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
-
+    public static final class AutonConstants {
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
             57.,
             3.873, // TODO: get this right?
@@ -185,13 +123,30 @@ public final class Constants {
                 111.,
                 4
             ),
-            moduleTranslations[0], moduleTranslations[1], moduleTranslations[2], moduleTranslations[3]
+            new Translation2d(
+                SwerveDrive.getInstance().swerveModulePositions.get(4).getFirst(),
+                SwerveDrive.getInstance().swerveModulePositions.get(4).getSecond()
+            ),
+            new Translation2d(
+                SwerveDrive.getInstance().swerveModulePositions.get(2).getFirst(),
+                SwerveDrive.getInstance().swerveModulePositions.get(2).getSecond()
+            ),
+            new Translation2d(
+                SwerveDrive.getInstance().swerveModulePositions.get(3).getFirst(),
+                SwerveDrive.getInstance().swerveModulePositions.get(3).getSecond()
+            ),
+            new Translation2d(
+                SwerveDrive.getInstance().swerveModulePositions.get(1).getFirst(),
+                SwerveDrive.getInstance().swerveModulePositions.get(1).getSecond()
+            )
         );
 
-        public static final PPHolonomicDriveController ppHolonomicDriveController = new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-            new PIDConstants(5., 0., 0.), // Translation PID constants
-            new PIDConstants(5., 0., 0.) // Rotation PID constants
-        );
+        /** PPHolonomicController is the built in path following controller for holonomic drive trains */
+        public static final PPHolonomicDriveController ppHolonomicDriveController =
+            new PPHolonomicDriveController(
+                new PIDConstants(5., 0., 0.), // Translation PID constants
+                new PIDConstants(5., 0., 0.) // Rotation PID constants
+            );
     }
 
     public static final class ElevatorConstants {
@@ -256,7 +211,7 @@ public final class Constants {
 
         public enum Position { MIN, IN, OUT, MAX, MANUAL }
         public static final Map<Position, Double> extensions = Map.ofEntries(
-            // values are in degrees, but aren't correct yet
+            // TODO: values are in degrees, but aren't correct yet
             entry(Position.MIN, 0.),
             entry(Position.IN, 10.),
             entry(Position.OUT, 180.),
@@ -286,7 +241,8 @@ public final class Constants {
     public static final class CoralConstants {
         public static final double gearRatio = 4.;
         public static final double loadSpeed = 0.75;
-        public static final double extraLoadRotations = 0.03; // if this is 0 we never break from case statement
+        /** If this is 0 we never break from case statement */
+        public static final double extraLoadRotations = 0.03;
         public static final double unloadSpeed = 1.;
         public static final double extraUnloadRotations = 0.2;
 
@@ -328,16 +284,18 @@ public final class Constants {
         public static final double extraBargeUnloadRotations = 2.; // should be the amount of ROTATIONS it takes to stop
         public static final double bargeUnloadSpeed = 18;
 
-        // Set the cancoder offset to its reading in degrees at exactly horizontal
-        // to get that value, set cancoderOffset=o load the code to the robot and
-        // look at smart dashboard for the CANCoder Position when it is horizontal
-        public static final double cancoderOffset = -27.0;//-112.5; // -144.759;  38??
+        /**
+         * Set this to CANcoder's reading in degrees at exactly horizontal.
+         * To get that value, set this to 0, load the code to the robot and
+         * look at smart dashboard for the CANcoder position when it is horizontal.
+         */
+        public static final double cancoderOffset = -27.; // -112.5; // -144.759;  38??
 
         public enum Position {
             MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
         }
 
-        // Angles in degrees from horizontal:
+        /** Angles in degrees from horizontal */
         public static final Map<Position, Double> angles = Map.ofEntries(
             entry(Position.MIN, -82.),
             entry(Position.STOW_DOWN, -82.),
@@ -350,7 +308,8 @@ public final class Constants {
             entry(Position.STOW_UP, 95.),
             entry(Position.MAX, 115.)
         );
-        // small motion range for testing only
+
+        // /** Small motion range for testing only */
         // public static final Map<Position, Double> angles = Map.ofEntries(
         //     entry(Position.MIN, -8.),
         //     entry(Position.STOW_DOWN, 8.),
@@ -393,16 +352,16 @@ public final class Constants {
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
                 .withKP(1.65) //6.5 w 9
-                .withKI(0.04) //.09 w 9
+                .withKI(0.04) // .09 w 9
                 .withKD(0.012)
-                .withKV(0.0)
-                .withKA(0.0)
-                .withKS(0.0)
+                .withKV(0.)
+                .withKA(0.)
+                .withKS(0.)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(8.3) //42 w9
                 .withMotionMagicExpo_kA(0.3)
-               // .withMotionMagicJerk(1600)
+                // .withMotionMagicJerk(1600)
                 .withMotionMagicAcceleration(1.5)) // 10 w9
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
@@ -416,9 +375,12 @@ public final class Constants {
     }
 
     public static final class ControllerConstants {
-        // Max says trimming joystick input by a percent is the best way to limit speed
-        // that way the autonomous system doesn't get messed up
-        public static final double kInputClipping =.6; // set to 1 for  100% of joystick range
+        /**
+         * Max says trimming joystick input by a percent is the best way to
+         * limit speed; that way the autonomous system doesn't get messed up.
+         * <p> Set to 1 for 100% of joystick range
+         */
+        public static final double kInputClipping = 0.6;
 
         public static final double kTriggerThreshold = 0.2;
 
@@ -435,8 +397,7 @@ public final class Constants {
         // Mambo controller doesn't need any of the calibrations below
         public static final boolean isMambo = true;
 
-        // if not Mambo there are 2 controllers with the same mechanics,
-        // but different calibrations
+        // If not Mambo there are 2 controllers with the same mechanics, but different calibrations
         public static final boolean isC1 = true;
 
         // Controller 1 left side:

@@ -20,9 +20,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import frc.robot.Ports;
-import frc.robot.lib.drivers.BeamBreak;
 import frc.robot.Constants.AlgaeConstants;
 import frc.robot.Constants.AlgaeConstants.Position;
+import frc.robot.drivers.BeamBreak;
 
 import static frc.robot.Constants.AlgaeConstants.angleMotorConfig;
 import static frc.robot.Constants.AlgaeConstants.driveMotorConfig;
