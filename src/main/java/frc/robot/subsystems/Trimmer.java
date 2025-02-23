@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.util.function.BooleanConsumer;
@@ -43,6 +44,7 @@ public final class Trimmer extends SubsystemBase {
             subsystems.add(subsystem);
             items.add(new ArrayList<>());
             subsystemsArray = subsystems.toArray(new String[0]);
+            Arrays.sort(subsystemsArray);
         }
         items.get(ssIndex).add(item);
         setItem();

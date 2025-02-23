@@ -3,7 +3,6 @@ package frc.robot;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static frc.robot.Constants.ElevatorConstants.positionError;
 import static java.util.Map.entry;
 
 import java.util.Arrays;
@@ -29,7 +28,9 @@ public final class Auton extends SubsystemBase {
     private static final Elevator elevator = Elevator.getInstance();
     private static final Drive drive = Drive.getInstance();
     private static final Map<String, Command> commands = Map.ofEntries(
-        entry("01 - Position 1",
+        // start with an empty command for safety
+        entry("00 - None", debug(() -> "Autonomous started with no command chosen")
+        ), entry("01 - Position 1",
             drive.followPathCommand("Position1", true)
             .andThen(elevator.stepToCommand(Position.L4))
             .andThen(coral.toggleCommand())
