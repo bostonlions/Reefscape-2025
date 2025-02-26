@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
-import static edu.wpi.first.math.util.Units.degreesToRotations;
-
 import frc.robot.Constants.ClimberHookConstants;
 import frc.robot.Constants.ClimberHookConstants.Position;
 import frc.robot.Ports;
@@ -40,7 +38,7 @@ public class ClimberHook extends SubsystemBase {
         setConfig();
 
         setWantNeutralBrake(true);
-        markStowed();
+        markPosition(Position.STOW);
         initTrimmer();
     }
 
@@ -65,8 +63,8 @@ public class ClimberHook extends SubsystemBase {
         // TODO
     }
 
-    public void markStowed() {
-        mMotor.setPosition(extensions.get(Position.STOW));
+    public void markPosition(Position p) {
+        mMotor.setPosition(extensions.get(p) * ClimberHookConstants.gearRatio);
     }
 
     public void setWantNeutralBrake(boolean brake) {
@@ -74,15 +72,15 @@ public class ClimberHook extends SubsystemBase {
         mMotor.setNeutralMode(mode);
     }
 
-    public void setSetpointMotionMagic(double degrees) {
-        mPeriodicIO.demand = degreesToRotations(degrees) * ClimberHookConstants.gearRatio;
+    public void setSetpointMotionMagic(double winchRotations) {
+        mPeriodicIO.demand = winchRotations * ClimberHookConstants.gearRatio;
         mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
     }
 
     public void setTarget(Position p) {
         mPeriodicIO.targetExtension = p == Position.MANUAL ? mPeriodicIO.manualTargetExtension : extensions.get(p);
         ClimberHookConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = (
-            p == Position.CLIMBED ? ClimberHookConstants.climbSpeed : ClimberHookConstants.extendSpeed
+            (p == Position.CLIMBED ? ClimberHookConstants.climbSpeed : ClimberHookConstants.extendSpeed) * ClimberHookConstants.gearRatio
         );
         setWantNeutralBrake(true);
         setSetpointMotionMagic(mPeriodicIO.targetExtension);
@@ -97,8 +95,8 @@ public class ClimberHook extends SubsystemBase {
         if (direction != 0) {
             mMotor.setControl(new MotionMagicVelocityDutyCycle(speed));
         } else {
-            mMotor.setPosition(0.);
-            mMotor.setControl(new MotionMagicDutyCycle(0.));
+            mPeriodicIO.demand = mMotor.getRotorPosition().getValueAsDouble();
+            mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
         }
     }
 
@@ -127,23 +125,21 @@ public class ClimberHook extends SubsystemBase {
 
     @Override
     public void periodic() {
-        mPeriodicIO.extension = mMotor.getRotorPosition().getValue().in(Units.Degrees) / ClimberHookConstants.gearRatio;
+        mPeriodicIO.extension = mMotor.getRotorPosition().getValueAsDouble() / ClimberHookConstants.gearRatio;
         mPeriodicIO.current = mMotor.getTorqueCurrent().getValue().in(Units.Amps);
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
-        mPeriodicIO.velocity = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / ClimberHookConstants.gearRatio;
+        mPeriodicIO.velocity = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond);
 
         // Have we hit the min or max?
         if ((mPeriodicIO.current < -ClimberHookConstants.limitTorque) &&
             mPeriodicIO.velocity > -ClimberHookConstants.limitVelocity
         ) {
-            mMotor.setPosition(degreesToRotations(extensions.get(Position.MIN)) *
-                ClimberHookConstants.gearRatio); //mark min
+            markPosition(Position.MIN);
             setTarget(Position.CLIMBED);
         } else if ((mPeriodicIO.current > ClimberHookConstants.limitTorque) &&
             mPeriodicIO.velocity < ClimberHookConstants.limitVelocity
         ) {
-            mMotor.setPosition(degreesToRotations(extensions.get(Position.MAX)) *
-                ClimberHookConstants.gearRatio); //mark max
+            markPosition(Position.MAX);
             setTarget(Position.DROP);
         }
 
@@ -158,9 +154,9 @@ public class ClimberHook extends SubsystemBase {
         builder.setSafeState(this::disable);
         builder.setActuator(true);
 
-        builder.addDoubleProperty("Angle (degrees)", () -> mPeriodicIO.extension, null);
+        builder.addDoubleProperty("Winch Rotations", () -> mPeriodicIO.extension, null);
         builder.addDoubleProperty("Motor Rotations", () -> mMotor.getRotorPosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("Demand", () -> mPeriodicIO.demand, null);
+        builder.addDoubleProperty("Demand Winch Rot", () -> mPeriodicIO.demand, null);
         builder.addDoubleProperty("Velocity rad_s", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty("Volts", () -> mPeriodicIO.output_voltage, null);
         builder.addDoubleProperty("Current", () -> mPeriodicIO.current, null);
