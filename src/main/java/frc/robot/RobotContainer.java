@@ -63,19 +63,22 @@ public final class RobotContainer {
         SmartDashboard.putData(elevator);
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(elevator.stepDownCommand());
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(elevator.stepUpCommand());
-        new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(elevator.markMinCommand());
+        // new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(elevator.markMinCommand());
         new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(elevator.forceDownCommand());
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
         SmartDashboard.putData(climberHook);
-        // new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(climberHook.toggleCommand());
         new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) < -0.5)
             .onTrue(climberHook.nudgeUpCommand())
             .onFalse(climberHook.nudgeStopCommand());
         new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) > 0.5)
             .onTrue(climberHook.nudgeDownCommand())
             .onFalse(climberHook.nudgeStopCommand());
+        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) > 0.5)
+            .onTrue(climberHook.extendCommand());
+        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) < -0.5)
+            .onTrue(climberHook.climbCommand());
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();
