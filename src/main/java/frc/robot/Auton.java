@@ -56,7 +56,7 @@ public final class Auton extends SubsystemBase {
             .andThen(coral.toggleCommand())
             .andThen(sleep(.3))
             .andThen(new ParallelCommandGroup(
-                drive.followPathCommand("FromCoralToAlgae", false),
+                drive.followPathCommand("FrontCoralToAlgae", false),
                 elevator.stepToCommand(Position.LOAD)
             ))
             .andThen(algae.toggleDriveCommand())
@@ -68,9 +68,36 @@ public final class Auton extends SubsystemBase {
             ))
             .andThen(algae.toggleDriveCommand())
             .andThen(sleep(.25))
-            .andThen(drive.followPathCommand("BackUpFromBarge", true))
+            .andThen(drive.followPathCommand("BackUpFromBarge", false))
 
-        )//, entry ("Test", 
+        ), entry("05 - pos1 with algae", 
+            new ParallelCommandGroup(
+                drive.followPathCommand("Position1", true),
+                algae.upCommand()
+                .andThen(sleep(1))
+                .andThen(elevator.stepToCommand(Position.L4))
+            )
+            .andThen(coral.toggleCommand())
+            .andThen(sleep(.3))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("RightCoralToAlgae", false),
+                elevator.stepToCommand(Position.L2)
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(1.3))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("RightReefToBarge", false),
+                elevator.stepToCommand(Position.BARGE)
+                .andThen(sleep(.5))
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(.25))
+            .andThen(drive.followPathCommand("BackUpFromBarge", false))
+        )
+        
+        
+        
+        //, entry ("Test", 
         //     drive.followPathCommand("Position2", true)
         //     .andThen(drive.followPathCommand("FromCoralToAlgae", false))
         //     .andThen(drive.followPathCommand("FrontReefToBarge", false))

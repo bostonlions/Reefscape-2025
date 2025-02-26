@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.71225,
-        "y": 6.238249999999999
+        "x": 4.829,
+        "y": 5.651199999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.99075,
-        "y": 6.45275
+        "x": 5.040001848317606,
+        "y": 5.517117115161725
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "rightReef"
     },
     {
       "anchor": {
-        "x": 5.859749999999999,
-        "y": 6.238249999999999
+        "x": 5.149,
+        "y": 5.466
       },
       "prevControl": {
-        "x": 6.737249999999999,
-        "y": 6.4625
+        "x": 4.932095502290085,
+        "y": 5.5903078391462495
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "rightReefAlgae"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 59.7435628364707
   },
   "reversed": false,
-  "folder": "ReefScape",
+  "folder": "05 - Pos 1 with Algae",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 60.16446089973837
   },
   "useDefaultConstraints": true
 }
