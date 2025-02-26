@@ -12,6 +12,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 import static edu.wpi.first.math.util.Units.degreesToRotations;
 
@@ -38,15 +40,22 @@ public class ClimberHook extends SubsystemBase {
         setConfig();
 
         setWantNeutralBrake(true);
-        setZero();
+        markStowed();
         initTrimmer();
     }
 
     /* Commands */
-    public Command toggleCommand() { return new InstantCommand(this::toggleTarget, this); }
-    public Command nudgeUpCommand() { return new InstantCommand(() -> this.nudge(-1)); }
-    public Command nudgeDownCommand() { return new InstantCommand(() -> this.nudge(1)); }
-    public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudge(0)); }
+    public Command nudgeUpCommand() { return new InstantCommand(() -> nudge(-1)); }
+    public Command nudgeDownCommand() { return new InstantCommand(() -> nudge(1)); }
+    public Command nudgeStopCommand() { return new InstantCommand(() -> nudge(0)); }
+    public Command gotoCommand(Position p) { return new InstantCommand(() -> setTarget(p)); }
+    public Command extendCommand() { return gotoCommand(Position.LATCH); }
+    public Command climbCommand() {
+        return gotoCommand(Position.DROP)
+            .andThen(new WaitUntilCommand(() -> !mPeriodicIO.moving))
+            .andThen(new WaitCommand(ClimberHookConstants.climbDelay))
+            .andThen(gotoCommand(Position.CLIMBED));
+    }
 
     private void setConfig() {
         mMotor.getConfigurator().apply(motorConfig);
@@ -56,8 +65,8 @@ public class ClimberHook extends SubsystemBase {
         // TODO
     }
 
-    public void setZero() {
-        mMotor.setPosition(0);
+    public void markStowed() {
+        mMotor.setPosition(extensions.get(Position.STOW));
     }
 
     public void setWantNeutralBrake(boolean brake) {
@@ -73,7 +82,7 @@ public class ClimberHook extends SubsystemBase {
     public void setTarget(Position p) {
         mPeriodicIO.targetExtension = p == Position.MANUAL ? mPeriodicIO.manualTargetExtension : extensions.get(p);
         ClimberHookConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = (
-            p == Position.OUT ? ClimberHookConstants.fastSpeed : ClimberHookConstants.slowSpeed
+            p == Position.CLIMBED ? ClimberHookConstants.climbSpeed : ClimberHookConstants.extendSpeed
         );
         setWantNeutralBrake(true);
         setSetpointMotionMagic(mPeriodicIO.targetExtension);
@@ -91,11 +100,6 @@ public class ClimberHook extends SubsystemBase {
             mMotor.setPosition(0.);
             mMotor.setControl(new MotionMagicDutyCycle(0.));
         }
-    }
-
-    public void toggleTarget() {
-        double midpoint = (extensions.get(Position.IN) + extensions.get(Position.OUT)) / 2;
-        if (mPeriodicIO.extension > midpoint) setTarget(Position.IN); else setTarget(Position.OUT);
     }
 
     public double getAngleDeg() {
@@ -117,7 +121,7 @@ public class ClimberHook extends SubsystemBase {
         // Outputs
         private double targetExtension;
         private double demand;
-        private double manualTargetExtension = extensions.get(Position.IN);
+        private double manualTargetExtension = extensions.get(Position.STOW);
         private double nudgeSpeed = ClimberHookConstants.nudgeSpeed;
     }
 
@@ -128,19 +132,19 @@ public class ClimberHook extends SubsystemBase {
         mPeriodicIO.output_voltage = mMotor.getMotorVoltage().getValue().in(Units.Volts);
         mPeriodicIO.velocity = mMotor.getVelocity().getValue().in(Units.RotationsPerSecond) / ClimberHookConstants.gearRatio;
 
-        // Have we hit the top or bottom?
+        // Have we hit the min or max?
         if ((mPeriodicIO.current < -ClimberHookConstants.limitTorque) &&
             mPeriodicIO.velocity > -ClimberHookConstants.limitVelocity
         ) {
             mMotor.setPosition(degreesToRotations(extensions.get(Position.MIN)) *
                 ClimberHookConstants.gearRatio); //mark min
-            setTarget(Position.IN);
+            setTarget(Position.CLIMBED);
         } else if ((mPeriodicIO.current > ClimberHookConstants.limitTorque) &&
             mPeriodicIO.velocity < ClimberHookConstants.limitVelocity
         ) {
             mMotor.setPosition(degreesToRotations(extensions.get(Position.MAX)) *
                 ClimberHookConstants.gearRatio); //mark max
-            setTarget(Position.OUT);
+            setTarget(Position.DROP);
         }
 
         // Have we finished moving?

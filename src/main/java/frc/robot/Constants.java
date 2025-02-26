@@ -248,16 +248,19 @@ public final class Constants {
         public static final double limitVelocity = 0.1;
         public static final double extensionTolerance = 0.5;
 
-        public static final double fastSpeed = 100;
-        public static final double slowSpeed = 10;
+        public static final double extendSpeed = 3.;
+        public static final double climbSpeed = 1.;
         public static final double nudgeSpeed = 0.5;
+        public static final double climbDelay = 0.5;  // seconds to wait at DROP before climbing
 
-        public enum Position { MIN, IN, OUT, MAX, MANUAL }
+        public enum Position { MIN, CLIMBED, STOW, LATCH, DROP, MAX, MANUAL }
         public static final Map<Position, Double> extensions = Map.ofEntries(
             // values are in degrees, but aren't correct yet
             entry(Position.MIN, 0.),
-            entry(Position.IN, 10.),
-            entry(Position.OUT, 180.),
+            entry(Position.CLIMBED, 10.),
+            entry(Position.STOW, 100.),
+            entry(Position.LATCH, 150.),
+            entry(Position.DROP, 180.),
             entry(Position.MAX, 200.)
         );
 

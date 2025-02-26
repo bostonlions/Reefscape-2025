@@ -69,13 +69,16 @@ public final class RobotContainer {
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
         SmartDashboard.putData(climberHook);
-        // new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(climberHook.toggleCommand());
         new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) < -0.5)
             .onTrue(climberHook.nudgeUpCommand())
             .onFalse(climberHook.nudgeStopCommand());
         new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) > 0.5)
             .onTrue(climberHook.nudgeDownCommand())
             .onFalse(climberHook.nudgeStopCommand());
+        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) > 0.5)
+            .onTrue(climberHook.extendCommand());
+        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) < -0.5)
+            .onTrue(climberHook.climbCommand());
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();
