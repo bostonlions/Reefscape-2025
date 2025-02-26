@@ -3,7 +3,12 @@
   "robotLength": 0.91,
   "holonomicMode": true,
   "pathFolders": [
-    "ReefScape"
+    "01 - Position1",
+    "02- Position 2",
+    "03 - Position3",
+    "04 - Pos 2 with Algae",
+    "05 - Pos 1 with Algae",
+    "Shared"
   ],
   "autoFolders": [],
   "defaultMaxVel": 0.5,

@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.7499999999999964,
-        "y": 3.93
+        "x": 6.618789757572317,
+        "y": 4.214246483595963
       },
       "isLocked": false,
       "linkedName": "frontReefAlgae"
     },
     {
       "anchor": {
-        "x": 7.7742439094307825,
-        "y": 3.93
+        "x": 7.7805,
+        "y": 5.25
       },
       "prevControl": {
-        "x": 6.7742439094307825,
-        "y": 3.93
+        "x": 7.020569703198187,
+        "y": 4.969592781372599
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "barge"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.98853163238033
+    "rotation": 179.92599379524518
   },
   "reversed": false,
-  "folder": "ReefScape",
+  "folder": "04 - Pos 2 with Algae",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

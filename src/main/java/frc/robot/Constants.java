@@ -243,9 +243,9 @@ public final class Constants {
     }
 
     public static final class ClimberHookConstants {
-        public static final double gearRatio = 36.;
+        public static final double gearRatio = 80.;
         public static final double limitTorque = 100.;
-        public static final double limitVelocity = 0.1;
+        public static final double limitVelocity = 1;
         public static final double extensionTolerance = 0.5;
 
         public static final double fastSpeed = 100;
@@ -317,8 +317,8 @@ public final class Constants {
         public static final double extraGroundIntakeTime = .07; //.009 // should be the amount of SECONDS it takes to stop
         public static final double groundIntakeSpeed = 18; //was 0.5
 
-        public static final double extraReefIntakeTime = 0.5; // should be the amount of SECONDS it takes to stop
-        public static final double reefIntakeSpeed = 16;
+        public static final double extraReefIntakeTime = 0.4; // should be the amount of SECONDS it takes to stop
+        public static final double reefIntakeSpeed = 20;
 
         public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
         public static final double processorUnloadSpeed = 18.;
@@ -342,7 +342,7 @@ public final class Constants {
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
             entry(Position.GROUND_INTAKE, -57.),
-            entry(Position.REEF, 50.),
+            entry(Position.REEF, 60.),
             entry(Position.BARGE, 95.),
             entry(Position.LOADED_UP, 95.),
             entry(Position.STOW_UP, 95.),
