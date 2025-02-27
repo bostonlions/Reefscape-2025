@@ -249,8 +249,8 @@ public final class Constants {
         public static final double extensionTolerance = 0.1;
 
         // TODO: figure out these values
-        public static final double extendSpeed = 3.;
-        public static final double climbSpeed = 1.;
+        public static final double extendSpeed = 2.5;
+        public static final double climbSpeed = 2.5;
         public static final double nudgeSpeed = 0.5;
         public static final double climbDelay = 0.5;  // seconds to wait at DROP before climbing
 
@@ -258,12 +258,12 @@ public final class Constants {
         public static final Map<Position, Double> extensions = Map.ofEntries(
             // values are in winch rotations
             // TODO figure out these values (and if the sign is even right!)
-            entry(Position.MIN, 0.),
-            entry(Position.CLIMBED, 2.),
-            entry(Position.STOW, 10.),
-            entry(Position.LATCH, 15.),
-            entry(Position.DROP, 18.),
-            entry(Position.MAX, 20.)
+            entry(Position.MIN, -4.5),
+            entry(Position.CLIMBED, -4.11),
+            entry(Position.STOW, 0.), // front of prop hitting circle at front of hook
+            entry(Position.LATCH, 0.99), // front of prop hitting back of hook top plate
+            entry(Position.DROP, 1.5),
+            entry(Position.MAX, 3.)
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()
