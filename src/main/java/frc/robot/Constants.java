@@ -261,8 +261,8 @@ public final class Constants {
             entry(Position.MIN, -4.5),
             entry(Position.CLIMBED, -4.11),
             entry(Position.STOW, 0.), // front of prop hitting circle at front of hook
-            entry(Position.LATCH, 0.99), // front of prop hitting back of hook top plate
-            entry(Position.DROP, 1.5),
+            entry(Position.LATCH, 0.30), //.99 front of prop hitting back of hook top plate
+            entry(Position.DROP, 1.5), //
             entry(Position.MAX, 3.)
         );
 
@@ -421,7 +421,7 @@ public final class Constants {
     public static final class ControllerConstants {
         // Max says trimming joystick input by a percent is the best way to limit speed
         // that way the autonomous system doesn't get messed up
-        public static final double kInputClipping =.6; // set to 1 for  100% of joystick range
+        public static final double kInputClipping = 1; // set to 1 for  100% of joystick range
 
         public static final double kTriggerThreshold = 0.2;
 

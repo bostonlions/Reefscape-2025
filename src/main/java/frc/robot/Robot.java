@@ -9,6 +9,8 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ClimberHookConstants.Position;
+import frc.robot.subsystems.ClimberHook;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -64,7 +66,8 @@ public final class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         CommandScheduler.getInstance().cancelAll(); // Cancels all running commands at the start
-
+        //m_robotContainer.climberHook.markPosition(Position )
+        
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
