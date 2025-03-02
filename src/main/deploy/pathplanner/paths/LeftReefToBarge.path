@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.7805,
-        "y": 5.25
+        "x": 5.245,
+        "y": 2.775
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.530507734147771,
-        "y": 5.248033527506323
+        "x": 6.170323829559802,
+        "y": 2.9425160852595367
       },
       "isLocked": false,
-      "linkedName": "barge"
+      "linkedName": "LeftReefAlgae"
     },
     {
       "anchor": {
-        "x": 6.6,
+        "x": 6.747000000000001,
+        "y": 3.6545000000000005
+      },
+      "prevControl": {
+        "x": 6.439526982891181,
+        "y": 3.3470269828911796
+      },
+      "nextControl": {
+        "x": 7.127249999999998,
+        "y": 4.03475
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.7805,
         "y": 5.25
       },
       "prevControl": {
-        "x": 6.849999588564398,
-        "y": 5.250453561056153
+        "x": 7.380749999999999,
+        "y": 4.9805
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "barge"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +50,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.0,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 500.0,
     "nominalVoltage": 12.0,
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -179.91165019789202
+    "rotation": 179.92599379524518
   },
   "reversed": false,
-  "folder": "Shared",
+  "folder": "06 - Pos 3 with Algae",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.92599379524518
+    "rotation": -59.675262381527595
   },
   "useDefaultConstraints": false
 }

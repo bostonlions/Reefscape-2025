@@ -36,8 +36,12 @@ import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public final class Constants {
     public static final class SwerveConstants {
-        public static final double kLooperDt = 0.02; // robot loop time - but only used now by swerve
-        public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
+        /** Robot loop time - but only used by swerve */
+        public static final double kLooperDt = 0.02;
+        /** Always ensure Gyro is CCW+ CW- */
+        public static final boolean invertGyro = false;
+        /** The speed reduction when drive is in strafe mode; drive speed gets divided by this */
+        public static final double strafeReduction = 2.;
 
         // Drivetrain Constants
         public static final double trackWidth = Units.inchesToMeters(24.25);
@@ -52,7 +56,7 @@ public final class Constants {
         // Swerve Profiling Values
         public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
         public static final double maxAccel = 1.;
-        public static final double maxAngularVelocity = 8.0; //was 8.0 toggled to 2.0
+        public static final double maxAngularVelocity = 8.; //was 8.0 toggled to 2.0
         public static final double maxAngularAccel = 1.;
 
         /** Max out at 85% to make sure speeds are attainable (4.6 mps) */
@@ -68,9 +72,9 @@ public final class Constants {
                 .withPeakForwardVoltage(12.)
                 .withPeakReverseVoltage(-12.))
             .withSlot0(new Slot0Configs()
-                .withKP(4.0)
-                .withKI(0.0)
-                .withKD(0.0)
+                .withKP(4.)
+                .withKI(0.)
+                .withKD(0.)
                 .withKV(12. / ((maxSpeed / (wheelDiameter * Math.PI)) * driveGearRatio)))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
@@ -203,21 +207,21 @@ public final class Constants {
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
         public static final double resetDutyCycle = 0.1;
 
-        // Heights in meters
-        // TODO: values are placeholders. Are LOAD, and L1 all the same?
+        // TODO: values are placeholders. Are LOAD and L1 all the same?
+        /** Heights in meters */
         public enum Position { MIN, LOAD, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
-            entry(Position.MIN, 0.),
-            entry(Position.LOAD, 0.003),
-            entry(Position.L1, 0.12),
-            entry(Position.L2, 0.32),
+            entry(Position.MIN, 0.06), // increased by 0.06
+            entry(Position.LOAD, 0.063), // increased by 0.06
+            entry(Position.L1, 0.18),
+            entry(Position.L2, 0.36),
             entry(Position.L3, 0.75),
-            entry(Position.L4, 1.37),
+            entry(Position.L4, 1.402),
             entry(Position.BARGE, 1.43),
             entry(Position.MAX, 1.431),
-            entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
+            entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard. TODO: don't need this?
         );
-        // These are the positions you can access with step up and down
+        /** These are the positions you can access with step up and down */
         public static final List<Position> positionOrder = List.of(
             Position.LOAD, Position.L1, Position.L2, Position.L3, Position.L4, Position.BARGE
         );
@@ -234,7 +238,7 @@ public final class Constants {
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(75)
+                .withMotionMagicCruiseVelocity(200)
                 .withMotionMagicExpo_kA(0.3)
                 .withMotionMagicAcceleration(120))
             .withMotorOutput(new MotorOutputConfigs()
@@ -251,8 +255,10 @@ public final class Constants {
         // TODO: figure out these values
         public static final double extendSpeed = 2.5;
         public static final double climbSpeed = 2.5;
-        public static final double nudgeSpeed = 0.5;
+        public static final double nudgeSpeed = 2.1;
         public static final double climbDelay = 0.5;  // seconds to wait at DROP before climbing
+        public static final double footReleaseDelay = 2.;
+        public static final double footReleaseRotations = 0.6;
 
         public enum Position { MIN, CLIMBED, STOW, LATCH, DROP, MAX, MANUAL }
         public static final Map<Position, Double> extensions = Map.ofEntries(
@@ -314,21 +320,25 @@ public final class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double angleGearRatio = (57./15)*5;
+        public static final double angleGearRatio = (57. / 15) * 5;
         public static final double driveGearRatio = 2.;  // TODO figure out the actual number
 
         public static final double nudgeSpeed = 3.;
 
-        public static final double extraGroundIntakeTime = .07; //.009 // should be the amount of SECONDS it takes to stop
+        /** Should be the amount of SECONDS it takes to stop */
+        public static final double extraGroundIntakeTime = .07; //.009
         public static final double groundIntakeSpeed = 18; //was 0.5
 
-        public static final double extraReefIntakeTime = 0.4; // should be the amount of SECONDS it takes to stop
+        /** Should be the amount of SECONDS it takes to stop */
+        public static final double extraReefIntakeTime = 0.4;
         public static final double reefIntakeSpeed = 20;
 
-        public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
+        /** Should be the amount of ROTATIONS it takes to stop */
+        public static final double extraProcessorUnloadRotations = 1.;
         public static final double processorUnloadSpeed = 18.;
 
-        public static final double extraBargeUnloadRotations = 2.; // should be the amount of ROTATIONS it takes to stop
+        /** Should be the amount of ROTATIONS it takes to stop */
+        public static final double extraBargeUnloadRotations = 2.;
         public static final double bargeUnloadSpeed = 18;
 
         // Set the cancoder offset to its reading in degrees at exactly horizontal
@@ -347,13 +357,13 @@ public final class Constants {
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
             entry(Position.GROUND_INTAKE, -57.),
-            entry(Position.REEF, 60.),
+            entry(Position.REEF, 52.),
             entry(Position.BARGE, 95.),
             entry(Position.LOADED_UP, 95.),
             entry(Position.STOW_UP, 95.),
             entry(Position.MAX, 115.)
         );
-        // small motion range for testing only
+        // // small motion range for testing only
         // public static final Map<Position, Double> angles = Map.ofEntries(
         //     entry(Position.MIN, -8.),
         //     entry(Position.STOW_DOWN, 8.),
@@ -421,7 +431,7 @@ public final class Constants {
     public static final class ControllerConstants {
         // Max says trimming joystick input by a percent is the best way to limit speed
         // that way the autonomous system doesn't get messed up
-        public static final double kInputClipping = 1; // set to 1 for  100% of joystick range
+        public static final double kInputClipping = 1; // set to 1 for 100% of joystick range
 
         public static final double kTriggerThreshold = 0.2;
 

@@ -85,8 +85,8 @@ public final class Drive extends SubsystemBase {
         mPeriodicIO.strafeMode = strafe;
         if (strafe) {
             speeds = new ChassisSpeeds( //ChassisSpeeds.fromRobotRelativeSpeeds(
-                targetSpeed.getX(),
-                targetSpeed.getY(),
+                targetSpeed.getX() / SwerveConstants.strafeReduction,
+                targetSpeed.getY() / SwerveConstants.strafeReduction,
                 targetRotationRate
             );
         } else {
@@ -224,7 +224,7 @@ public final class Drive extends SubsystemBase {
         }
 
         double max_omega_step = mKinematicLimits.kMaxAngularAccel * SwerveConstants.kLooperDt;
-        double min_omega_scalar = 1.0;
+        double min_omega_scalar = 1.;
 
         if (max_omega_step < Double.MAX_VALUE * SwerveConstants.kLooperDt) {
             double omega_norm = Math.abs(domega / max_omega_step);
@@ -259,7 +259,7 @@ public final class Drive extends SubsystemBase {
         zeroGyro(180.);
     }
 
-    private void zeroGyro(double reset) {
+    public void zeroGyro(double reset) {
         mPigeon.setYaw(reset);
         mPigeon.setPitch(0.);
     }
@@ -276,6 +276,9 @@ public final class Drive extends SubsystemBase {
         mPeriodicIO.meas_chassis_speeds = kKinematics.toChassisSpeeds(mPeriodicIO.meas_module_states);
         mPeriodicIO.heading = mPigeon.getYaw();
         mPeriodicIO.pitch = mPigeon.getPitch();
+        mPeriodicIO.roll = mPigeon.getRoll();
+        mPeriodicIO.maxPitch = Math.max(mPeriodicIO.maxPitch, Math.abs(mPeriodicIO.pitch.getDegrees()));
+        mPeriodicIO.maxRoll = Math.max(mPeriodicIO.maxRoll, Math.abs(mPeriodicIO.roll.getDegrees()));
 
         // Update odometry so we track where we are on the field
         mOdometry.update(mPeriodicIO.heading, getModuleStates());
@@ -335,6 +338,9 @@ public final class Drive extends SubsystemBase {
         };
         Rotation2d heading = new Rotation2d();
         Rotation2d pitch = new Rotation2d();
+        Rotation2d roll = new Rotation2d();
+        double maxPitch = 0;
+        double maxRoll = 0;
         boolean strafeMode = false;
 
         // Outputs
@@ -344,11 +350,9 @@ public final class Drive extends SubsystemBase {
             new ModuleState(),
             new ModuleState()
         };
-    }
 
-    // private void setConfigs() { // TODO: make trimmer for drive (which will use this)
-    //     for (SwerveModule mod: mModules) mod.setConfigs();
-    // }
+
+    }
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -357,6 +361,9 @@ public final class Drive extends SubsystemBase {
         builder.setActuator(true);
 
         builder.addDoubleProperty("Pitch", () -> mPeriodicIO.pitch.getDegrees(), null);
+        builder.addDoubleProperty("Roll", () -> mPeriodicIO.roll.getDegrees(), null);
+        builder.addDoubleProperty("Max Pitch", () -> mPeriodicIO.maxPitch, null);
+        builder.addDoubleProperty("Max Yaw", () -> mPeriodicIO.maxRoll, null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
         builder.addBooleanProperty("Strafe Mode", () -> mPeriodicIO.strafeMode, null);
         builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);

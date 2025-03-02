@@ -55,12 +55,17 @@ public class ClimberHook extends SubsystemBase {
             .andThen(gotoCommand(Position.CLIMBED));
     }
 
-    private void setConfig() {
-        mMotor.getConfigurator().apply(motorConfig);
+    /** Only used in footReleaseCommand (not a real class variable) */
+    private double startingExtension;
+
+    public Command footReleaseCommand() {
+        return new InstantCommand(() -> {startingExtension = mPeriodicIO.extension; setSetpointMotionMagic(startingExtension + ClimberHookConstants.footReleaseRotations);})
+            .andThen(new WaitCommand(ClimberHookConstants.footReleaseDelay))
+            .andThen(new InstantCommand(() -> setSetpointMotionMagic(startingExtension)));
     }
 
-    public void disable() {
-        // TODO
+    private void setConfig() {
+        mMotor.getConfigurator().apply(motorConfig);
     }
 
     public void markPosition(Position p) {
@@ -100,16 +105,14 @@ public class ClimberHook extends SubsystemBase {
         }
     }
 
-    public double getAngleDeg() {
-        return mPeriodicIO.extension;
-    }
-
     public double getTorqueCurrent(){
         return mPeriodicIO.current;
     }
 
     private static final class PeriodicIO {
-        // Inputs
+        /* INPUTS */
+    
+        /** In winch rotations */
         private double extension;
         private double current;
         private double output_voltage;
@@ -151,7 +154,6 @@ public class ClimberHook extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("ClimberHook");
-        builder.setSafeState(this::disable);
         builder.setActuator(true);
 
         builder.addDoubleProperty("Winch Rotations", () -> mPeriodicIO.extension, null);

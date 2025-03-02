@@ -49,10 +49,6 @@ public class Coral extends SubsystemBase {
         return new InstantCommand(this::activateCoral, this);
     }
 
-    public void disable() {
-        // TODO
-    }
-
     public void setWantNeutralBrake(boolean brake) {
         NeutralModeValue mode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
         mMotor.setNeutralMode(mode);
@@ -154,7 +150,6 @@ public class Coral extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Coral");
-        builder.setSafeState(this::disable);
         builder.setActuator(true);
 
         builder.addDoubleProperty("Angle (degrees)", () -> mPeriodicIO.position_degrees, null);

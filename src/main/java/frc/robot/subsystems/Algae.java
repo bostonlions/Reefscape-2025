@@ -120,10 +120,6 @@ public class Algae extends SubsystemBase {
         );
     }
 
-    public void disable() {
-        // TODO
-    }
-
     public void setAngleSetpoint(double angle) {
         if (mDebug) System.out.println("setAngleSetpoint: " + angle);
         if (mDebug) System.out.println("----------------------------------------- ");
@@ -190,7 +186,7 @@ public class Algae extends SubsystemBase {
                 mPeriodicIO.driveState = DriveState.IDLE;
                 break;
             case INTAKE_WITH_ALGAE:
-                if (mDebug)  System.out.println("toggleDrive INTAKE_WITH_ALGAE");
+                if (mDebug) System.out.println("toggleDrive INTAKE_WITH_ALGAE");
             case LOADED:
                 if (mDebug) System.out.println("toggleDrive LOADED");
 
@@ -278,7 +274,9 @@ public class Algae extends SubsystemBase {
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     mPeriodicIO.driveState = DriveState.LOADED;
                     setState();
-                } break;
+                }
+
+                break;
             case UNLOADING_WITH_ALGAE:
                 if (pDebug) System.out.println("UNLOADING_WITH_ALGAE 1");
 
@@ -307,12 +305,20 @@ public class Algae extends SubsystemBase {
 
             // error correction:
             case IDLE:
-                if (mBeamBreak.get()) mPeriodicIO.driveState = DriveState.LOADED;
+                if (mBeamBreak.get()) {
+                    mPeriodicIO.driveState = DriveState.LOADED;
+                    setState();
+                }
+
                 break;
             case LOADED:
                 if (pDebug) System.out.println("LOADED 1");
 
-                if (!mBeamBreak.get()) mPeriodicIO.driveState = DriveState.IDLE;
+                if (!mBeamBreak.get()) {
+                    mPeriodicIO.driveState = DriveState.IDLE;
+                    setState();
+                }
+
                 break;
             default: break;
         }
@@ -333,7 +339,6 @@ public class Algae extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Algae");
-        builder.setSafeState(this::disable);
         builder.setActuator(true);
 
         builder.addDoubleProperty("Angle motor degrees", () -> mPeriodicIO.C_position_degrees, null);

@@ -56,6 +56,8 @@ public final class RobotContainer {
         // Right back button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
             new InstantCommand(drive::zeroGyro).ignoringDisable(true)
+        ); new Trigger(() -> controller.driver.getRawAxis(6) > 0.5).onTrue(
+            new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
         );
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */
@@ -63,7 +65,6 @@ public final class RobotContainer {
         SmartDashboard.putData(elevator);
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(elevator.stepDownCommand());
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(elevator.stepUpCommand());
-        // new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(elevator.markMinCommand());
         new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(elevator.forceDownCommand());
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
@@ -75,10 +76,11 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) > 0.5)
             .onTrue(climberHook.nudgeDownCommand())
             .onFalse(climberHook.nudgeStopCommand());
-        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) > 0.5)
-            .onTrue(climberHook.extendCommand());
-        new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) < -0.5)
-            .onTrue(climberHook.climbCommand());
+        // new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) > 0.5)
+        //     .onTrue(climberHook.extendCommand());
+        // new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) < -0.5)
+        //     .onTrue(climberHook.climbCommand());
+        new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(climberHook.footReleaseCommand());
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();
@@ -97,7 +99,6 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
             .onTrue(algae.nudgeLeftCommand())
             .onFalse(algae.nudgeStopCommand());
-
 
         /*
          * TRIMMER - all subsystems can add items to be adjusted
@@ -121,7 +122,8 @@ public final class RobotContainer {
     }
 
     public void teleopInit() {
-        System.out.println("teleopInit: stopping drive");
         drive.setTargetSpeeds(new Translation2d(), 0, false);
+
+        // climberHook.markPosition(Position.STOW);
     }
 }

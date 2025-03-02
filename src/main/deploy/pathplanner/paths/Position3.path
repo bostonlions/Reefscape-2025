@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 4.924676170440197,
-        "y": 2.5899839147404644
+        "y": 2.59
       },
       "prevControl": {
-        "x": 5.217176170440197,
-        "y": 1.6539839147404645
+        "x": 5.430750000000001,
+        "y": 1.6752660852595351
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "leftReefCoral"
     }
   ],
   "rotationTargets": [],

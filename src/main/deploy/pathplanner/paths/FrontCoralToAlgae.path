@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.75,
-        "y": 4.05
+        "x": 5.884473426178009,
+        "y": 4.089246832403526
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.75,
-        "y": 3.93
+        "x": 6.0,
+        "y": 3.85
       },
       "prevControl": {
-        "x": 5.75,
-        "y": 4.18
+        "x": 5.859344128383675,
+        "y": 4.05667831473053
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "frontReefAlgae"
+      "linkedName": "AwayFromFrontReef"
     }
   ],
   "rotationTargets": [],

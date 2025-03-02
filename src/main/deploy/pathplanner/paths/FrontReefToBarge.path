@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.75,
-        "y": 3.93
+        "x": 5.74,
+        "y": 3.825
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.618789757572317,
-        "y": 4.214246483595963
+        "x": 6.608789757572318,
+        "y": 4.109246483595964
       },
       "isLocked": false,
       "linkedName": "frontReefAlgae"

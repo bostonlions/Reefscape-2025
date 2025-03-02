@@ -9,8 +9,6 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.ClimberHookConstants.Position;
-import frc.robot.subsystems.ClimberHook;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -25,7 +23,7 @@ public final class Robot extends TimedRobot {
     public Robot() {
         m_robotContainer = new RobotContainer();
 
-        //This pre-loads Icahces) the autonomous system so it runs better
+        // This pre-loads Icahces) the autonomous system so it runs better
         FollowPathCommand.warmupCommand().schedule();
     }
 
@@ -73,6 +71,7 @@ public final class Robot extends TimedRobot {
         // continue until interrupted by another command, remove
         // this line or comment it out.
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
+
         m_robotContainer.teleopInit();
     }
 
