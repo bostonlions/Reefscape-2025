@@ -55,9 +55,9 @@ public final class Constants {
 
         // Swerve Profiling Values
         public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
-        public static final double maxAccel = 1.;
+        public static final double maxAccel = Double.MAX_VALUE; //10.;
         public static final double maxAngularVelocity = 8.; //was 8.0 toggled to 2.0
-        public static final double maxAngularAccel = 1.;
+        public static final double maxAngularAccel = Double.MAX_VALUE; //10.;
 
         /** Max out at 85% to make sure speeds are attainable (4.6 mps) */
         public static final double maxAttainableSpeed = maxSpeed * 0.85;
