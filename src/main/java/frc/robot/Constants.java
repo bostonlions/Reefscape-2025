@@ -41,7 +41,7 @@ public final class Constants {
         /** Always ensure Gyro is CCW+ CW- */
         public static final boolean invertGyro = false;
         /** The speed reduction when drive is in strafe mode; drive speed gets divided by this */
-        public static final double strafeReduction = 2.;
+        public static final double strafeReduction = 4.;
 
         // Drivetrain Constants
         public static final double trackWidth = Units.inchesToMeters(24.25);
