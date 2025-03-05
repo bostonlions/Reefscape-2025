@@ -80,23 +80,31 @@ public final class Drive extends SubsystemBase {
         mPeriodicIO.des_chassis_speeds = speeds;
     }
 
-    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe) {
+    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe, boolean precision) {
         ChassisSpeeds speeds;
         mPeriodicIO.strafeMode = strafe;
+        mPeriodicIO.precisionMode = precision;
+
         if (strafe) {
             speeds = new ChassisSpeeds( //ChassisSpeeds.fromRobotRelativeSpeeds(
                 targetSpeed.getX() / SwerveConstants.strafeReduction,
                 targetSpeed.getY() / SwerveConstants.strafeReduction,
-                targetRotationRate
+                targetRotationRate / SwerveConstants.strafeReduction
             );
         } else {
+            double inputReduction = 1;
+            if (precision) {
+                inputReduction = SwerveConstants.precisionReduction;
+            } 
+
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                targetSpeed.getX(),
-                targetSpeed.getY(),
-                targetRotationRate,
+                targetSpeed.getX() / inputReduction,
+                targetSpeed.getY() / inputReduction,
+                targetRotationRate / inputReduction,
                 getHeading()
             );
         }
+
         feedTeleopSetpoint(speeds);
     }
 
@@ -342,6 +350,7 @@ public final class Drive extends SubsystemBase {
         double maxPitch = 0;
         double maxRoll = 0;
         boolean strafeMode = false;
+        boolean precisionMode = false;
 
         // Outputs
         ModuleState[] des_module_states = new ModuleState[] {
@@ -366,6 +375,7 @@ public final class Drive extends SubsystemBase {
         builder.addDoubleProperty("Max Yaw", () -> mPeriodicIO.maxRoll, null);
         builder.addStringProperty("Drive Control State", () -> mControlState.toString(), null);
         builder.addBooleanProperty("Strafe Mode", () -> mPeriodicIO.strafeMode, null);
+        builder.addBooleanProperty("Precision Mode", () -> mPeriodicIO.precisionMode, null);
         builder.addDoubleProperty("ROBOT HEADING", () -> getHeading().getDegrees(), null);
         builder.addDoubleProperty("Timestamp", () -> mPeriodicIO.timestamp, null);
         builder.addDoubleProperty("Trajectory X Error", () -> mMotionPlanner.getXError(getPose().getX(), Timer.getFPGATimestamp()), null);

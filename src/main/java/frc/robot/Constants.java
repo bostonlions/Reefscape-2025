@@ -43,6 +43,9 @@ public final class Constants {
         /** The speed reduction when drive is in strafe mode; drive speed gets divided by this */
         public static final double strafeReduction = 4.;
 
+        /** The speed reduction when drive is in precision mode; drive speed gets divided by this */
+        public static final double precisionReduction = 8.;
+
         // Drivetrain Constants
         public static final double trackWidth = Units.inchesToMeters(24.25);
         public static final double wheelBase = Units.inchesToMeters(24.25);
@@ -198,11 +201,11 @@ public final class Constants {
     }
 
     public static final class ElevatorConstants {
-        public static final double gearRatio = 9.;
+        public static final double gearRatio = 5.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
-        public static final double bottomLimitTorque = 30.;
-        public static final double topLimitTorque = 50;
+        public static final double bottomLimitTorque = 50.;
+        public static final double topLimitTorque = 70;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
         public static final double resetDutyCycle = 0.1;
@@ -233,14 +236,14 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(20)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.6)
-                .withKI(0.0)
+                .withKP(.6) //.6
+                .withKI(0.1)
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(200)
+                .withMotionMagicCruiseVelocity(150)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(120))
+                .withMotionMagicAcceleration(150))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
@@ -279,14 +282,14 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(30)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.02)
+                .withKP(8)//.02
                 .withKI(0.0)
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(140)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+                .withMotionMagicAcceleration(Double.MAX_VALUE))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));

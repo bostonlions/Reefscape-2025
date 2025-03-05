@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import frc.robot.subsystems.*;
+import frc.robot.Constants.ElevatorConstants.Position;
 import frc.robot.lib.drivers.ControlBoard;
 import frc.robot.lib.drivers.CustomXboxController.Button;
 import frc.robot.lib.drivers.CustomXboxController.Side;
@@ -37,18 +39,22 @@ public final class RobotContainer {
     private final Auton auton;
 
     public RobotContainer() {
-        CameraServer.startAutomaticCapture(); // Start the Camera
+        CameraServer.startAutomaticCapture(0); // Start the Camera 1
+        CameraServer.startAutomaticCapture(1); // Start the Camera 2
+
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);
         for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
+
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(
                     controller.getSwerveTranslation(),
                     controller.getSwerveRotation(),
-                    controller.driver.getRawButton(1) // Left back button toggles strafe
+                    controller.driver.getRawButton(1), // Left back button toggles strafe
+                    (controller.driver.getRawAxis(6) > 0.5) //right top switch toggles precision mode
                 ),
                 drive
             )
@@ -56,9 +62,13 @@ public final class RobotContainer {
         // Right back button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
             new InstantCommand(drive::zeroGyro).ignoringDisable(true)
-        ); new Trigger(() -> controller.driver.getRawAxis(6) > 0.5).onTrue(
-            new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
-        );
+        ); 
+
+        // Commenting this out because don't think anyone knows it 
+        // and going to repurpose this switch for precision mode
+        // new Trigger(() -> controller.driver.getRawAxis(6) > 0.5).onTrue(
+        //     new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
+        // );
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */
         elevator = Elevator.getInstance();
@@ -76,11 +86,11 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.Y) > 0.5)
             .onTrue(climberHook.nudgeDownCommand())
             .onFalse(climberHook.nudgeStopCommand());
-        // new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) > 0.5)
+        // // new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) > 0.5)
         //     .onTrue(climberHook.extendCommand());
         // new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) < -0.5)
         //     .onTrue(climberHook.climbCommand());
-        new Trigger(() -> controller.operator.getButton(Button.START)).onTrue(climberHook.footReleaseCommand());
+        // Trigger(() -> controller.operator.getButton(Button.START)).onTrue(climberHook.footReleaseCommand());
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();
@@ -93,12 +103,24 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.A)).onTrue(algae.downCommand());
         new Trigger(() -> controller.operator.getButton(Button.Y)).onTrue(algae.upCommand());
         new Trigger(() -> controller.operator.getButton(Button.B)).onTrue(algae.toggleDriveCommand());
-        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
+        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) < -.5)
             .onTrue(algae.nudgeRightCommand())
             .onFalse(algae.nudgeStopCommand());
-        new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
+        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .5)
             .onTrue(algae.nudgeLeftCommand())
             .onFalse(algae.nudgeStopCommand());
+        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)) 
+            .onTrue(elevator.stepToCommand(Position.L4));
+        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)) 
+            .onTrue(elevator.stepToCommand(Position.L3));
+        //Changed it so that is is the right joystick instead of the triggers
+
+        // new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
+        //     .onTrue(algae.nudgeRightCommand())
+        //     .onFalse(algae.nudgeStopCommand());
+        // new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
+        //     .onTrue(algae.nudgeLeftCommand())
+        //     .onFalse(algae.nudgeStopCommand());
 
         /*
          * TRIMMER - all subsystems can add items to be adjusted
@@ -122,7 +144,7 @@ public final class RobotContainer {
     }
 
     public void teleopInit() {
-        drive.setTargetSpeeds(new Translation2d(), 0, false);
+        drive.setTargetSpeeds(new Translation2d(), 0, false, false);
 
         // climberHook.markPosition(Position.STOW);
     }

@@ -100,8 +100,10 @@ public class ClimberHook extends SubsystemBase {
         if (direction != 0) {
             mMotor.setControl(new MotionMagicVelocityDutyCycle(speed));
         } else {
-            mPeriodicIO.demand = mMotor.getRotorPosition().getValueAsDouble();
-            mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
+            // mPeriodicIO.demand = mMotor.getRotorPosition().getValueAsDouble();
+            // mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
+            mMotor.setControl(new MotionMagicVelocityDutyCycle(0));
+
         }
     }
 
