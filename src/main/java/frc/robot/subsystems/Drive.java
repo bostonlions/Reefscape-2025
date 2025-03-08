@@ -88,7 +88,7 @@ public final class Drive extends SubsystemBase {
         mPeriodicIO.precisionMode = precision;
 
         double rotationPidValue = getPidValueForSnap();
-        if (mPeriodicIO.snapMode && !snapPid.atSetpoint() && (targetRotationRate == 0)) {// this prioritizes driver controls
+        if (mPeriodicIO.snapMode && !snapPid.atSetpoint() && (targetRotationRate == 0)) { // this prioritizes driver controls
             targetRotationRate = rotationPidValue;
         } else {
             mPeriodicIO.snapMode = false;
@@ -98,13 +98,13 @@ public final class Drive extends SubsystemBase {
             speeds = new ChassisSpeeds( //ChassisSpeeds.fromRobotRelativeSpeeds(
                 targetSpeed.getX() / SwerveConstants.strafeReduction,
                 targetSpeed.getY() / SwerveConstants.strafeReduction,
-                targetRotationRate / (mPeriodicIO.snapMode ? 1 : SwerveConstants.strafeReduction)
+                targetRotationRate / (mPeriodicIO.snapMode ? 1. : SwerveConstants.strafeReduction)
             );
         } else {
-            double inputReduction = 1;
+            double inputReduction = 1.;
             if (precision) {
                 inputReduction = SwerveConstants.precisionReduction;
-            } 
+            }
 
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 targetSpeed.getX() / inputReduction,
@@ -118,11 +118,12 @@ public final class Drive extends SubsystemBase {
     }
 
     private double getPidValueForSnap() {
-        double rotationPidValue = snapPid.calculate(mPeriodicIO.heading.getDegrees(), mPeriodicIO.targetHeading);
-        return rotationPidValue;
+        return MathUtil.inputModulus(
+            snapPid.calculate(mPeriodicIO.heading.getDegrees(), mPeriodicIO.targetHeading), -180, 180
+        );
     }
 
-    public Command snapToReef() {return new InstantCommand(() -> snapHeading(), this);}
+    public Command snapToReef() { return new InstantCommand(() -> snapHeading(), this); }
 
     public void snapHeading() {
         double currentHeading = mPeriodicIO.heading.getDegrees();

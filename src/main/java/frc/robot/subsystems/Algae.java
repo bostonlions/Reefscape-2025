@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.ctre.phoenix6.controls.DutyCycleOut;
 // import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 // import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
@@ -69,8 +70,8 @@ public class Algae extends SubsystemBase {
         entry(DriveState.INTAKE_NO_ALGAE, -AlgaeConstants.groundIntakeSpeed),
         entry(DriveState.INTAKE_WITH_ALGAE, -AlgaeConstants.groundIntakeSpeed),
         entry(DriveState.LOADED, 0.),
-        entry(DriveState.UNLOADING_WITH_ALGAE, -AlgaeConstants.processorUnloadSpeed),
-        entry(DriveState.UNLOADING_NO_ALGAE, -AlgaeConstants.processorUnloadSpeed)
+        entry(DriveState.UNLOADING_WITH_ALGAE, AlgaeConstants.processorUnloadSpeed),
+        entry(DriveState.UNLOADING_NO_ALGAE, AlgaeConstants.processorUnloadSpeed)
     );
 
     public static Algae getInstance() {
@@ -211,7 +212,11 @@ public class Algae extends SubsystemBase {
         if (mDebug) System.out.println("setState targetSpeed: " + mPeriodicIO.targetSpeed);
 
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
-        if (mPeriodicIO.targetSpeed != 0) {
+
+        if ((mPeriodicIO.driveState == DriveState.LOADED) || (mPeriodicIO.driveState == DriveState.INTAKE_WITH_ALGAE)) {
+            mPeriodicIO.D_demand = AlgaeConstants.intakeSuction;
+            mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.D_demand));
+        } else if (mPeriodicIO.targetSpeed != 0) {
             if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
 
             setDriveSpeed(mPeriodicIO.targetSpeed);

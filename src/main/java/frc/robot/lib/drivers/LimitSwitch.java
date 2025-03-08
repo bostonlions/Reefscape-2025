@@ -3,7 +3,6 @@ package frc.robot.lib.drivers;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public final class LimitSwitch {
-
     private final DigitalInput mSwitch;
     private boolean lastStatus;
     private boolean tripped;
@@ -21,7 +20,7 @@ public final class LimitSwitch {
     }
 
     public boolean get() {
-        return !mSwitch.get();
+        return mSwitch.get();
     }
 
     public boolean wasTripped() {

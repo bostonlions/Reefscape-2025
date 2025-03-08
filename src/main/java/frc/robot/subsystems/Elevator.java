@@ -181,28 +181,27 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.velocity = mMain.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
         mPeriodicIO.torqueCurrent = mMain.getTorqueCurrent().getValueAsDouble();
 
-        /* Do we think we're below min? if so, do ... something? */
-        if (mPeriodicIO.height < heights.get(Position.MIN)) {
+        if (mPeriodicIO.height < heights.get(Position.MIN)) { // checking if we're below min
             // forceDown();
         }
 
         /* Have we hit the top or bottom? */
-        if (((mPeriodicIO.torqueCurrent < -ElevatorConstants.bottomLimitTorque) &&
+        if (
+            ((mPeriodicIO.torqueCurrent < -ElevatorConstants.bottomLimitTorque) &&
             (mPeriodicIO.velocity > -ElevatorConstants.limitVelocity) &&
-            (mPeriodicIO.targetHeight < mPeriodicIO.height)) //|| 
-            //(!mLimitSwitch.get() && mPeriodicIO.targetPosition != Position.MIN)
+            (mPeriodicIO.targetHeight < mPeriodicIO.height)) // ||
+            // (mLimitSwitch.get() && mPeriodicIO.targetPosition != Position.MIN)
         ) {
-            
             System.out.println("Elevator bottom limit hit, marking min height");
             markMin();
             setTarget(positionOrder.get(0));
-        }
-        else if ((mPeriodicIO.torqueCurrent > ElevatorConstants.topLimitTorque) &&
+        } else if (
+            (mPeriodicIO.torqueCurrent > ElevatorConstants.topLimitTorque) &&
             (mPeriodicIO.velocity < ElevatorConstants.limitVelocity) &&
             (mPeriodicIO.targetHeight > mPeriodicIO.height)
         ) {
             System.out.println("Elevator top limit hit, marking max height");
-            mMain.setPosition(metersToRotations(heights.get(Position.MAX))); //mark max
+            mMain.setPosition(metersToRotations(heights.get(Position.MAX))); // mark max
             setTarget(positionOrder.get(positionOrder.size() - 1));
         }
 
@@ -221,6 +220,7 @@ public class Elevator extends SubsystemBase {
         builder.addDoubleProperty("Position Inches", () -> metersToInches(mPeriodicIO.height), null);
         builder.addDoubleProperty("Motor Rotations", () -> metersToRotations(mPeriodicIO.height), null);
         builder.addBooleanProperty("Moving", () -> mPeriodicIO.moving, null);
+        builder.addBooleanProperty("Limit Switch Tripped?", () -> mLimitSwitch.get(), null);
         builder.addDoubleProperty("Demand", () -> mPeriodicIO.demand, null);
         builder.addDoubleProperty("Velocity", () -> mPeriodicIO.velocity, null);
         builder.addDoubleProperty("Output Volts", () -> mPeriodicIO.voltage, null);

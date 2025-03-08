@@ -204,8 +204,8 @@ public final class Constants {
         public static final double gearRatio = 5.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
-        public static final double bottomLimitTorque = 500.;
-        public static final double topLimitTorque = 500;
+        public static final double bottomLimitTorque = 60.;
+        public static final double topLimitTorque = 100.;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
         public static final double resetDutyCycle = 0.1;
@@ -215,7 +215,7 @@ public final class Constants {
         public enum Position { MIN, LOAD, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.06), // increased by 0.06
-            entry(Position.LOAD, 0.063), // increased by 0.06
+            entry(Position.LOAD, 0.07), // increased by 0.06
             entry(Position.L1, 0.18),
             entry(Position.L2, 0.36),
             entry(Position.L3, 0.75),
@@ -323,6 +323,8 @@ public final class Constants {
     }
 
     public static final class AlgaeConstants {
+        public static final double intakeSuction = -0.25;
+
         public static final double angleGearRatio = (57. / 15) * 5;
         public static final double driveGearRatio = 2.;  // TODO figure out the actual number
 
@@ -337,7 +339,7 @@ public final class Constants {
         public static final double reefIntakeSpeed = 20;
 
         /** Should be the amount of ROTATIONS it takes to stop */
-        public static final double extraProcessorUnloadRotations = 1.;
+        public static final double extraProcessorUnloadRotations = 36.;
         public static final double processorUnloadSpeed = 18.;
 
         /** Should be the amount of ROTATIONS it takes to stop */

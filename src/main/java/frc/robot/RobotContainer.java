@@ -64,7 +64,8 @@ public final class RobotContainer {
         // Right back button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
             new InstantCommand(drive::zeroGyro).ignoringDisable(true)
-        ); 
+        );
+        new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef());
 
         // Commenting this out because don't think anyone knows it 
         // and going to repurpose this switch for precision mode
@@ -115,10 +116,7 @@ public final class RobotContainer {
             .onTrue(elevator.stepToCommand(Position.L4));
         new Trigger(() -> controller.operator.getTrigger(Side.LEFT)) 
             .onTrue(elevator.stepToCommand(Position.L3));
-        //Changed it so that is is the right joystick instead of the triggers
 
-        new Trigger(() -> controller.driver.getRawButton(1))
-            .onTrue(drive.snapToReef());
         // new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
         //     .onTrue(algae.nudgeLeftCommand())
         //     .onFalse(algae.nudgeStopCommand());
