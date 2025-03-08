@@ -215,7 +215,7 @@ public final class Constants {
         public enum Position { MIN, LOAD, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.06), // increased by 0.06
-            entry(Position.LOAD, 0.07), // increased by 0.06
+            entry(Position.LOAD, 0.063), // increased by 0.06
             entry(Position.L1, 0.18),
             entry(Position.L2, 0.36),
             entry(Position.L3, 0.75),
