@@ -204,8 +204,8 @@ public final class Constants {
         public static final double gearRatio = 5.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
-        public static final double bottomLimitTorque = 50.;
-        public static final double topLimitTorque = 70;
+        public static final double bottomLimitTorque = 500.;
+        public static final double topLimitTorque = 500;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
         public static final double resetDutyCycle = 0.1;

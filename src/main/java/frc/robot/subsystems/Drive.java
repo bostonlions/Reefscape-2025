@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -32,6 +33,7 @@ import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public final class Drive extends SubsystemBase {
     public SwerveModule[] mModules;
+    private PIDController snapPid = new PIDController(0.1, 0, 0.005);
     private Pigeon mPigeon = Pigeon.getInstance();
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private DriveControlState mControlState = DriveControlState.FORCE_ORIENT;
@@ -85,11 +87,18 @@ public final class Drive extends SubsystemBase {
         mPeriodicIO.strafeMode = strafe;
         mPeriodicIO.precisionMode = precision;
 
+        double rotationPidValue = getPidValueForSnap();
+        if (mPeriodicIO.snapMode && !snapPid.atSetpoint() && (targetRotationRate == 0)) {// this prioritizes driver controls
+            targetRotationRate = rotationPidValue;
+        } else {
+            mPeriodicIO.snapMode = false;
+        }
+
         if (strafe) {
             speeds = new ChassisSpeeds( //ChassisSpeeds.fromRobotRelativeSpeeds(
                 targetSpeed.getX() / SwerveConstants.strafeReduction,
                 targetSpeed.getY() / SwerveConstants.strafeReduction,
-                targetRotationRate / SwerveConstants.strafeReduction
+                targetRotationRate / (mPeriodicIO.snapMode ? 1 : SwerveConstants.strafeReduction)
             );
         } else {
             double inputReduction = 1;
@@ -106,6 +115,21 @@ public final class Drive extends SubsystemBase {
         }
 
         feedTeleopSetpoint(speeds);
+    }
+
+    private double getPidValueForSnap() {
+        double rotationPidValue = snapPid.calculate(mPeriodicIO.heading.getDegrees(), mPeriodicIO.targetHeading);
+        return rotationPidValue;
+    }
+
+    public Command snapToReef() {return new InstantCommand(() -> snapHeading(), this);}
+
+    public void snapHeading() {
+        double currentHeading = mPeriodicIO.heading.getDegrees();
+        double nearestAngle = Math.round(currentHeading  / 60) * 60;
+        System.out.println(nearestAngle);
+        mPeriodicIO.targetHeading = nearestAngle;
+        mPeriodicIO.snapMode = true;
     }
 
     // private void setHeadingControlTarget(double target_degrees) {
@@ -345,11 +369,13 @@ public final class Drive extends SubsystemBase {
             new ModuleState()
         };
         Rotation2d heading = new Rotation2d();
+        double targetHeading;
         Rotation2d pitch = new Rotation2d();
         Rotation2d roll = new Rotation2d();
         double maxPitch = 0;
         double maxRoll = 0;
         boolean strafeMode = false;
+        boolean snapMode = false;
         boolean precisionMode = false;
 
         // Outputs

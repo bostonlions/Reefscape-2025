@@ -20,6 +20,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Ports;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Position;
+import frc.robot.lib.drivers.BeamBreak;
+import frc.robot.lib.drivers.LimitSwitch;
 
 import static frc.robot.Constants.ElevatorConstants.heights;
 import static frc.robot.Constants.ElevatorConstants.positionOrder;
@@ -30,6 +32,7 @@ public class Elevator extends SubsystemBase {
     private static Elevator mInstance;
     private final TalonFX mMain;
     private final TalonFX mFollower;
+    private final LimitSwitch mLimitSwitch;
 
     public static Elevator getInstance() {
         if (mInstance == null) mInstance = new Elevator();
@@ -40,6 +43,8 @@ public class Elevator extends SubsystemBase {
         mMain = new TalonFX(Ports.ELEVATOR_B, Ports.CANBUS_OPS);
         mFollower = new TalonFX(Ports.ELEVATOR_A, Ports.CANBUS_OPS);
         setMotorConfig(motorConfig);
+
+        mLimitSwitch = new LimitSwitch(Ports.ELEVATOR_LIMIT_SWITCH);
 
         setNeutralBrake(false);
         mPeriodicIO.moving = false;
@@ -182,10 +187,12 @@ public class Elevator extends SubsystemBase {
         }
 
         /* Have we hit the top or bottom? */
-        if ((mPeriodicIO.torqueCurrent < -ElevatorConstants.bottomLimitTorque) &&
+        if (((mPeriodicIO.torqueCurrent < -ElevatorConstants.bottomLimitTorque) &&
             (mPeriodicIO.velocity > -ElevatorConstants.limitVelocity) &&
-            (mPeriodicIO.targetHeight < mPeriodicIO.height)
+            (mPeriodicIO.targetHeight < mPeriodicIO.height)) //|| 
+            //(!mLimitSwitch.get() && mPeriodicIO.targetPosition != Position.MIN)
         ) {
+            
             System.out.println("Elevator bottom limit hit, marking min height");
             markMin();
             setTarget(positionOrder.get(0));

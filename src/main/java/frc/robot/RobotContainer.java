@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.AlgaeConstants.driveGearRatio;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -115,9 +117,8 @@ public final class RobotContainer {
             .onTrue(elevator.stepToCommand(Position.L3));
         //Changed it so that is is the right joystick instead of the triggers
 
-        // new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
-        //     .onTrue(algae.nudgeRightCommand())
-        //     .onFalse(algae.nudgeStopCommand());
+        new Trigger(() -> controller.driver.getRawButton(1))
+            .onTrue(drive.snapToReef());
         // new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
         //     .onTrue(algae.nudgeLeftCommand())
         //     .onFalse(algae.nudgeStopCommand());

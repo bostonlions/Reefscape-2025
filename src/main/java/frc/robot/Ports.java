@@ -31,6 +31,7 @@ public final class Ports {
 
     public static final int ELEVATOR_A = 32;
     public static final int ELEVATOR_B = 36;
+    public static final int ELEVATOR_LIMIT_SWITCH = 6;
 
     public static final int CLIMBER_HOOK_DRIVE = 35;
 
