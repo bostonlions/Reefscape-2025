@@ -95,7 +95,7 @@ public final class Drive extends SubsystemBase {
         }
 
         if (strafe) {
-            speeds = new ChassisSpeeds( //ChassisSpeeds.fromRobotRelativeSpeeds(
+            speeds = new ChassisSpeeds( // ChassisSpeeds.fromRobotRelativeSpeeds(
                 targetSpeed.getX() / SwerveConstants.strafeReduction,
                 targetSpeed.getY() / SwerveConstants.strafeReduction,
                 targetRotationRate / (mPeriodicIO.snapMode ? 1. : SwerveConstants.strafeReduction)
@@ -128,7 +128,6 @@ public final class Drive extends SubsystemBase {
     public void snapHeading() {
         double currentHeading = mPeriodicIO.heading.getDegrees();
         double nearestAngle = Math.round(currentHeading  / 60) * 60;
-        System.out.println(nearestAngle);
         mPeriodicIO.targetHeading = nearestAngle;
         mPeriodicIO.snapMode = true;
     }

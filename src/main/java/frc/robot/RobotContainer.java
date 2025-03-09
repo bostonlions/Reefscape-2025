@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.AlgaeConstants.driveGearRatio;
-
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -44,34 +41,32 @@ public final class RobotContainer {
         CameraServer.startAutomaticCapture(0); // Start the Camera 1
         CameraServer.startAutomaticCapture(1); // Start the Camera 2
 
-
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
         SmartDashboard.putData(drive);
-        for (SwerveModule mod: drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
+        for (SwerveModule mod : drive.mModules) SmartDashboard.putData("SwerveModule_" + mod.name, mod);
 
         drive.setDefaultCommand(
             new RunCommand(
                 () -> drive.setTargetSpeeds(
                     controller.getSwerveTranslation(),
                     controller.getSwerveRotation(),
-                    controller.driver.getRawButton(1), // Left back button toggles strafe
-                    (controller.driver.getRawAxis(6) > 0.5) //right top switch toggles precision mode
+                    (controller.driver.getRawAxis(7) > 0.5), // C switch toggles strafe mode
+                    (controller.driver.getRawAxis(6) > 0.5) // D switch toggles precision mode
                 ),
                 drive
             )
         );
-        // Right back button
+        new Trigger(() -> controller.driver.getRawAxis(0) > 0.9).onTrue(drive.snapToReef()); // left joystick full up: snaps to reef
+
+        // zero with climber pointing towards you -- LB button
+        new Trigger(() -> controller.driver.getRawButton(1)).onTrue(
+            new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
+        );
+        // zero with algae pointing towards you -- RB button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
             new InstantCommand(drive::zeroGyro).ignoringDisable(true)
         );
-        new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef());
-
-        // Commenting this out because don't think anyone knows it 
-        // and going to repurpose this switch for precision mode
-        // new Trigger(() -> controller.driver.getRawAxis(6) > 0.5).onTrue(
-        //     new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
-        // );
 
         /* ELEVATOR SUBSYSTEM AND COMMANDS */
         elevator = Elevator.getInstance();

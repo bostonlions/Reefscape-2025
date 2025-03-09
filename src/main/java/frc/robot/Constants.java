@@ -42,7 +42,6 @@ public final class Constants {
         public static final boolean invertGyro = false;
         /** The speed reduction when drive is in strafe mode; drive speed gets divided by this */
         public static final double strafeReduction = 4.;
-
         /** The speed reduction when drive is in precision mode; drive speed gets divided by this */
         public static final double precisionReduction = 8.;
 
@@ -210,7 +209,6 @@ public final class Constants {
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
         public static final double resetDutyCycle = 0.1;
 
-        // TODO: values are placeholders. Are LOAD and L1 all the same?
         /** Heights in meters */
         public enum Position { MIN, LOAD, L1, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
