@@ -51,13 +51,15 @@ public final class RobotContainer {
                 () -> drive.setTargetSpeeds(
                     controller.getSwerveTranslation(),
                     controller.getSwerveRotation(),
-                    (controller.driver.getRawAxis(7) > 0.5), // C switch toggles strafe mode
+                    // C switch toggles strafe mode AND snaps to reef
+                    (controller.driver.getRawAxis(7) > 0.5),
                     (controller.driver.getRawAxis(6) > 0.5) // D switch toggles precision mode
                 ),
                 drive
             )
         );
-        new Trigger(() -> controller.driver.getRawAxis(0) > 0.9).onTrue(drive.snapToReef()); // left joystick full up: snaps to reef
+        // C switch toggles strafe mode AND snaps to reef
+        new Trigger(() -> controller.driver.getRawAxis(7) > 0.5).onTrue(drive.snapToReef());
 
         // zero with climber pointing towards you -- LB button
         new Trigger(() -> controller.driver.getRawButton(1)).onTrue(
@@ -107,9 +109,9 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .5)
             .onTrue(algae.nudgeLeftCommand())
             .onFalse(algae.nudgeStopCommand());
-        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT)) 
+        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
             .onTrue(elevator.stepToCommand(Position.L4));
-        new Trigger(() -> controller.operator.getTrigger(Side.LEFT)) 
+        new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
             .onTrue(elevator.stepToCommand(Position.L3));
 
         // new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
