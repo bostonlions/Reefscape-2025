@@ -40,6 +40,7 @@ public final class RobotContainer {
     public RobotContainer() {
         CameraServer.startAutomaticCapture(0); // Start the Camera 1
         CameraServer.startAutomaticCapture(1); // Start the Camera 2
+        CameraServer.startAutomaticCapture(2); // Start the Camera 3
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
