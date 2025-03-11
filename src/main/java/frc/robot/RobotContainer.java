@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -38,9 +39,18 @@ public final class RobotContainer {
     private final Auton auton;
 
     public RobotContainer() {
-        CameraServer.startAutomaticCapture(0); // Start the Camera 1
-        CameraServer.startAutomaticCapture(1); // Start the Camera 2
-        CameraServer.startAutomaticCapture(2); // Start the Camera 3
+        // CameraServer.startAutomaticCapture(0); // Start the Camera 1
+        // CameraServer.startAutomaticCapture(1); // Start the Camera 2
+        // CameraServer.startAutomaticCapture(2); // Start the Camera 3
+        UsbCamera cam1 = CameraServer.startAutomaticCapture(0); // Start the Camera 1
+        UsbCamera cam2 = CameraServer.startAutomaticCapture(1); // Start the Camera 2
+        UsbCamera cam3 = CameraServer.startAutomaticCapture(2); // Start the Camera 3
+        cam1.setResolution(80,60);
+        cam1.setFPS(15);
+        cam2.setResolution(80,60);
+        cam2.setFPS(15);
+        cam3.setResolution(80,60);
+        cam3.setFPS(15);
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
         drive = Drive.getInstance();
