@@ -62,18 +62,18 @@ public final class RobotContainer {
                 () -> drive.setTargetSpeeds(
                     controller.getSwerveTranslation(),
                     controller.getSwerveRotation(),
-                    // C switch toggles strafe mode AND snaps to reef
-                    (controller.driver.getRawAxis(7) > 0.5),
-                    (controller.driver.getRawAxis(6) > 0.5) // D switch toggles precision mode
+                    // LB button switch toggles strafe mode AND snaps to reef
+                    (controller.driver.getRawButton(1)),
+                    ((controller.driver.getRawAxis(6) > 0.5)) // D switch toggles precision mode
                 ),
                 drive
             )
         );
-        // C switch toggles strafe mode AND snaps to reef
-        new Trigger(() -> controller.driver.getRawAxis(7) > 0.5).onTrue(drive.snapToReef());
+        // LB button toggles strafe mode AND snaps to reef (I changed it to the LB button again just because it feels better)
+        new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef());
 
-        // zero with climber pointing towards you -- LB button
-        new Trigger(() -> controller.driver.getRawButton(1)).onTrue(
+        // zero with climber pointing towards you -- C switch
+        new Trigger(() -> controller.driver.getRawAxis(7) > 0.5).onTrue(
             new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
         );
         // zero with algae pointing towards you -- RB button
