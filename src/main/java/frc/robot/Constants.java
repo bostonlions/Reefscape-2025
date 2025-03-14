@@ -203,8 +203,8 @@ public final class Constants {
         public static final double gearRatio = 5.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
-        public static final double bottomLimitTorque = 60.;
-        public static final double topLimitTorque = 100.;
+        public static final double bottomLimitTorque = 600.; // trying to see if making these huge fixes it
+        public static final double topLimitTorque = 1000.;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
         public static final double resetDutyCycle = 0.1;
@@ -215,10 +215,10 @@ public final class Constants {
             entry(Position.MIN, 0.06), // increased by 0.06
             entry(Position.LOAD, 0.063), // increased by 0.06
             entry(Position.L1, 0.18),
-            entry(Position.L2, 0.36),
-            entry(Position.L3, 0.75),
-            entry(Position.L4, 1.402),
-            entry(Position.BARGE, 1.43),
+            entry(Position.L2, 0.41), //.36
+            entry(Position.L3, 0.82), //.75
+            entry(Position.L4, 1.41), //.402
+            entry(Position.BARGE, 1.46),
             entry(Position.MAX, 1.431),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard. TODO: don't need this?
         );
@@ -321,7 +321,7 @@ public final class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double intakeSuction = -0.25;
+        public static final double intakeSuction = 0.0; //-.1
 
         public static final double angleGearRatio = (57. / 15) * 5;
         public static final double driveGearRatio = 2.;  // TODO figure out the actual number

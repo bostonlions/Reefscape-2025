@@ -128,7 +128,47 @@ public final class Auton extends SubsystemBase {
             drive.followPathCommand("BackUpFromBarge", false),
             sleep(0.5)
             .andThen(elevator.stepToCommand(Position.LOAD))
+        ))
+        ), entry("04 - pos2 TWO algae",
+        new ParallelCommandGroup(
+            drive.followPathCommand("Position2", true),
+            algae.upCommand()
+            .andThen(sleep(1))
+            .andThen(elevator.stepToCommand(Position.L4))
+        )
+        .andThen(coral.toggleCommand())
+        .andThen(sleep(.3))
+        .andThen(new ParallelCommandGroup(
+            drive.followPathCommand("FrontCoralToAlgae", false),
+            elevator.stepToCommand(Position.LOAD)
+        ))
+        .andThen(algae.toggleDriveCommand())
+        .andThen(drive.followPathCommand("MoveToFrontAlgae", false))
+        .andThen(new ParallelCommandGroup(
+            drive.followPathCommand("FrontReefToBarge", false),
+            sleep(.75)
+            .andThen(elevator.stepToCommand(Position.BARGE))
+        ))
+        .andThen(algae.toggleDriveCommand())
+        .andThen(sleep(.15))
+        .andThen(new ParallelCommandGroup(
+            drive.followPathCommand("BargeToRightReef", false),
+            sleep(0.25)
+            .andThen(elevator.stepToCommand(Position.L2))
+        ))
+        .andThen(drive.followPathCommand("PullUpRightReef", false))
+        .andThen(new ParallelCommandGroup(
+            drive.followPathCommand("rightReefToBarge", false),
+            sleep(.75)
+            .andThen(elevator.stepToCommand(Position.BARGE))
+        ))
+        .andThen(new ParallelCommandGroup(
+            drive.followPathCommand("BackUpFromBarge", false),
+            sleep(0.5)
+            .andThen(elevator.stepToCommand(Position.LOAD))
         )))
+
+
 
         
         //, entry ("Test", 

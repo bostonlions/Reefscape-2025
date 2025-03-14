@@ -258,7 +258,7 @@ public class Algae extends SubsystemBase {
     public void periodic() {
         boolean pDebug = false;
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
-
+        
         switch (mPeriodicIO.driveState) {
             case INTAKE_NO_ALGAE:
                 if (mBeamBreak.get()) {

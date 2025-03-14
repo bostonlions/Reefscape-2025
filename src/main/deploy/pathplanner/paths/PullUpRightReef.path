@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.74,
-        "y": 3.825
+        "x": 5.45025,
+        "y": 5.25
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.608789757572318,
-        "y": 4.109246483595964
+        "x": 5.295494549889364,
+        "y": 4.9949336317690065
       },
       "isLocked": false,
-      "linkedName": "frontReefAlgae"
+      "linkedName": "rightReefAway"
     },
     {
       "anchor": {
-        "x": 7.7805,
-        "y": 5.25
+        "x": 5.326039660573568,
+        "y": 5.048751207736416
       },
       "prevControl": {
-        "x": 7.020569703198187,
-        "y": 4.969592781372599
+        "x": 5.500583150197598,
+        "y": 5.317839087573459
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "barge"
+      "linkedName": "RightReefPos2"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.75,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 500.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.92599379524518
+    "rotation": 57.94017051432772
   },
   "reversed": false,
-  "folder": "04 - Pos 2 with Algae",
+  "folder": "08 - pos 2 TWO algae",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 57.94017051432772
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

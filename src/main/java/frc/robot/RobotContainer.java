@@ -87,6 +87,10 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.LB)).onTrue(elevator.stepDownCommand());
         new Trigger(() -> controller.operator.getButton(Button.RB)).onTrue(elevator.stepUpCommand());
         new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(elevator.forceDownCommand());
+        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) < -.75)
+            .onTrue(elevator.stepToCommand(Position.L4));
+        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .75)
+            .onTrue(elevator.stepToCommand(Position.LOAD));
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
@@ -114,16 +118,15 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.A)).onTrue(algae.downCommand());
         new Trigger(() -> controller.operator.getButton(Button.Y)).onTrue(algae.upCommand());
         new Trigger(() -> controller.operator.getButton(Button.B)).onTrue(algae.toggleDriveCommand());
-        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) < -.5)
+        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
             .onTrue(algae.nudgeRightCommand())
             .onFalse(algae.nudgeStopCommand());
-        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .5)
+        new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
             .onTrue(algae.nudgeLeftCommand())
             .onFalse(algae.nudgeStopCommand());
-        new Trigger(() -> controller.operator.getTrigger(Side.RIGHT))
-            .onTrue(elevator.stepToCommand(Position.L4));
-        new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
-            .onTrue(elevator.stepToCommand(Position.L3));
+
+
+        
 
         // new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
         //     .onTrue(algae.nudgeLeftCommand())
