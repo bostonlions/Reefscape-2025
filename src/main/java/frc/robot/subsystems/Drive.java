@@ -118,8 +118,9 @@ public final class Drive extends SubsystemBase {
     }
 
     private double getPidValueForSnap() {
-        return MathUtil.inputModulus(
-            snapPid.calculate(mPeriodicIO.heading.getDegrees(), mPeriodicIO.targetHeading), -180, 180
+        return snapPid.calculate(
+            MathUtil.inputModulus(mPeriodicIO.heading.getDegrees() - mPeriodicIO.targetHeading, -180, 180),
+            0
         );
     }
 

@@ -89,6 +89,10 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getButton(Button.BACK)).onTrue(elevator.forceDownCommand());
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) < -.75)
             .onTrue(elevator.stepToCommand(Position.L4));
+        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.X) > .9)
+            .onTrue(elevator.stepToCommand(Position.L3));
+        new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.X) < -.9)
+            .onTrue(elevator.stepToCommand(Position.L2));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .75)
             .onTrue(elevator.stepToCommand(Position.LOAD));
 
@@ -125,15 +129,12 @@ public final class RobotContainer {
             .onTrue(algae.nudgeLeftCommand())
             .onFalse(algae.nudgeStopCommand());
 
-
-        
-
         // new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
         //     .onTrue(algae.nudgeLeftCommand())
         //     .onFalse(algae.nudgeStopCommand());
 
         /*
-         * TRIMMER - all subsystems can add items to be adjusted
+         * TRIMMER - all subsystems can add items to be adjusted.
          * These commands are marked to run in disabled mode, so we can
          * tweak parameters and choose auto commands prior to the match starting.
          */
@@ -155,7 +156,7 @@ public final class RobotContainer {
 
     public void teleopInit() {
         drive.setTargetSpeeds(new Translation2d(), 0, false, false);
-
+        drive.zeroGyro(0); // added this to change heading +180 coming out of auto
         // climberHook.markPosition(Position.STOW);
     }
 }

@@ -36,6 +36,10 @@ public final class ControlBoard {
         if (ControllerConstants.isMambo) {
             forwardAxis = driver.getRawAxis(2);
             strafeAxis = driver.getRawAxis(1);
+            double mag = Math.pow(forwardAxis*forwardAxis + strafeAxis * strafeAxis, 0.5);
+            double curveFactor = Math.pow(mag, 0.25);
+            forwardAxis = forwardAxis * curveFactor;
+            strafeAxis = strafeAxis * curveFactor;
         } else {
             forwardAxis = getRightThrottle();
             strafeAxis = getRightYaw();

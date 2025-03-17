@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.924676170440197,
-        "y": 2.59
+        "x": 4.645,
+        "y": 2.425
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.332973215773766,
-        "y": 2.8384793505584227
+        "x": 5.053297045333569,
+        "y": 2.6734793505584227
       },
       "isLocked": false,
       "linkedName": "leftReefCoral"

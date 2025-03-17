@@ -31,4 +31,3 @@ public final class LimitSwitch {
         return cleared;
     }
 }
-

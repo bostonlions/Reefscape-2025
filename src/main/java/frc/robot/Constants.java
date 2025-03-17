@@ -153,7 +153,7 @@ public final class Constants {
     }
 
     /** For DriveMotionPlanner */
-    public static final class AutonConstants { // TODO: clean up this class and others when auton sorted out
+    public static final class AutonConstants {
         public static final double snapP = 6.;
         public static final double snapI = 0.5;
         public static final double snapD = 0.2;
@@ -177,17 +177,17 @@ public final class Constants {
         public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
 
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
-            60., // TODO: get this right?
-            3.873, // TODO: get this right?
+            60.,
+            3.873,
             new ModuleConfig(
                 SwerveConstants.wheelDiameter/2,
                 SwerveConstants.maxAttainableSpeed,
-                1.15, // TODO: get this right? Loooked up online and think 1.15 is correct
+                1.15,
 
                 // .withReduction here is VERY IMPORTANT! Autonomous drive WILL NOT WORK WITHOUT IT
                 DCMotor.getKrakenX60(1).withReduction(SwerveConstants.driveGearRatio),
 
-                111., // TODO: get this right? was 60 changed to 111 per pathplanner suggestion
+                111.,
                 4
             ),
             moduleTranslations[0], moduleTranslations[1], moduleTranslations[2], moduleTranslations[3]
@@ -204,27 +204,27 @@ public final class Constants {
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
         public static final double bottomLimitTorque = 600.; // trying to see if making these huge fixes it
+        public static final double zeroingLimitTorque = 30.; // trying to see if making these huge fixes it
         public static final double topLimitTorque = 1000.;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
-        public static final double resetDutyCycle = 0.1;
+        public static final double resetDutyCycle = 0.3;
 
         /** Heights in meters */
-        public enum Position { MIN, LOAD, L1, L2, L3, L4, BARGE, MAX, MANUAL }
+        public enum Position { MIN, LOAD, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.06), // increased by 0.06
             entry(Position.LOAD, 0.063), // increased by 0.06
-            entry(Position.L1, 0.18),
-            entry(Position.L2, 0.41), //.36
-            entry(Position.L3, 0.82), //.75
-            entry(Position.L4, 1.41), //.402
-            entry(Position.BARGE, 1.46),
-            entry(Position.MAX, 1.431),
-            entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard. TODO: don't need this?
+            entry(Position.L2, 0.36), //.36 home: .41
+            entry(Position.L3, 0.75), //.75 home: .82
+            entry(Position.L4, 1.38), //.402 home: 1.41
+            entry(Position.BARGE, 1.48),
+            entry(Position.MAX, 1.485),
+            entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually with trimmer
         );
         /** These are the positions you can access with step up and down */
         public static final List<Position> positionOrder = List.of(
-            Position.LOAD, Position.L1, Position.L2, Position.L3, Position.L4, Position.BARGE
+            Position.LOAD, Position.L2, Position.L3, Position.L4, Position.BARGE
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -253,23 +253,22 @@ public final class Constants {
         public static final double limitVelocity = 1;
         public static final double extensionTolerance = 0.1;
 
-        // TODO: figure out these values
         public static final double extendSpeed = 2.5;
-        public static final double climbSpeed = 2.5;
+        public static final double climbSpeed = 3.5;
         public static final double nudgeSpeed = 2.1;
-        public static final double climbDelay = 0.5;  // seconds to wait at DROP before climbing
+        public static final double climbDelay = 0.5; // seconds to wait at DROP before climbing
         public static final double footReleaseDelay = 2.;
         public static final double footReleaseRotations = 0.6;
 
         public enum Position { MIN, CLIMBED, STOW, LATCH, DROP, MAX, MANUAL }
+
+        /** Values are in winch rotations */
         public static final Map<Position, Double> extensions = Map.ofEntries(
-            // values are in winch rotations
-            // TODO figure out these values (and if the sign is even right!)
             entry(Position.MIN, -4.5),
             entry(Position.CLIMBED, -4.11),
             entry(Position.STOW, 0.), // front of prop hitting circle at front of hook
             entry(Position.LATCH, 0.30), //.99 front of prop hitting back of hook top plate
-            entry(Position.DROP, 1.5), //
+            entry(Position.DROP, 1.5),
             entry(Position.MAX, 3.)
         );
 
@@ -295,9 +294,9 @@ public final class Constants {
 
     public static final class CoralConstants {
         public static final double gearRatio = 4.;
-        public static final double loadSpeed = 0.75;
-        public static final double extraLoadRotations = 0.03; // if this is 0 we never break from case statement
-        public static final double unloadSpeed = 1.;
+        public static final double loadSpeed = 0.7;
+        public static final double extraLoadRotations = 0.02; // if this is 0 we never break from case statement
+        public static final double unloadSpeed = 0.35;
         public static final double extraUnloadRotations = 0.2;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -321,41 +320,44 @@ public final class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double intakeSuction = 0.0; //-.1
+        public static final double intakeSuction = -.1;
 
         public static final double angleGearRatio = (57. / 15) * 5;
-        public static final double driveGearRatio = 2.;  // TODO figure out the actual number
+        public static final double driveGearRatio = 2.;
 
-        public static final double nudgeSpeed = 3.;
-
-        /** Should be the amount of SECONDS it takes to stop */
-        public static final double extraGroundIntakeTime = .07; //.009
-        public static final double groundIntakeSpeed = 18; //was 0.5
+        /** Hardly a nudge anymore, nudge is to push balls into the processor */
+        public static final double nudgeSpeed = 18.;
 
         /** Should be the amount of SECONDS it takes to stop */
-        public static final double extraReefIntakeTime = 0.4;
-        public static final double reefIntakeSpeed = 20;
+        public static final double extraGroundIntakeTime = .07; // .009
+        public static final double groundIntakeSpeed = 25.; // was 0.5
+
+        /** Should be the amount of SECONDS it takes to stop */
+        public static final double extraReefIntakeTime = 0.8;
+        public static final double reefIntakeSpeed = 20.;
 
         /** Should be the amount of ROTATIONS it takes to stop */
         public static final double extraProcessorUnloadRotations = 36.;
         public static final double processorUnloadSpeed = 18.;
 
         /** Should be the amount of ROTATIONS it takes to stop */
-        public static final double extraBargeUnloadRotations = 2.;
-        public static final double bargeUnloadSpeed = 18;
+        public static final double extraBargeUnloadRotations = 15.;
+        public static final double bargeUnloadSpeed = 18.;
 
-        // Set the cancoder offset to its reading in degrees at exactly horizontal
-        // to get that value, set cancoderOffset=o load the code to the robot and
-        // look at smart dashboard for the CANCoder Position when it is horizontal
-        public static final double cancoderOffset = -27.0;//-112.5; // -144.759;  38??
+        /**
+         * Cancoder offset should be set to its reading in degrees at exactly horizontal.
+         * To get that value, set cancoderOffset to 0, load the code to the robot, and
+         * look at smart dashboard for the CANCoder Position when it is horizontal
+         */
+        public static final double cancoderOffset = -27.;
 
         public enum Position {
             MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
         }
 
-        // Angles in degrees from horizontal:
+        /** Angles in degrees from horizontal */
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -82.),
+            entry(Position.MIN, -91.),
             entry(Position.STOW_DOWN, -82.),
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
@@ -366,7 +368,7 @@ public final class Constants {
             entry(Position.STOW_UP, 95.),
             entry(Position.MAX, 115.)
         );
-        // // small motion range for testing only
+        // /** Small motion range for testing only */
         // public static final Map<Position, Double> angles = Map.ofEntries(
         //     entry(Position.MIN, -8.),
         //     entry(Position.STOW_DOWN, 8.),

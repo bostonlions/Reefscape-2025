@@ -20,7 +20,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Ports;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Position;
-import frc.robot.lib.drivers.BeamBreak;
 import frc.robot.lib.drivers.LimitSwitch;
 
 import static frc.robot.Constants.ElevatorConstants.heights;
@@ -31,6 +30,7 @@ public class Elevator extends SubsystemBase {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private static Elevator mInstance;
     private final TalonFX mMain;
+    private boolean mForcingDown = false;
     private final TalonFX mFollower;
     private final LimitSwitch mLimitSwitch;
 
@@ -146,7 +146,8 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.targetPosition = Position.MIN;
         mPeriodicIO.targetHeight = heights.get(Position.MIN);
         mPeriodicIO.moving = false;
-
+        // Always reset forcing down when marking the min
+        mForcingDown = false;
         mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
     }
 
@@ -155,6 +156,7 @@ public class Elevator extends SubsystemBase {
         System.out.println("Elevator forceDown");
         mPeriodicIO.targetHeight = -1000.; // tell it we're going down, so we don't check the upper height limit
         mMain.setControl(new DutyCycleOut(-ElevatorConstants.resetDutyCycle));
+        mForcingDown = true;
     }
 
     private static final class PeriodicIO {
@@ -185,9 +187,12 @@ public class Elevator extends SubsystemBase {
             // forceDown();
         }
 
-        /* Have we hit the top or bottom? */
+        /* Have we hit the top or bottom? and if forcing down have a differnet torque limit */
+        double tourqueLimit = ElevatorConstants.bottomLimitTorque;
+        if (mForcingDown) tourqueLimit = ElevatorConstants.zeroingLimitTorque;
+
         if (
-            ((mPeriodicIO.torqueCurrent < -ElevatorConstants.bottomLimitTorque) &&
+            ((mPeriodicIO.torqueCurrent < -tourqueLimit) &&
             (mPeriodicIO.velocity > -ElevatorConstants.limitVelocity) &&
             (mPeriodicIO.targetHeight < mPeriodicIO.height)) // ||
             // (mLimitSwitch.get() && mPeriodicIO.targetPosition != Position.MIN)

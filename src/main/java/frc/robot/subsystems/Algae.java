@@ -88,7 +88,7 @@ public class Algae extends SubsystemBase {
         mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
 
         mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
-        mAngleMotor.setPosition(getAdjustedCancoderAngle() * AlgaeConstants.angleGearRatio / 360); // TODO not needed?
+
         angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
         angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
@@ -146,14 +146,17 @@ public class Algae extends SubsystemBase {
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
     }
 
-    /**
-     * Use xbox triggers to turn the drive wheel a bit in or out
-     * so operator can get a better grip on the ball
-     */
+    /** Use xbox triggers to turn the drive wheel a bit in or out so operator can get a better grip on the ball */
     public void nudgeDrive(int direction) {
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case LOADED:
+                boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
+                mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(
+                    direction == 0 ? mPeriodicIO.driveState : DriveState.UNLOADING_NO_ALGAE
+                );
+                setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
+    
                 mPeriodicIO.D_demand = direction * AlgaeConstants.nudgeSpeed * AlgaeConstants.driveGearRatio;
                 mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
                 break;

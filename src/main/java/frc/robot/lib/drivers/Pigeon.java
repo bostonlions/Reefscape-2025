@@ -68,4 +68,8 @@ public final class Pigeon {
     public Rotation2d getUnadjustedRoll() {
         return Rotation2d.fromDegrees(mGyro.getPitch().getValue().in(Units.Degrees));
     }
+
+    public void setYawPlus180() {
+        yawAdjustmentAngle = getUnadjustedYaw().rotateBy(Rotation2d.fromDegrees(180).unaryMinus());
+    }
 }
