@@ -132,14 +132,14 @@ public final class SwerveDrive extends SubsystemBase {
             driveTrain.setControl(
                 new SwerveRequest.ApplyRobotSpeeds()
                     .withSpeeds(requestedSpeeds)
-                    .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+                    .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             );
         } else {
             driveTrain.setControl(
                 new SwerveRequest.ApplyFieldSpeeds()
                     .withSpeeds(requestedSpeeds)
-                    .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+                    .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             );
         }

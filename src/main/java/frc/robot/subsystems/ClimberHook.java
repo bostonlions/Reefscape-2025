@@ -33,13 +33,20 @@ public class ClimberHook extends SubsystemBase {
     }
 
     private ClimberHook() {
+        System.out.println("start climberhook init");
+
         mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_OPS);
         motorConfig = ClimberHookConstants.motorConfig;
+        System.out.println("done climberhook motor instantiation");
+
         setConfig();
+        System.out.println("done climberhook motor config");
 
         setWantNeutralBrake(true);
         markPosition(Position.STOW);
+        System.out.println("done climberhook markPosition");
         initTrimmer();
+        System.out.println("done climberhook init");
     }
 
     /* Commands */
@@ -65,6 +72,7 @@ public class ClimberHook extends SubsystemBase {
     }
 
     private void setConfig() {
+        System.out.println("climberhook setConfig: " + mMotor + ", " + motorConfig);
         mMotor.getConfigurator().apply(motorConfig);
     }
 

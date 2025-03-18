@@ -96,6 +96,7 @@ public final class RobotContainer {
             .onTrue(elevator.stepToCommand(Position.L2));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .75)
             .onTrue(elevator.stepToCommand(Position.LOAD));
+        System.out.println("done starting elevator");
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
@@ -111,11 +112,13 @@ public final class RobotContainer {
         // new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) < -0.5)
         //     .onTrue(climberHook.climbCommand());
         // Trigger(() -> controller.operator.getButton(Button.START)).onTrue(climberHook.footReleaseCommand());
+        System.out.println("done starting climberhook");
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();
         SmartDashboard.putData(coral);
         new Trigger(() -> controller.operator.getButton(Button.X)).onTrue(coral.toggleCommand());
+        System.out.println("done starting coral");
 
         /* ALGAE SUBSYSTEM AND COMMANDS */
         algae = Algae.getInstance();
@@ -149,6 +152,7 @@ public final class RobotContainer {
         /* Autonomous commands */
         auton = Auton.getInstance();
         SmartDashboard.putData(auton);
+        System.out.println("done init RobotContainer");
     }
 
     public Command getAutonomousCommand() {

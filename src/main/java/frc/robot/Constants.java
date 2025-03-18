@@ -261,7 +261,7 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(30)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(8) // 0.02
+                .withKP(8.) // 0.02
                 .withKI(0.)
                 .withKD(0.)
                 .withKV(0.))
