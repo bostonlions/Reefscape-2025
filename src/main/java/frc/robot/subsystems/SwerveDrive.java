@@ -50,6 +50,9 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     private SwerveDrive() {
+        final byte pos = 1;
+        final byte neg = -1;
+
         driveTrain = new SwerveDrivetrain<TalonFX, TalonFX, CANcoder>(
             TalonFX::new, TalonFX::new, CANcoder::new,
             new SwerveDrivetrainConstants()
@@ -58,19 +61,19 @@ public final class SwerveDrive extends SubsystemBase {
                 .withPigeon2Configs(new Pigeon2Configuration()),
             getNewSMConstants(
                 Ports.FR_ROTATION, Ports.FR_DRIVE, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset,
-                (byte) 1, (byte) 1
+                pos, pos
             ),
             getNewSMConstants(
                 Ports.FL_ROTATION, Ports.FL_DRIVE, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset,
-                (byte) -1, (byte) 1
+                neg, pos
             ),
             getNewSMConstants(
                 Ports.BR_ROTATION, Ports.BR_DRIVE, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset,
-                (byte) 1, (byte) -1
+                pos, neg
             ),
             getNewSMConstants(
                 Ports.BL_ROTATION, Ports.BL_DRIVE, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset,
-                (byte) -1, (byte) -1
+                neg, neg
             )
         );
     }
@@ -166,7 +169,7 @@ public final class SwerveDrive extends SubsystemBase {
     public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe) {
         strafeMode = strafe;
         requestedSpeeds = new ChassisSpeeds(targetSpeed.getX(), targetSpeed.getY(), targetRotationRate);
-        
+
         if (strafe) {
             driveTrain.setControl(
                 new SwerveRequest.ApplyRobotSpeeds()
@@ -184,14 +187,9 @@ public final class SwerveDrive extends SubsystemBase {
         }
     }
 
-    private void disable() {
-        // TODO
-    }
-
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Swerve Drive");
-        builder.setSafeState(this::disable);
         builder.setActuator(true);
 
         builder.addBooleanProperty("Strafe Mode? ", () -> strafeMode, null);

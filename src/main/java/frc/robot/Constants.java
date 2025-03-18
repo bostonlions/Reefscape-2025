@@ -35,10 +35,6 @@ import frc.robot.subsystems.SwerveDrive;
 
 public final class Constants {
     public static final class SwerveConstants {
-        /** Robot loop time - but only used by swerve */
-        public static final double kLooperDt = 0.02;
-        /** Always ensure Gyro is CCW+ CW- */
-        public static final boolean invertGyro = false;
         /** The speed reduction when drive is in strafe mode; drive speed gets divided by this */
         public static final double strafeReduction = 4.;
         /** The speed reduction when drive is in precision mode; drive speed gets divided by this */
@@ -123,28 +119,6 @@ public final class Constants {
 
     /** For DriveMotionPlanner */
     public static final class AutonConstants {
-        public static final double snapP = 6.;
-        public static final double snapI = 0.5;
-        public static final double snapD = 0.2;
-
-        public static final double kPXController = 6.7;
-        public static final double kPYController = 6.7;
-
-        public static final double kDXController = 0.;
-        public static final double kDYController = 0.;
-
-        public static final double kPThetaController = 2.75; // was 2, changed to 4 -- faster it turns = more wheels slip
-
-        // Constraints for the motion profilied robot angle controller (Radians)
-        public static final double kMaxAngularSpeed = 2 * Math.PI;
-        public static final double kMaxAngularAccel = 2 * Math.PI * kMaxAngularSpeed;
-        public static final double kMaxCentripetalAccel = 10.;
-
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-            new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAccel);
-
-        public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
-
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
             57.,
             3.873,
@@ -236,7 +210,7 @@ public final class Constants {
     public static final class ClimberHookConstants {
         public static final double gearRatio = 80.;
         public static final double limitTorque = 100.;
-        public static final double limitVelocity = 1;
+        public static final double limitVelocity = 1.;
         public static final double extensionTolerance = 0.1;
 
         public static final double extendSpeed = 2.5;
@@ -250,11 +224,12 @@ public final class Constants {
 
         /** Values are in winch rotations */
         public static final Map<Position, Double> extensions = Map.ofEntries(
-            // TODO: values are in degrees, but aren't correct yet
-            entry(Position.MIN, 0.),
-            entry(Position.IN, 10.),
-            entry(Position.OUT, 180.),
-            entry(Position.MAX, 200.)
+            entry(Position.MIN, -4.5),
+            entry(Position.CLIMBED, -4.11),
+            entry(Position.STOW, 0.), // front of prop hitting circle at front of hook
+            entry(Position.LATCH, 0.30), // .99 front of prop hitting back of hook top plate
+            entry(Position.DROP, 1.5),
+            entry(Position.MAX, 3.)
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -311,7 +286,7 @@ public final class Constants {
         public static final double angleGearRatio = (57. / 15) * 5;
         public static final double driveGearRatio = 2.;
 
-        /** Hardly a nudge anymore, nudge is to push balls into the processor */
+        /** Hardly a nudge anymore; nudge is now to push balls into the processor */
         public static final double nudgeSpeed = 18.;
 
         /** Should be the amount of SECONDS it takes to stop */
@@ -331,7 +306,7 @@ public final class Constants {
         public static final double bargeUnloadSpeed = 18.;
 
         /**
-         * Cancoder offset should be set to its reading in degrees at exactly horizontal.
+         * Cancoder offset should be set to reading in degrees at exactly horizontal.
          * To get that value, set cancoderOffset to 0, load the code to the robot, and
          * look at smart dashboard for the CANCoder Position when it is horizontal
          */
@@ -398,7 +373,7 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(10.)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(1.65) //6.5 w 9
+                .withKP(1.65) // 6.5 w 9
                 .withKI(0.04) // .09 w 9
                 .withKD(0.012)
                 .withKV(0.)
@@ -406,7 +381,7 @@ public final class Constants {
                 .withKS(0.)
                 .withKG(0.))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(8.3) //42 w9
+                .withMotionMagicCruiseVelocity(8.3) // 42 w9
                 .withMotionMagicExpo_kA(0.3)
                 // .withMotionMagicJerk(1600)
                 .withMotionMagicAcceleration(1.5)) // 10 w9
@@ -428,9 +403,7 @@ public final class Constants {
          * <p> Set to 1 for 100% of joystick range
          */
         public static final double kInputClipping = 1.;
-
         public static final double kTriggerThreshold = 0.2;
-
         public static final double stickDeadband = 0.05;
         public static final int leftXAxis = 0;
         public static final int leftYAxis = 1;

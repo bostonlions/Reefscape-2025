@@ -1,11 +1,10 @@
 package frc.robot;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static java.util.Map.entry;
-
-import java.util.Arrays;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -171,7 +170,7 @@ public final class Auton extends SubsystemBase {
         // ))
         )
 
-        )//, entry ("Test",
+        //, entry ("Test",
         //     drive.followPathCommand("Position2", true)
         //     .andThen(drive.followPathCommand("FromCoralToAlgae", false))
         //     .andThen(drive.followPathCommand("FrontReefToBarge", false))
