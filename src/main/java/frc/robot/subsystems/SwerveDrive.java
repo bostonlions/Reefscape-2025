@@ -1,23 +1,13 @@
 package frc.robot.subsystems;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
@@ -25,7 +15,6 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -41,8 +30,6 @@ public final class SwerveDrive extends SubsystemBase {
     private SwerveDrivetrain<TalonFX, TalonFX, CANcoder> driveTrain;
     private boolean strafeMode;
     private ChassisSpeeds requestedSpeeds = new ChassisSpeeds();
-    /** Robot relative */
-    public List<Pair<Double, Double>> swerveModulePositions = new ArrayList<>();
 
     public static SwerveDrive getInstance() {
         if (instance == null) instance = new SwerveDrive();
@@ -50,66 +37,34 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     private SwerveDrive() {
-        final byte pos = 1;
-        final byte neg = -1;
-
         driveTrain = new SwerveDrivetrain<TalonFX, TalonFX, CANcoder>(
             TalonFX::new, TalonFX::new, CANcoder::new,
-            new SwerveDrivetrainConstants()
-                .withCANBusName(Ports.CANBUS_DRIVE)
-                .withPigeon2Id(Ports.PIGEON)
-                .withPigeon2Configs(new Pigeon2Configuration()),
-            getNewSMConstants(
+            new SwerveDrivetrainConstants().withCANBusName(Ports.CANBUS_DRIVE).withPigeon2Id(Ports.PIGEON),
+            SwerveConstants.SMConstFactory.createModuleConstants(
                 Ports.FR_ROTATION, Ports.FR_DRIVE, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset,
-                pos, pos
+                SwerveConstants.swerveModulePositions.get(0).getFirst(),
+                SwerveConstants.swerveModulePositions.get(0).getSecond(),
+                false, false, false
             ),
-            getNewSMConstants(
+            SwerveConstants.SMConstFactory.createModuleConstants(
                 Ports.FL_ROTATION, Ports.FL_DRIVE, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset,
-                neg, pos
+                SwerveConstants.swerveModulePositions.get(1).getFirst(),
+                SwerveConstants.swerveModulePositions.get(1).getSecond(),
+                false, false, false
             ),
-            getNewSMConstants(
+            SwerveConstants.SMConstFactory.createModuleConstants(
                 Ports.BR_ROTATION, Ports.BR_DRIVE, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset,
-                pos, neg
+                SwerveConstants.swerveModulePositions.get(2).getFirst(),
+                SwerveConstants.swerveModulePositions.get(2).getSecond(),
+                false, false, false
             ),
-            getNewSMConstants(
+            SwerveConstants.SMConstFactory.createModuleConstants(
                 Ports.BL_ROTATION, Ports.BL_DRIVE, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset,
-                neg, neg
+                SwerveConstants.swerveModulePositions.get(3).getFirst(),
+                SwerveConstants.swerveModulePositions.get(3).getSecond(),
+                false, false, false
             )
         );
-    }
-
-    private SwerveModuleConstants<
-        TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
-    > getNewSMConstants(
-        int anglePort, int drivePort, int CANPort, double CANcoderOffset, byte xSign, byte ySign
-    ) {
-        swerveModulePositions.add(new Pair<Double, Double>(
-            xSign * SwerveConstants.trackWidth / 2, ySign * SwerveConstants.wheelBase / 2
-        ));
-
-        return new SwerveModuleConstantsFactory<
-            TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
-        >().createModuleConstants(
-            anglePort, drivePort, CANPort, CANcoderOffset,
-            swerveModulePositions.get(swerveModulePositions.size() - 1).getFirst(),
-            swerveModulePositions.get(swerveModulePositions.size() - 1).getSecond(),
-            false, false, false
-        )
-        .withCouplingGearRatio(SwerveConstants.couplingGearRatio)
-        .withDriveMotorGains(SwerveConstants.driveConfig.Slot0)
-        .withDriveMotorGearRatio(SwerveConstants.driveGearRatio)
-        .withDriveMotorInitialConfigs(SwerveConstants.driveConfig)
-        .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
-        .withDriveMotorType(DriveMotorArrangement.TalonFX_Integrated)
-        .withEncoderInitialConfigs(SwerveConstants.cancoderConfig)
-        .withFeedbackSource(SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder)
-        .withSteerMotorGains(SwerveConstants.angleConfig.Slot0)
-        .withSteerMotorGearRatio(SwerveConstants.angleGearRatio)
-        .withSteerMotorInitialConfigs(SwerveConstants.angleConfig)
-        .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
-        .withSteerMotorType(SteerMotorArrangement.TalonFX_Integrated)
-        .withSpeedAt12Volts(SwerveConstants.maxSpeed)
-        .withWheelRadius(SwerveConstants.wheelDiameter / 2);
     }
 
     public Command followPathCommand(String pathName, boolean isFirstPath) {
@@ -145,7 +100,6 @@ public final class SwerveDrive extends SubsystemBase {
                             .withWheelForceFeedforwardsX(dff.robotRelativeForcesX())
                             .withWheelForceFeedforwardsY(dff.robotRelativeForcesY())
                     );
-                    // System.out.println("path following " + setPointSpeeds + ". At " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute");
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
                 AutonConstants.ppHolonomicDriveController,
                 AutonConstants.pathPlannerConfig,
@@ -166,7 +120,11 @@ public final class SwerveDrive extends SubsystemBase {
         driveTrain.resetRotation(new Rotation2d(180.));
     }
 
-    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe) {
+    public void zeroGyroReversed() {
+        driveTrain.resetRotation(new Rotation2d(0.));
+    }
+
+    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe, boolean precision) { // TODO: precision mode
         strafeMode = strafe;
         requestedSpeeds = new ChassisSpeeds(targetSpeed.getX(), targetSpeed.getY(), targetRotationRate);
 

@@ -22,16 +22,21 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-
-import frc.robot.subsystems.SwerveDrive;
 
 public final class Constants {
     public static final class SwerveConstants {
@@ -40,70 +45,19 @@ public final class Constants {
         /** The speed reduction when drive is in precision mode; drive speed gets divided by this */
         public static final double precisionReduction = 8.;
 
+        public static final double maxAngularVelocity = 8.;
+
         // Drivetrain Constants
-        public static final double trackWidth = Units.inchesToMeters(24.25);
-        public static final double wheelBase = Units.inchesToMeters(24.25);
+        private static final double trackWidth = Units.inchesToMeters(24.25);
+        private static final double wheelBase = Units.inchesToMeters(24.25);
 
-        public static final double wheelDiameter = Units.inchesToMeters(4); // was 3.85 but tire is 4 w/tread
-
-        /** Can tune this value by driving a certain distance and multiplying a const to fix the error */
-        public static final double driveGearRatio = 6.3; // also tried 6.12 // ((5.3 / 1.07) / 1.04) ?  maybe 4.7628
-        public static final double angleGearRatio = 150./7;
-        public static final double couplingGearRatio = 50./14; // TODO: check if this value is right
-
-        public static final double maxSpeed = 5.02;
-        public static final double maxAccel = Double.MAX_VALUE;
-        public static final double maxAngularVelocity = 8.; // was 8.0 toggled to 2.0
-        public static final double maxAngularAccel = Double.MAX_VALUE;
-
-        /** Max out at 85% to make sure speeds are attainable (4.6 mps) */
-        public static final double maxAttainableSpeed = maxSpeed * 0.85;
-
-        public static final TalonFXConfiguration driveConfig = new TalonFXConfiguration()
-            .withCurrentLimits(new CurrentLimitsConfigs()
-                .withSupplyCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(65)
-                .withSupplyCurrentLowerLimit(62)
-                .withSupplyCurrentLowerTime(0.1))
-            .withVoltage(new VoltageConfigs()
-                .withPeakForwardVoltage(12.)
-                .withPeakReverseVoltage(-12.))
-            .withSlot0(new Slot0Configs()
-                .withKP(0.03)
-                .withKI(0.)
-                .withKD(0.)
-                .withKV(0.124))
-            .withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.CounterClockwise_Positive))
-            .withOpenLoopRamps(new OpenLoopRampsConfigs()
-                .withDutyCycleOpenLoopRampPeriod(0.25)
-                .withVoltageOpenLoopRampPeriod(0.25));
-
-        public static final TalonFXConfiguration angleConfig = new TalonFXConfiguration()
-            .withCurrentLimits(new CurrentLimitsConfigs()
-                .withSupplyCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(40)
-                .withSupplyCurrentLowerLimit(25)
-                .withSupplyCurrentLowerTime(0.1))
-            .withVoltage(new VoltageConfigs()
-                .withPeakForwardVoltage(12.)
-                .withPeakReverseVoltage(-12.0))
-            .withSlot0(new Slot0Configs()
-                .withKP(1.2)
-                .withKI(0.)
-                .withKD(0.)
-                .withKS(0.)
-                .withKV(1.)
-                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
-            .withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Coast)
-                .withInverted(InvertedValue.Clockwise_Positive));
-
-        public static final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
-            .withMagnetSensor(new MagnetSensorConfigs()
-                .withAbsoluteSensorDiscontinuityPoint(1.0)
-                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+        /** Robot relative */
+        public static final List<Pair<Double, Double>> swerveModulePositions = List.of(
+            new Pair<Double, Double>(trackWidth / 2, wheelBase / 2),
+            new Pair<Double, Double>(-trackWidth / 2, wheelBase / 2),
+            new Pair<Double, Double>(trackWidth / 2, -wheelBase / 2),
+            new Pair<Double, Double>(-trackWidth / 2, -wheelBase / 2)
+        );
 
         // MODULE CANCODER ANGLE OFFSETS
         // To calibrate:
@@ -115,39 +69,107 @@ public final class Constants {
         public static final double FR_AngleOffset = 89.1211;
         public static final double BL_AngleOffset = 191.3379;
         public static final double BR_AngleOffset = 73.2129;
+
+        public static final SwerveModuleConstantsFactory<
+            TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
+        > SMConstFactory = new SwerveModuleConstantsFactory<
+            TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
+        >()
+            .withCouplingGearRatio(50. / 14) // TODO: is this value right?
+            // .withDriveMotorGains(SwerveConstants.driveConfig.Slot0) // TODO: do we need this? -- i think initial configs makes this not needed
+            .withDriveMotorGearRatio(6.3)
+            .withDriveMotorInitialConfigs(
+                new TalonFXConfiguration()
+                .withCurrentLimits(new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimitEnable(true)
+                    .withSupplyCurrentLimit(65)
+                    .withSupplyCurrentLowerLimit(62)
+                    .withSupplyCurrentLowerTime(0.1))
+                .withVoltage(new VoltageConfigs()
+                    .withPeakForwardVoltage(12.)
+                    .withPeakReverseVoltage(-12.))
+                .withSlot0(new Slot0Configs()
+                    .withKP(0.03)
+                    .withKI(0.)
+                    .withKD(0.)
+                    .withKV(0.124))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.CounterClockwise_Positive))
+                .withOpenLoopRamps(new OpenLoopRampsConfigs()
+                    .withDutyCycleOpenLoopRampPeriod(0.25)
+                    .withVoltageOpenLoopRampPeriod(0.25))
+            )
+            .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
+            .withDriveMotorType(DriveMotorArrangement.TalonFX_Integrated)
+            .withEncoderInitialConfigs(
+                new CANcoderConfiguration()
+                    .withMagnetSensor(new MagnetSensorConfigs()
+                    .withAbsoluteSensorDiscontinuityPoint(1.)
+                    .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive))
+            )
+            .withFeedbackSource(SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder)
+            // .withSteerMotorGains(SwerveConstants.angleConfig.Slot0) // TODO: do we need this? -- i think initial configs makes this not needed
+            .withSteerMotorGearRatio(150. / 7)
+            .withSteerMotorInitialConfigs(
+                new TalonFXConfiguration()
+                .withCurrentLimits(new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimitEnable(true)
+                    .withSupplyCurrentLimit(40)
+                    .withSupplyCurrentLowerLimit(25)
+                    .withSupplyCurrentLowerTime(0.1))
+                .withVoltage(new VoltageConfigs()
+                    .withPeakForwardVoltage(12.)
+                    .withPeakReverseVoltage(-12.))
+                .withSlot0(new Slot0Configs()
+                    .withKP(1.2)
+                    .withKI(0.)
+                    .withKD(0.)
+                    .withKS(0.)
+                    .withKV(1.)
+                    .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Coast)
+                    .withInverted(InvertedValue.Clockwise_Positive))
+            )
+            .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
+            .withSteerMotorType(SteerMotorArrangement.TalonFX_Integrated)
+            .withSpeedAt12Volts(5.02)
+            .withWheelRadius(Units.inchesToMeters(2));
     }
 
-    /** For DriveMotionPlanner */
     public static final class AutonConstants {
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
             57.,
             3.873,
             new ModuleConfig(
-                SwerveConstants.wheelDiameter/2,
-                SwerveConstants.maxAttainableSpeed,
+                SwerveConstants.SMConstFactory.WheelRadius,
+                SwerveConstants.SMConstFactory.SpeedAt12Volts * 0.85,
                 1.15,
 
                 // .withReduction here is VERY IMPORTANT! Autonomous drive WILL NOT WORK WITHOUT IT
-                DCMotor.getKrakenX60(1).withReduction(SwerveConstants.driveGearRatio),
+                DCMotor.getKrakenX60(1).withReduction(
+                    SwerveConstants.SMConstFactory.DriveMotorGearRatio
+                ),
 
                 111.,
                 4
             ),
             new Translation2d(
-                SwerveDrive.getInstance().swerveModulePositions.get(3).getFirst(),
-                SwerveDrive.getInstance().swerveModulePositions.get(3).getSecond()
+                SwerveConstants.swerveModulePositions.get(3).getFirst(),
+                SwerveConstants.swerveModulePositions.get(3).getSecond()
             ),
             new Translation2d(
-                SwerveDrive.getInstance().swerveModulePositions.get(1).getFirst(),
-                SwerveDrive.getInstance().swerveModulePositions.get(1).getSecond()
+                SwerveConstants.swerveModulePositions.get(1).getFirst(),
+                SwerveConstants.swerveModulePositions.get(1).getSecond()
             ),
             new Translation2d(
-                SwerveDrive.getInstance().swerveModulePositions.get(2).getFirst(),
-                SwerveDrive.getInstance().swerveModulePositions.get(2).getSecond()
+                SwerveConstants.swerveModulePositions.get(2).getFirst(),
+                SwerveConstants.swerveModulePositions.get(2).getSecond()
             ),
             new Translation2d(
-                SwerveDrive.getInstance().swerveModulePositions.get(0).getFirst(),
-                SwerveDrive.getInstance().swerveModulePositions.get(0).getSecond()
+                SwerveConstants.swerveModulePositions.get(0).getFirst(),
+                SwerveConstants.swerveModulePositions.get(0).getSecond()
             )
         );
 
@@ -170,14 +192,14 @@ public final class Constants {
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
         public static final double resetDutyCycle = 0.3;
 
-        /** Heights in meters */
         public enum Position { MIN, LOAD, L2, L3, L4, BARGE, MAX, MANUAL }
+        /** Heights in meters */
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.06), // increased by 0.06
             entry(Position.LOAD, 0.063), // increased by 0.06
-            entry(Position.L2, 0.36), //.36 home: .41
-            entry(Position.L3, 0.75), //.75 home: .82
-            entry(Position.L4, 1.38), //.402 home: 1.41
+            entry(Position.L2, 0.36), // .36 home: .41
+            entry(Position.L3, 0.75), // .75 home: .82
+            entry(Position.L4, 1.38), // .402 home: 1.41
             entry(Position.BARGE, 1.48),
             entry(Position.MAX, 1.485),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually with trimmer
@@ -194,10 +216,10 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(20)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(.6) //.6
+                .withKP(.6)
                 .withKI(0.1)
-                .withKD(0.0)
-                .withKV(0.0))
+                .withKD(0.)
+                .withKV(0.))
             .withMotionMagic(new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(150)
                 .withMotionMagicExpo_kA(0.3)
@@ -239,10 +261,10 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(30)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(8)//.02
-                .withKI(0.0)
-                .withKD(0.0)
-                .withKV(0.0))
+                .withKP(8) // 0.02
+                .withKI(0.)
+                .withKD(0.)
+                .withKV(0.))
             .withMotionMagic(new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(140)
                 .withMotionMagicExpo_kA(0.3)
@@ -268,9 +290,9 @@ public final class Constants {
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
                 .withKP(0.6)
-                .withKI(0.0)
-                .withKD(0.0)
-                .withKV(0.0))
+                .withKI(0.)
+                .withKD(0.)
+                .withKV(0.))
             .withMotionMagic(new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(0.5)
                 .withMotionMagicExpo_kA(0.3)

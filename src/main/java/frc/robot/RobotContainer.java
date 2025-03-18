@@ -43,9 +43,8 @@ public final class RobotContainer {
     private final Auton auton;
 
     public RobotContainer() {
-        // CameraServer.startAutomaticCapture(0); // Start the Camera 1
-        // CameraServer.startAutomaticCapture(1); // Start the Camera 2
-        // CameraServer.startAutomaticCapture(2); // Start the Camera 3
+        controller = ControlBoard.getInstance();
+
         UsbCamera cam1 = CameraServer.startAutomaticCapture(0); // Start the Camera 1
         UsbCamera cam2 = CameraServer.startAutomaticCapture(1); // Start the Camera 2
         UsbCamera cam3 = CameraServer.startAutomaticCapture(2); // Start the Camera 3
@@ -72,11 +71,11 @@ public final class RobotContainer {
             )
         );
         // LB button toggles strafe mode AND snaps to reef (I changed it to the LB button again just because it feels better)
-        new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef());
+        // new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef()); // TODO: snapToReef
 
         // zero with climber pointing towards you -- C switch
         new Trigger(() -> controller.driver.getRawAxis(7) > 0.5).onTrue(
-            new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
+            new InstantCommand(() -> drive.zeroGyroReversed()).ignoringDisable(true)
         );
         // zero with algae pointing towards you -- RB button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
@@ -158,7 +157,7 @@ public final class RobotContainer {
 
     public void teleopInit() {
         drive.setTargetSpeeds(new Translation2d(), 0, false, false);
-        drive.zeroGyro(0); // added this to change heading +180 coming out of auto
+        drive.zeroGyroReversed(); // added this to change heading +180 coming out of auto
         // climberHook.markPosition(Position.STOW);
     }
 }

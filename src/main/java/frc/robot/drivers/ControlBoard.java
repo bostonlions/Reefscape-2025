@@ -62,7 +62,7 @@ public final class ControlBoard {
 
             double scaled_x = MathUtil.applyDeadband(forwardAxis, Math.abs(deadband_vector.getX()));
             double scaled_y = MathUtil.applyDeadband(strafeAxis, Math.abs(deadband_vector.getY()));
-            return new Translation2d(scaled_x, scaled_y).times(SwerveConstants.maxSpeed);
+            return new Translation2d(scaled_x, scaled_y).times(SwerveConstants.SMConstFactory.SpeedAt12Volts);
         }
     }
 

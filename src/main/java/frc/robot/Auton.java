@@ -103,128 +103,72 @@ public final class Auton extends SubsystemBase {
                 .andThen(elevator.stepToCommand(Position.LOAD))
             ))
         ), entry("03 - pos3 with algae",
-        new ParallelCommandGroup(
-            drive.followPathCommand("Position3", true),
-            algae.upCommand()
-            .andThen(sleep(1))
-            .andThen(elevator.stepToCommand(Position.L4))
+            new ParallelCommandGroup(
+                drive.followPathCommand("Position3", true),
+                algae.upCommand()
+                .andThen(sleep(1))
+                .andThen(elevator.stepToCommand(Position.L4))
+            )
+            .andThen(coral.toggleCommand())
+            .andThen(sleep(.3))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("RightReefCoralToAlgae", false),
+                elevator.stepToCommand(Position.L2)
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(1.3))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("LeftReefToBarge", false),
+                elevator.stepToCommand(Position.BARGE)
+                .andThen(sleep(.5))
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(.25))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("BackUpFromBarge", false),
+                sleep(0.5)
+                .andThen(elevator.stepToCommand(Position.LOAD))
+            ))
+        ), entry("04 - pos2 almost 2 algae",
+            new ParallelCommandGroup(
+                drive.followPathCommand("Position2", true),
+                algae.upCommand()
+                .andThen(sleep(1))
+                .andThen(elevator.stepToCommand(Position.L4))
+            )
+            .andThen(coral.toggleCommand())
+            .andThen(sleep(.3))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("FrontCoralToAlgae", false),
+                elevator.stepToCommand(Position.LOAD)
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(drive.followPathCommand("MoveToFrontAlgae", false))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("FrontReefToBarge", false),
+                sleep(.25)
+                .andThen(elevator.stepToCommand(Position.BARGE))
+            ))
+            .andThen(algae.toggleDriveCommand())
+            .andThen(sleep(.15))
+            .andThen(new ParallelCommandGroup(
+                drive.followPathCommand("BargeToRightReef", false),
+                sleep(.25)
+                .andThen(elevator.stepToCommand(Position.L2))
+            ))
+            // .andThen(drive.followPathCommand("PullUpRightReef", false))
+            // .andThen(algae.toggleDriveCommand())
+            // .andThen(new ParallelCommandGroup(
+            //     drive.followPathCommand("rightReefToBarge", false),
+            //     sleep(.75)
+            //     .andThen(elevator.stepToCommand(Position.BARGE))
+            // ))
+            // .andThen(new ParallelCommandGroup(
+            //     drive.followPathCommand("BackUpFromBarge", false),
+            //     sleep(0.5)
+            //     .andThen(elevator.stepToCommand(Position.LOAD))
+            // ))
         )
-        .andThen(coral.toggleCommand())
-        .andThen(sleep(.3))
-        .andThen(new ParallelCommandGroup(
-            drive.followPathCommand("RightReefCoralToAlgae", false),
-            elevator.stepToCommand(Position.L2)
-        ))
-        .andThen(algae.toggleDriveCommand())
-        .andThen(sleep(1.3))
-        .andThen(new ParallelCommandGroup(
-            drive.followPathCommand("LeftReefToBarge", false),
-            elevator.stepToCommand(Position.BARGE)
-            .andThen(sleep(.5))
-        ))
-        .andThen(algae.toggleDriveCommand())
-        .andThen(sleep(.25))
-        .andThen(new ParallelCommandGroup(
-            drive.followPathCommand("BackUpFromBarge", false),
-            sleep(0.5)
-            .andThen(elevator.stepToCommand(Position.LOAD))
-        ))
-        ), entry("04 - pos2 (almost) TWO algae",
-        new ParallelCommandGroup(
-            drive.followPathCommand("Position2", true),
-            algae.upCommand()
-            .andThen(sleep(1))
-            .andThen(elevator.stepToCommand(Position.L4))
-        )
-        .andThen(coral.toggleCommand())
-        .andThen(sleep(.3))
-        .andThen(new ParallelCommandGroup(
-            drive.followPathCommand("FrontCoralToAlgae", false),
-            elevator.stepToCommand(Position.LOAD)
-        ))
-        .andThen(algae.toggleDriveCommand())
-        .andThen(drive.followPathCommand("MoveToFrontAlgae", false))
-        .andThen(new ParallelCommandGroup(
-            drive.followPathCommand("FrontReefToBarge", false),
-            sleep(.25)
-            .andThen(elevator.stepToCommand(Position.BARGE))
-        ))
-        .andThen(algae.toggleDriveCommand())
-        .andThen(sleep(.15))
-        .andThen(new ParallelCommandGroup(
-            drive.followPathCommand("BargeToRightReef", false),
-            sleep(0.25)
-            .andThen(elevator.stepToCommand(Position.L2))
-        ))
-        // .andThen(drive.followPathCommand("PullUpRightReef", false))
-        // .andThen(algae.toggleDriveCommand())
-        // .andThen(new ParallelCommandGroup(
-        //     drive.followPathCommand("rightReefToBarge", false),
-        //     sleep(.75)
-        //     .andThen(elevator.stepToCommand(Position.BARGE))
-        // ))
-        // .andThen(new ParallelCommandGroup(
-        //     drive.followPathCommand("BackUpFromBarge", false),
-        //     sleep(0.5)
-        //     .andThen(elevator.stepToCommand(Position.LOAD))
-        // ))
-        )
-
-        //, entry ("Test",
-        //     drive.followPathCommand("Position2", true)
-        //     .andThen(drive.followPathCommand("FromCoralToAlgae", false))
-        //     .andThen(drive.followPathCommand("FrontReefToBarge", false))
-        //     .andThen(drive.followPathCommand("BackUpFromBarge", true))
-        //     //.andThen(drive.followPathCommand("BackUpFromBarge", false))
-        // )
-
-        /* EXAMPLE AUTON COMMANDS: */
-
-        // entry("drive test",
-        //     drive.followPathCommand("CoralInTrough", true)
-        //     .andThen(debug(() -> "Done driving at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
-        //     .andThen(elevator.stepToCommand(Position.L4))
-        //     .andThen(coral.toggleCommand())
-        //     .andThen(coral.toggleCommand())
-        //     .andThen(sleep(1.))
-        //     .andThen(coral.toggleCommand())
-        //     .andThen(elevator.stepUpCommand())  // shouldn't need this but for now it seems to help
-        //     .andThen(elevator.stepToCommand(Position.L2))
-        //     .andThen(elevator.stepToCommand(Position.LOAD))
-        //     .andThen(debug(() -> "About to run path test2"))
-        //     .andThen(drive.followPathCommand("test2", false))
-        //     .andThen(debug(() -> "test2 path has been run"))
-        //     .andThen(algae.upCommand())
-        //     .andThen(sleep(1))
-        //     .andThen(algae.toggleDriveCommand())
-        //     .andThen(sleep(2))
-        //     .andThen(algae.toggleDriveCommand())
-        // ), entry("Parallel example",
-        //     new ParallelCommandGroup(
-        //         drive.followPathCommand("backAwayFromReef", true),
-        //         sleep(1.)
-        //         .andThen(elevator.stepToCommand(Position.L2))
-        //         .andThen(algae.toggleDriveCommand())
-        //         .andThen(coral.toggleCommand())
-        //         .andThen(sleep(1.))
-        //         .andThen(elevator.stepToCommand(Position.LOAD))
-        //     )
-        // ), entry("Flip Algae 2",
-        //     algae.upCommand()
-        //     .andThen(sleep(1.))
-        //     .andThen(debug(() -> "Flipped up 2 at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
-        //     .andThen(algae.downCommand())
-        //     .andThen(debug(() -> "Flipped down 2 at " + (System.currentTimeMillis() % 60000) + "ms after the start of this minute"))
-        // ), entry("Toggle Coral",
-        //     coral.toggleCommand()
-        //     .andThen(sleep(1.))
-        //     .andThen(coral.toggleCommand())
-        // ), entry("Elevator Up/Down",
-        //     elevator.stepUpCommand()
-        //     .andThen(elevator.stepToCommand(Position.L3))
-        //     .andThen(sleep(3.))
-        //     .andThen(elevator.stepToCommand(Position.LOAD))
-        // )
     );
 
     private int commandIdx = 0;
