@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.ctre.phoenix6.controls.DutyCycleOut;
 // import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 // import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
@@ -69,8 +70,8 @@ public class Algae extends SubsystemBase {
         entry(DriveState.INTAKE_NO_ALGAE, -AlgaeConstants.groundIntakeSpeed),
         entry(DriveState.INTAKE_WITH_ALGAE, -AlgaeConstants.groundIntakeSpeed),
         entry(DriveState.LOADED, 0.),
-        entry(DriveState.UNLOADING_WITH_ALGAE, -AlgaeConstants.processorUnloadSpeed),
-        entry(DriveState.UNLOADING_NO_ALGAE, -AlgaeConstants.processorUnloadSpeed)
+        entry(DriveState.UNLOADING_WITH_ALGAE, AlgaeConstants.processorUnloadSpeed),
+        entry(DriveState.UNLOADING_NO_ALGAE, AlgaeConstants.processorUnloadSpeed)
     );
 
     public static Algae getInstance() {
@@ -87,7 +88,7 @@ public class Algae extends SubsystemBase {
         mDriveMotor = new TalonFX(Ports.ALGAE_DRIVE, Ports.CANBUS_OPS);
 
         mAngleMotor = new TalonFX(Ports.ALGAE_ANGLE, Ports.CANBUS_OPS);
-        mAngleMotor.setPosition(getAdjustedCancoderAngle() * AlgaeConstants.angleGearRatio / 360); // TODO not needed?
+
         angleMotorConfig.Feedback.FeedbackRemoteSensorID = mCANcoder.getDeviceID();
         angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         angleMotorConfig.Feedback.SensorToMechanismRatio = 1.;
@@ -120,10 +121,6 @@ public class Algae extends SubsystemBase {
         );
     }
 
-    private void disable() {
-        // TODO
-    }
-
     public void setAngleSetpoint(double angle) {
         if (mDebug) System.out.println("setAngleSetpoint: " + angle);
         if (mDebug) System.out.println("----------------------------------------- ");
@@ -149,14 +146,17 @@ public class Algae extends SubsystemBase {
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
     }
 
-    /**
-     * Use xbox triggers to turn the drive wheel a bit in or out
-     * so operator can get a better grip on the ball
-     */
+    /** Use xbox triggers to turn the drive wheel a bit in or out so operator can get a better grip on the ball */
     public void nudgeDrive(int direction) {
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case LOADED:
+                boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
+                mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(
+                    direction == 0 ? mPeriodicIO.driveState : DriveState.UNLOADING_NO_ALGAE
+                );
+                setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
+
                 mPeriodicIO.D_demand = direction * AlgaeConstants.nudgeSpeed * AlgaeConstants.driveGearRatio;
                 mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
                 break;
@@ -190,7 +190,7 @@ public class Algae extends SubsystemBase {
                 mPeriodicIO.driveState = DriveState.IDLE;
                 break;
             case INTAKE_WITH_ALGAE:
-                if (mDebug)  System.out.println("toggleDrive INTAKE_WITH_ALGAE");
+                if (mDebug) System.out.println("toggleDrive INTAKE_WITH_ALGAE");
             case LOADED:
                 if (mDebug) System.out.println("toggleDrive LOADED");
 
@@ -215,7 +215,11 @@ public class Algae extends SubsystemBase {
         if (mDebug) System.out.println("setState targetSpeed: " + mPeriodicIO.targetSpeed);
 
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
-        if (mPeriodicIO.targetSpeed != 0) {
+
+        if ((mPeriodicIO.driveState == DriveState.LOADED) || (mPeriodicIO.driveState == DriveState.INTAKE_WITH_ALGAE)) {
+            mPeriodicIO.D_demand = AlgaeConstants.intakeSuction;
+            mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.D_demand));
+        } else if (mPeriodicIO.targetSpeed != 0) {
             if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
 
             setDriveSpeed(mPeriodicIO.targetSpeed);
@@ -278,7 +282,9 @@ public class Algae extends SubsystemBase {
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     mPeriodicIO.driveState = DriveState.LOADED;
                     setState();
-                } break;
+                }
+
+                break;
             case UNLOADING_WITH_ALGAE:
                 if (pDebug) System.out.println("UNLOADING_WITH_ALGAE 1");
 
@@ -307,12 +313,20 @@ public class Algae extends SubsystemBase {
 
             // error correction:
             case IDLE:
-                if (mBeamBreak.get()) mPeriodicIO.driveState = DriveState.LOADED;
+                if (mBeamBreak.get()) {
+                    mPeriodicIO.driveState = DriveState.LOADED;
+                    setState();
+                }
+
                 break;
             case LOADED:
                 if (pDebug) System.out.println("LOADED 1");
 
-                if (!mBeamBreak.get()) mPeriodicIO.driveState = DriveState.IDLE;
+                if (!mBeamBreak.get()) {
+                    mPeriodicIO.driveState = DriveState.IDLE;
+                    setState();
+                }
+
                 break;
             default: break;
         }
@@ -333,7 +347,6 @@ public class Algae extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Algae");
-        builder.setSafeState(this::disable);
         builder.setActuator(true);
 
         builder.addDoubleProperty("Angle motor degrees", () -> mPeriodicIO.C_position_degrees, null);

@@ -23,7 +23,7 @@ public final class Robot extends TimedRobot {
     public Robot() {
         m_robotContainer = new RobotContainer();
 
-        //This pre-loads Icahces) the autonomous system so it runs better
+        // This pre-loads Icahces) the autonomous system so it runs better
         FollowPathCommand.warmupCommand().schedule();
     }
 
@@ -64,12 +64,14 @@ public final class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         CommandScheduler.getInstance().cancelAll(); // Cancels all running commands at the start
-
+        //m_robotContainer.climberHook.markPosition(Position )
+        
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
+
         m_robotContainer.teleopInit();
     }
 

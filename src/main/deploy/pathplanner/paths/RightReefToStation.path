@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.341749999999999,
-        "y": 1.4704999999999995
+        "x": 4.829,
+        "y": 5.651199999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.600750000000001,
-        "y": 1.529
+        "x": 3.30860655737966,
+        "y": 6.752202868858911
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "rightReef"
     },
     {
       "anchor": {
-        "x": 4.645,
-        "y": 2.425
+        "x": 1.4499910517082575,
+        "y": 7.204919426931367
       },
       "prevControl": {
-        "x": 5.151073829559803,
-        "y": 1.510266085259535
+        "x": 1.9654623631836676,
+        "y": 6.497644836767432
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "leftReefCoral"
+      "linkedName": "rightStation"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.5,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 500.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -60.202408709176154
+    "rotation": 126.36658017263625
   },
   "reversed": false,
-  "folder": "Shared",
+  "folder": "07 - Pos 1 with coral",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 60.16446089973837
   },
   "useDefaultConstraints": false
 }

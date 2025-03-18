@@ -35,6 +35,15 @@ import frc.robot.subsystems.SwerveDrive;
 
 public final class Constants {
     public static final class SwerveConstants {
+        /** Robot loop time - but only used by swerve */
+        public static final double kLooperDt = 0.02;
+        /** Always ensure Gyro is CCW+ CW- */
+        public static final boolean invertGyro = false;
+        /** The speed reduction when drive is in strafe mode; drive speed gets divided by this */
+        public static final double strafeReduction = 4.;
+        /** The speed reduction when drive is in precision mode; drive speed gets divided by this */
+        public static final double precisionReduction = 8.;
+
         // Drivetrain Constants
         public static final double trackWidth = Units.inchesToMeters(24.25);
         public static final double wheelBase = Units.inchesToMeters(24.25);
@@ -46,8 +55,10 @@ public final class Constants {
         public static final double angleGearRatio = 150./7;
         public static final double couplingGearRatio = 50./14; // TODO: check if this value is right
 
-        public static final double maxSpeed = 5.02; // was 4.8 toggled to 2.0 meters per second MAX : 5.02 m/s
-        public static final double maxAngularVelocity = 8.; //was 8. toggled to 2.0
+        public static final double maxSpeed = 5.02;
+        public static final double maxAccel = Double.MAX_VALUE;
+        public static final double maxAngularVelocity = 8.; // was 8.0 toggled to 2.0
+        public static final double maxAngularAccel = Double.MAX_VALUE;
 
         /** Max out at 85% to make sure speeds are attainable (4.6 mps) */
         public static final double maxAttainableSpeed = maxSpeed * 0.85;
@@ -110,10 +121,33 @@ public final class Constants {
         public static final double BR_AngleOffset = 73.2129;
     }
 
+    /** For DriveMotionPlanner */
     public static final class AutonConstants {
+        public static final double snapP = 6.;
+        public static final double snapI = 0.5;
+        public static final double snapD = 0.2;
+
+        public static final double kPXController = 6.7;
+        public static final double kPYController = 6.7;
+
+        public static final double kDXController = 0.;
+        public static final double kDYController = 0.;
+
+        public static final double kPThetaController = 2.75; // was 2, changed to 4 -- faster it turns = more wheels slip
+
+        // Constraints for the motion profilied robot angle controller (Radians)
+        public static final double kMaxAngularSpeed = 2 * Math.PI;
+        public static final double kMaxAngularAccel = 2 * Math.PI * kMaxAngularSpeed;
+        public static final double kMaxCentripetalAccel = 10.;
+
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+            new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAccel);
+
+        public static final Translation2d[] moduleTranslations = (new SwerveDriveKinematics(SwerveConstants.wheelBase, SwerveConstants.trackWidth)).m_modules;
+
         public static final RobotConfig pathPlannerConfig = new RobotConfig(
             57.,
-            3.873, // TODO: get this right?
+            3.873,
             new ModuleConfig(
                 SwerveConstants.wheelDiameter/2,
                 SwerveConstants.maxAttainableSpeed,
@@ -152,32 +186,31 @@ public final class Constants {
     }
 
     public static final class ElevatorConstants {
-        public static final double gearRatio = 9.;
+        public static final double gearRatio = 5.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
         public static final double positionError = Units.inchesToMeters(0.25);
-        public static final double bottomLimitTorque = 30.;
-        public static final double topLimitTorque = 50;
+        public static final double bottomLimitTorque = 600.; // trying to see if making these huge fixes it
+        public static final double zeroingLimitTorque = 30.; // trying to see if making these huge fixes it
+        public static final double topLimitTorque = 1000.;
         public static final double limitVelocity = 0.1;
         public static final double heightTolerance = 0.005; // meters from target to consider movement complete
-        public static final double resetDutyCycle = 0.1;
+        public static final double resetDutyCycle = 0.3;
 
-        // Heights in meters
-        // TODO: values are placeholders. Are LOAD, and L1 all the same?
-        public enum Position { MIN, LOAD, L1, L2, L3, L4, BARGE, MAX, MANUAL }
+        /** Heights in meters */
+        public enum Position { MIN, LOAD, L2, L3, L4, BARGE, MAX, MANUAL }
         public static final Map<Position, Double> heights = Map.ofEntries(
-            entry(Position.MIN, 0.),
-            entry(Position.LOAD, 0.003),
-            entry(Position.L1, 0.12),
-            entry(Position.L2, 0.32),
-            entry(Position.L3, 0.75),
-            entry(Position.L4, 1.37),
-            entry(Position.BARGE, 1.43),
-            entry(Position.MAX, 1.431),
-            entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually from Shuffleboard
+            entry(Position.MIN, 0.06), // increased by 0.06
+            entry(Position.LOAD, 0.063), // increased by 0.06
+            entry(Position.L2, 0.36), //.36 home: .41
+            entry(Position.L3, 0.75), //.75 home: .82
+            entry(Position.L4, 1.38), //.402 home: 1.41
+            entry(Position.BARGE, 1.48),
+            entry(Position.MAX, 1.485),
+            entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually with trimmer
         );
-        // These are the positions you can access with step up and down
+        /** These are the positions you can access with step up and down */
         public static final List<Position> positionOrder = List.of(
-            Position.LOAD, Position.L1, Position.L2, Position.L3, Position.L4, Position.BARGE
+            Position.LOAD, Position.L2, Position.L3, Position.L4, Position.BARGE
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -187,30 +220,35 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(20)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.6)
-                .withKI(0.0)
+                .withKP(.6) //.6
+                .withKI(0.1)
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(75)
+                .withMotionMagicCruiseVelocity(150)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(120))
+                .withMotionMagicAcceleration(150))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
     }
 
     public static final class ClimberHookConstants {
-        public static final double gearRatio = 36.;
+        public static final double gearRatio = 80.;
         public static final double limitTorque = 100.;
-        public static final double limitVelocity = 0.1;
-        public static final double extensionTolerance = 0.5;
+        public static final double limitVelocity = 1;
+        public static final double extensionTolerance = 0.1;
 
-        public static final double fastSpeed = 100;
-        public static final double slowSpeed = 10;
-        public static final double nudgeSpeed = 0.5;
+        public static final double extendSpeed = 2.5;
+        public static final double climbSpeed = 3.5;
+        public static final double nudgeSpeed = 2.1;
+        public static final double climbDelay = 0.5; // seconds to wait at DROP before climbing
+        public static final double footReleaseDelay = 2.;
+        public static final double footReleaseRotations = 0.6;
 
-        public enum Position { MIN, IN, OUT, MAX, MANUAL }
+        public enum Position { MIN, CLIMBED, STOW, LATCH, DROP, MAX, MANUAL }
+
+        /** Values are in winch rotations */
         public static final Map<Position, Double> extensions = Map.ofEntries(
             // TODO: values are in degrees, but aren't correct yet
             entry(Position.MIN, 0.),
@@ -226,14 +264,14 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(30)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(0.02)
+                .withKP(8)//.02
                 .withKI(0.0)
                 .withKD(0.0)
                 .withKV(0.0))
             .withMotionMagic(new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(140)
                 .withMotionMagicExpo_kA(0.3)
-                .withMotionMagicAcceleration(300))
+                .withMotionMagicAcceleration(Double.MAX_VALUE))
             .withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.CounterClockwise_Positive));
@@ -241,10 +279,10 @@ public final class Constants {
 
     public static final class CoralConstants {
         public static final double gearRatio = 4.;
-        public static final double loadSpeed = 0.75;
+        public static final double loadSpeed = 0.7;
         /** If this is 0 we never break from case statement */
-        public static final double extraLoadRotations = 0.03;
-        public static final double unloadSpeed = 1.;
+        public static final double extraLoadRotations = 0.02;
+        public static final double unloadSpeed = 0.35;
         public static final double extraUnloadRotations = 0.2;
 
         public static TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -268,29 +306,36 @@ public final class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double angleGearRatio = (57./15)*5;
-        public static final double driveGearRatio = 2.;  // TODO figure out the actual number
+        public static final double intakeSuction = -.1;
 
-        public static final double nudgeSpeed = 3.;
+        public static final double angleGearRatio = (57. / 15) * 5;
+        public static final double driveGearRatio = 2.;
 
-        public static final double extraGroundIntakeTime = .07; //.009 // should be the amount of SECONDS it takes to stop
-        public static final double groundIntakeSpeed = 18; //was 0.5
+        /** Hardly a nudge anymore, nudge is to push balls into the processor */
+        public static final double nudgeSpeed = 18.;
 
-        public static final double extraReefIntakeTime = 0.5; // should be the amount of SECONDS it takes to stop
-        public static final double reefIntakeSpeed = 16;
+        /** Should be the amount of SECONDS it takes to stop */
+        public static final double extraGroundIntakeTime = .07; // .009
+        public static final double groundIntakeSpeed = 25.; // was 0.5
 
-        public static final double extraProcessorUnloadRotations = 1.; // should be the amount of ROTATIONS it takes to stop
+        /** Should be the amount of SECONDS it takes to stop */
+        public static final double extraReefIntakeTime = 0.8;
+        public static final double reefIntakeSpeed = 20.;
+
+        /** Should be the amount of ROTATIONS it takes to stop */
+        public static final double extraProcessorUnloadRotations = 36.;
         public static final double processorUnloadSpeed = 18.;
 
-        public static final double extraBargeUnloadRotations = 2.; // should be the amount of ROTATIONS it takes to stop
-        public static final double bargeUnloadSpeed = 18;
+        /** Should be the amount of ROTATIONS it takes to stop */
+        public static final double extraBargeUnloadRotations = 15.;
+        public static final double bargeUnloadSpeed = 18.;
 
         /**
-         * Set this to CANcoder's reading in degrees at exactly horizontal.
-         * To get that value, set this to 0, load the code to the robot and
-         * look at smart dashboard for the CANcoder position when it is horizontal.
+         * Cancoder offset should be set to its reading in degrees at exactly horizontal.
+         * To get that value, set cancoderOffset to 0, load the code to the robot, and
+         * look at smart dashboard for the CANCoder Position when it is horizontal
          */
-        public static final double cancoderOffset = -27.; // -112.5; // -144.759;  38??
+        public static final double cancoderOffset = -27.;
 
         public enum Position {
             MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
@@ -298,12 +343,12 @@ public final class Constants {
 
         /** Angles in degrees from horizontal */
         public static final Map<Position, Double> angles = Map.ofEntries(
-            entry(Position.MIN, -82.),
+            entry(Position.MIN, -91.),
             entry(Position.STOW_DOWN, -82.),
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
             entry(Position.GROUND_INTAKE, -57.),
-            entry(Position.REEF, 50.),
+            entry(Position.REEF, 52.),
             entry(Position.BARGE, 95.),
             entry(Position.LOADED_UP, 95.),
             entry(Position.STOW_UP, 95.),
@@ -323,6 +368,7 @@ public final class Constants {
         //     entry(Position.STOW_UP, 9.),
         //     entry(Position.MAX, 11.)
         // );
+
         public static TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
                 .withSupplyCurrentLimitEnable(true)
@@ -381,7 +427,7 @@ public final class Constants {
          * limit speed; that way the autonomous system doesn't get messed up.
          * <p> Set to 1 for 100% of joystick range
          */
-        public static final double kInputClipping = 0.6;
+        public static final double kInputClipping = 1.;
 
         public static final double kTriggerThreshold = 0.2;
 

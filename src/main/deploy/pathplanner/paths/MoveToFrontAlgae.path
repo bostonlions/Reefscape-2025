@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.341749999999999,
-        "y": 1.4704999999999995
+        "x": 6.0,
+        "y": 3.85
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.600750000000001,
-        "y": 1.529
+        "x": 5.750888428990061,
+        "y": 3.871057663425943
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "AwayFromFrontReef"
     },
     {
       "anchor": {
-        "x": 4.645,
-        "y": 2.425
+        "x": 5.74,
+        "y": 3.825
       },
       "prevControl": {
-        "x": 5.151073829559803,
-        "y": 1.510266085259535
+        "x": 5.988984771155175,
+        "y": 3.8024925849372853
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "leftReefCoral"
+      "linkedName": "frontReefAlgae"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.5,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 500.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -60.202408709176154
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Shared",
+  "folder": "04 - Pos 2 with Algae",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
