@@ -15,11 +15,11 @@ import frc.robot.Ports;
 import frc.robot.Constants.CoralConstants;
 import frc.robot.drivers.BeamBreak;
 
-public class Coral extends SubsystemBase {
+public final class Coral extends SubsystemBase {
     private static Coral mInstance;
-    private TalonFX mMotor;
-    private BeamBreak mBeamBreak;
-    private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private final TalonFX mMotor;
+    private final BeamBreak mBeamBreak;
+    private final PeriodicIO mPeriodicIO = new PeriodicIO();
     private enum State {
         IDLE, LOADING_NO_CORAL, LOADING_WITH_CORAL, LOADED, UNLOADING_WITH_CORAL, UNLOADING_NO_CORAL
     }
@@ -62,8 +62,6 @@ public class Coral extends SubsystemBase {
 
     /** To start or interrupt a load or unload upon a button push */
     public void activateCoral() {
-        System.out.println("Coral activated");
-
         if (mPeriodicIO.state == State.IDLE) {
             setSetpoint(mPeriodicIO.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
@@ -86,20 +84,20 @@ public class Coral extends SubsystemBase {
 
     private static final class PeriodicIO {
         // Inputs
-        public double position_degrees = 0.0;
-        public double velocity_rps = 0.0;
-        public double current = 0.0;
-        public double output_voltage = 0.0;
+        private double position_degrees = 0.;
+        private double velocity_rps = 0.;
+        private double current = 0.;
+        private double output_voltage = 0.;
 
         // Outputs
-        public double demand = 0;
-        public long stopTime;
-        public State state = State.LOADED;
+        private double demand = 0.;
+        private long stopTime;
+        private State state = State.LOADED;
 
-        public double loadSpeed;
-        public double unloadSpeed;
-        public double extraLoadRotations;
-        public double extraUnloadRotations;
+        private double loadSpeed;
+        private double unloadSpeed;
+        private double extraLoadRotations;
+        private double extraUnloadRotations;
     }
 
     @Override
@@ -162,7 +160,7 @@ public class Coral extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        Trimmer trimmer = Trimmer.getInstance();
+        final Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Coral",

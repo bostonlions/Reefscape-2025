@@ -21,11 +21,11 @@ import frc.robot.Ports;
 
 import static frc.robot.Constants.ClimberHookConstants.extensions;
 
-public class ClimberHook extends SubsystemBase {
+public final class ClimberHook extends SubsystemBase {
     private static ClimberHook mInstance;
-    private TalonFX mMotor;
-    private PeriodicIO mPeriodicIO = new PeriodicIO();
-    private TalonFXConfiguration motorConfig;
+    private final PeriodicIO mPeriodicIO = new PeriodicIO();
+    private final TalonFX mMotor;
+    private final TalonFXConfiguration motorConfig;
 
     public static ClimberHook getInstance() {
         if (mInstance == null) mInstance = new ClimberHook();
@@ -33,20 +33,14 @@ public class ClimberHook extends SubsystemBase {
     }
 
     private ClimberHook() {
-        System.out.println("start climberhook init");
-
         mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_OPS);
         motorConfig = ClimberHookConstants.motorConfig;
-        System.out.println("done climberhook motor instantiation");
 
         setConfig();
-        System.out.println("done climberhook motor config");
 
         setWantNeutralBrake(true);
         markPosition(Position.STOW);
-        System.out.println("done climberhook markPosition");
         initTrimmer();
-        System.out.println("done climberhook init");
     }
 
     /* Commands */
@@ -72,7 +66,6 @@ public class ClimberHook extends SubsystemBase {
     }
 
     private void setConfig() {
-        System.out.println("climberhook setConfig: " + mMotor + ", " + motorConfig);
         mMotor.getConfigurator().apply(motorConfig);
     }
 
@@ -93,16 +86,14 @@ public class ClimberHook extends SubsystemBase {
     public void setTarget(Position p) {
         mPeriodicIO.targetExtension = p == Position.MANUAL ? mPeriodicIO.manualTargetExtension : extensions.get(p);
         ClimberHookConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = (
-            (p == Position.CLIMBED ? ClimberHookConstants.climbSpeed : ClimberHookConstants.extendSpeed) * ClimberHookConstants.gearRatio
+            (p == Position.CLIMBED ? ClimberHookConstants.climbSpeed : ClimberHookConstants.extendSpeed) *
+                ClimberHookConstants.gearRatio
         );
         setWantNeutralBrake(true);
         setSetpointMotionMagic(mPeriodicIO.targetExtension);
     }
 
-    /**
-     * Use xbox left joystick up/down to manually move in/out.
-     * Edit the nudge speed with the trimmer.
-     */
+    /** Use xbox left joystick up/down to manually move in/out. Edit the nudge speed with the trimmer */
     public void nudge(int direction) {
         double speed = direction * mPeriodicIO.nudgeSpeed * ClimberHookConstants.gearRatio;
         if (direction != 0) {
@@ -111,7 +102,6 @@ public class ClimberHook extends SubsystemBase {
             // mPeriodicIO.demand = mMotor.getRotorPosition().getValueAsDouble();
             // mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
             mMotor.setControl(new MotionMagicVelocityDutyCycle(0));
-
         }
     }
 
@@ -175,7 +165,7 @@ public class ClimberHook extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        Trimmer trimmer = Trimmer.getInstance();
+        final Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Climberhook",

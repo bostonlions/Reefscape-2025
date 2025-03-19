@@ -54,11 +54,12 @@ public final class Trimmer extends SubsystemBase {
         currentSubsystem = subsystems.get(currentSubsystemIndex);
         currentItem = items.get(currentSubsystemIndex).get(currentItemIndex);
         itemsArray = new String[items.get(currentSubsystemIndex).size()];
-        for (int i = 0; i < itemsArray.length; i++) itemsArray[i] = items.get(currentSubsystemIndex).get(i).name;
+        for (int i = 0; i < itemsArray.length; i++)
+            itemsArray[i] = items.get(currentSubsystemIndex).get(i).name;
     }
 
     /*
-     * Commands
+     * COMMANDS:
      * These commands are marked to still run in disabled mode, so we can
      * tweak parameters and choose auto commands prior to the match starting.
      */
@@ -91,11 +92,11 @@ public final class Trimmer extends SubsystemBase {
     }
 
     private static final class Item {
-        public String name;
-        public DoubleSupplier getter;
-        public BooleanConsumer inc;
+        private final String name;
+        private final DoubleSupplier getter;
+        private final BooleanConsumer inc;
 
-        public Item(String name, DoubleSupplier getter, BooleanConsumer inc) {
+        private Item(String name, DoubleSupplier getter, BooleanConsumer inc) {
             this.name = name;
             this.getter = getter;
             this.inc = inc;

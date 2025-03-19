@@ -29,15 +29,14 @@ import static frc.robot.Constants.AlgaeConstants.angleMotorConfig;
 import static frc.robot.Constants.AlgaeConstants.driveMotorConfig;
 import static frc.robot.Constants.AlgaeConstants.angles;
 
-public class Algae extends SubsystemBase {
-    private boolean mDebug = false;
+public final class Algae extends SubsystemBase {
     private static Algae mInstance;
-    private TalonFX mDriveMotor;
-    private TalonFX mAngleMotor;
-    private BeamBreak mBeamBreak;
-    private CANcoder mCANcoder;
-    private PeriodicIO mPeriodicIO = new PeriodicIO();
-    public enum PositionState { UP, DOWN }
+    private final TalonFX mDriveMotor;
+    private final TalonFX mAngleMotor;
+    private final BeamBreak mBeamBreak;
+    private final CANcoder mCANcoder;
+    private final PeriodicIO mPeriodicIO = new PeriodicIO();
+    private enum PositionState { UP, DOWN }
     private enum DriveState {
         IDLE, INTAKE_NO_ALGAE, INTAKE_WITH_ALGAE, LOADED, UNLOADING_WITH_ALGAE, UNLOADING_NO_ALGAE
     }
@@ -122,26 +121,15 @@ public class Algae extends SubsystemBase {
     }
 
     public void setAngleSetpoint(double angle) {
-        if (mDebug) System.out.println("setAngleSetpoint: " + angle);
-        if (mDebug) System.out.println("----------------------------------------- ");
-
         mPeriodicIO.angleSetpoint = angle;
         mPeriodicIO.C_demand = angle / 360.;
+
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(0));
         // mDriveMotor.setControl(new Follower(Ports.ALGAE_ANGLE, true));
-
-        if (mDebug) System.out.println("setAngleSetpoint mPeriodicIO.angleSetpoint: " +mPeriodicIO.angleSetpoint);
-        if (mDebug) System.out.println("setAngleSetpoint getPosition: " + mAngleMotor.getPosition());
-        if (mDebug) System.out.println(" setAngleSetpoint mPeriodicIO.C_demand: " +  mPeriodicIO.C_demand);
-
         mAngleMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.C_demand));
-
-        if (mDebug) System.out.println("----------------------------------------- ");
     }
 
     public void setDriveSpeed(double rps) {
-        if (mDebug) System.out.println("setDriveSpeed: " + rps);
-
         mPeriodicIO.D_demand = rps * AlgaeConstants.driveGearRatio;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
     }
@@ -160,70 +148,48 @@ public class Algae extends SubsystemBase {
                 mPeriodicIO.D_demand = direction * AlgaeConstants.nudgeSpeed * AlgaeConstants.driveGearRatio;
                 mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
                 break;
-            default:
-                System.out.println("Algae nudgeDrive ignored, already driving");
+            default: break;
         }
     }
 
     public void setPosition(PositionState newPosition) {
-        if (mDebug) System.out.println("setPosition: " + newPosition);
-
-        if (newPosition == mPeriodicIO.requestedPosition) return;
-
-        mPeriodicIO.requestedPosition = newPosition;
-        setState();
+        if (newPosition != mPeriodicIO.requestedPosition) {
+            mPeriodicIO.requestedPosition = newPosition;
+            setState();
+        }
     }
 
     public void toggleDrive() {
-        if (mDebug) System.out.println("Algae drive toggled");
-
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case UNLOADING_NO_ALGAE:
-                if (mDebug) System.out.println("toggleDrive UNLOADING_NO_ALGAE");
-
                 mPeriodicIO.driveState = DriveState.INTAKE_NO_ALGAE;
                 break;
             case INTAKE_NO_ALGAE:
-                if (mDebug) System.out.println("toggleDrive INTAKE_NO_ALGAE");
-
                 mPeriodicIO.driveState = DriveState.IDLE;
                 break;
             case INTAKE_WITH_ALGAE:
-                if (mDebug) System.out.println("toggleDrive INTAKE_WITH_ALGAE");
             case LOADED:
-                if (mDebug) System.out.println("toggleDrive LOADED");
-
                 mPeriodicIO.driveState = DriveState.UNLOADING_WITH_ALGAE;
                 break;
             case UNLOADING_WITH_ALGAE:
-                if (mDebug) System.out.println("toggleDrive UNLOADING_WITH_ALGAE");
-
                 mPeriodicIO.driveState = DriveState.LOADED;
         }
         setState();
     }
 
     public void setState() {
-        if (mDebug) System.out.println("setState");
-
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
         mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(mPeriodicIO.driveState);
         mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : DOWN_SPEEDS).get(mPeriodicIO.driveState);
-
-        if (mDebug) System.out.println("setState targetPosition: " + mPeriodicIO.targetPosition);
-        if (mDebug) System.out.println("setState targetSpeed: " + mPeriodicIO.targetSpeed);
 
         setAngleSetpoint(angles.get(mPeriodicIO.targetPosition));
 
         if ((mPeriodicIO.driveState == DriveState.LOADED) || (mPeriodicIO.driveState == DriveState.INTAKE_WITH_ALGAE)) {
             mPeriodicIO.D_demand = AlgaeConstants.intakeSuction;
             mDriveMotor.setControl(new DutyCycleOut(mPeriodicIO.D_demand));
-        } else if (mPeriodicIO.targetSpeed != 0) {
-            if (mDebug) System.out.println("setState DOING targetSpeed: " + mPeriodicIO.targetSpeed);
-
+        } else if (mPeriodicIO.targetSpeed != 0)
             setDriveSpeed(mPeriodicIO.targetSpeed);
-        }
     }
 
     public double getAdjustedCancoderAngle() {
@@ -234,32 +200,31 @@ public class Algae extends SubsystemBase {
 
     private static final class PeriodicIO {
         // Inputs - cancoder motor
-        public double C_position_degrees = 0.;
-        public double C_velocity_rps = 0.;
-        public double C_current = 0.;
-        public double C_output_voltage = 0.;
+        private double C_position_degrees = 0.;
+        private double C_velocity_rps = 0.;
+        private double C_current = 0.;
+        private double C_output_voltage = 0.;
 
         // Inputs - drive motor
-        public double D_position_degrees = 0.;
-        public double D_velocity_rps = 0.;
-        public double D_current = 0.;
-        public double D_output_voltage = 0.;
+        private double D_position_degrees = 0.;
+        private double D_velocity_rps = 0.;
+        private double D_current = 0.;
+        private double D_output_voltage = 0.;
 
         // Outputs
-        public double C_demand = 0.;
-        public double D_demand = 0.;
-        public PositionState requestedPosition = PositionState.DOWN;
-        public Position targetPosition = Position.STOW_DOWN;
-        public double targetSpeed = 0.;
-        public DriveState driveState = DriveState.IDLE;
-        public long stopTime;
-        public double angleSetpoint = 0.;
-        public double adjustedCancoderAngle = 0.;
+        private double C_demand = 0.;
+        private double D_demand = 0.;
+        private PositionState requestedPosition = PositionState.DOWN;
+        private Position targetPosition = Position.STOW_DOWN;
+        private double targetSpeed = 0.;
+        private DriveState driveState = DriveState.IDLE;
+        private long stopTime;
+        private double angleSetpoint = 0.;
+        private double adjustedCancoderAngle = 0.;
     }
 
     @Override
     public void periodic() {
-        boolean pDebug = false;
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
 
         switch (mPeriodicIO.driveState) {
@@ -277,8 +242,6 @@ public class Algae extends SubsystemBase {
                     break;
                 }
             case INTAKE_WITH_ALGAE:
-                if (pDebug) System.out.println("INTAKE_WITH_ALGAE 1");
-
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     mPeriodicIO.driveState = DriveState.LOADED;
                     setState();
@@ -286,8 +249,6 @@ public class Algae extends SubsystemBase {
 
                 break;
             case UNLOADING_WITH_ALGAE:
-                if (pDebug) System.out.println("UNLOADING_WITH_ALGAE 1");
-
                 if (!mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 *
                         (isUp ?
@@ -303,8 +264,6 @@ public class Algae extends SubsystemBase {
                     break;
                 }
             case UNLOADING_NO_ALGAE:
-                if (pDebug) System.out.println("UNLOADING_NO_ALGAE 1");
-
                 if (System.currentTimeMillis() >= mPeriodicIO.stopTime) {
                     mPeriodicIO.driveState = DriveState.IDLE;
                     setState();
@@ -317,16 +276,12 @@ public class Algae extends SubsystemBase {
                     mPeriodicIO.driveState = DriveState.LOADED;
                     setState();
                 }
-
                 break;
             case LOADED:
-                if (pDebug) System.out.println("LOADED 1");
-
                 if (!mBeamBreak.get()) {
                     mPeriodicIO.driveState = DriveState.IDLE;
                     setState();
                 }
-
                 break;
             default: break;
         }
@@ -369,7 +324,7 @@ public class Algae extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        Trimmer trimmer = Trimmer.getInstance();
+        final Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Algae",

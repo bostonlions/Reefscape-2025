@@ -27,45 +27,44 @@ import frc.robot.Constants.SwerveConstants;
 
 public final class SwerveDrive extends SubsystemBase {
     private static SwerveDrive instance;
-    private SwerveDrivetrain<TalonFX, TalonFX, CANcoder> driveTrain;
-    private boolean strafeMode;
-    private ChassisSpeeds requestedSpeeds = new ChassisSpeeds();
+    private final PeriodicIO mPeriodicIO = new PeriodicIO();
+    private final SwerveDrivetrain<TalonFX, TalonFX, CANcoder> driveTrain = new SwerveDrivetrain<
+        TalonFX, TalonFX, CANcoder
+    >(
+        TalonFX::new, TalonFX::new, CANcoder::new,
+        new SwerveDrivetrainConstants().withCANBusName(Ports.CANBUS_DRIVE).withPigeon2Id(Ports.PIGEON),
+        SwerveConstants.SMConstFactory.createModuleConstants(
+            Ports.FR_ROTATION, Ports.FR_DRIVE, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset,
+            SwerveConstants.swerveModulePositions.get(0).getFirst(),
+            SwerveConstants.swerveModulePositions.get(0).getSecond(),
+            false, false, false
+        ),
+        SwerveConstants.SMConstFactory.createModuleConstants(
+            Ports.FL_ROTATION, Ports.FL_DRIVE, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset,
+            SwerveConstants.swerveModulePositions.get(1).getFirst(),
+            SwerveConstants.swerveModulePositions.get(1).getSecond(),
+            false, false, false
+        ),
+        SwerveConstants.SMConstFactory.createModuleConstants(
+            Ports.BR_ROTATION, Ports.BR_DRIVE, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset,
+            SwerveConstants.swerveModulePositions.get(2).getFirst(),
+            SwerveConstants.swerveModulePositions.get(2).getSecond(),
+            false, false, false
+        ),
+        SwerveConstants.SMConstFactory.createModuleConstants(
+            Ports.BL_ROTATION, Ports.BL_DRIVE, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset,
+            SwerveConstants.swerveModulePositions.get(3).getFirst(),
+            SwerveConstants.swerveModulePositions.get(3).getSecond(),
+            false, false, false
+        )
+    );
 
     public static SwerveDrive getInstance() {
         if (instance == null) instance = new SwerveDrive();
         return instance;
     }
 
-    private SwerveDrive() {
-        driveTrain = new SwerveDrivetrain<TalonFX, TalonFX, CANcoder>(
-            TalonFX::new, TalonFX::new, CANcoder::new,
-            new SwerveDrivetrainConstants().withCANBusName(Ports.CANBUS_DRIVE).withPigeon2Id(Ports.PIGEON),
-            SwerveConstants.SMConstFactory.createModuleConstants(
-                Ports.FR_ROTATION, Ports.FR_DRIVE, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset,
-                SwerveConstants.swerveModulePositions.get(0).getFirst(),
-                SwerveConstants.swerveModulePositions.get(0).getSecond(),
-                false, false, false
-            ),
-            SwerveConstants.SMConstFactory.createModuleConstants(
-                Ports.FL_ROTATION, Ports.FL_DRIVE, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset,
-                SwerveConstants.swerveModulePositions.get(1).getFirst(),
-                SwerveConstants.swerveModulePositions.get(1).getSecond(),
-                false, false, false
-            ),
-            SwerveConstants.SMConstFactory.createModuleConstants(
-                Ports.BR_ROTATION, Ports.BR_DRIVE, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset,
-                SwerveConstants.swerveModulePositions.get(2).getFirst(),
-                SwerveConstants.swerveModulePositions.get(2).getSecond(),
-                false, false, false
-            ),
-            SwerveConstants.SMConstFactory.createModuleConstants(
-                Ports.BL_ROTATION, Ports.BL_DRIVE, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset,
-                SwerveConstants.swerveModulePositions.get(3).getFirst(),
-                SwerveConstants.swerveModulePositions.get(3).getSecond(),
-                false, false, false
-            )
-        );
-    }
+    private SwerveDrive() {}
 
     public Command followPathCommand(String pathName, boolean isFirstPath) {
         try {
@@ -81,7 +80,7 @@ public final class SwerveDrive extends SubsystemBase {
 
             return new InstantCommand(() -> {
                 if (isFirstPath) path.getStartingHolonomicPose().ifPresent(
-                    (pose) -> { System.out.println("resetOdometry " + pose); driveTrain.resetPose(pose); }
+                    (pose) -> driveTrain.resetPose(pose)
                 );
             }).andThen(new FollowPathCommand(
                 path,
@@ -124,25 +123,34 @@ public final class SwerveDrive extends SubsystemBase {
         driveTrain.resetRotation(new Rotation2d(0.));
     }
 
-    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafe, boolean precision) { // TODO: precision mode
-        strafeMode = strafe;
-        requestedSpeeds = new ChassisSpeeds(targetSpeed.getX(), targetSpeed.getY(), targetRotationRate);
+    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafeAndSnap, boolean precisionMode) { // TODO: precision mode and strafe mode reductions
+        mPeriodicIO.requestedSpeeds = new ChassisSpeeds(targetSpeed.getX(), targetSpeed.getY(), targetRotationRate);
+        mPeriodicIO.strafeMode = strafeAndSnap;
+        mPeriodicIO.precisionMode = precisionMode;
 
-        if (strafe) {
+        if (strafeAndSnap) {
             driveTrain.setControl(
                 new SwerveRequest.ApplyRobotSpeeds()
-                    .withSpeeds(requestedSpeeds)
+                    .withSpeeds(mPeriodicIO.requestedSpeeds)
                     .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             );
-        } else {
+            // TODO: implement snap in this if block
+        }
+        else {
             driveTrain.setControl(
                 new SwerveRequest.ApplyFieldSpeeds()
-                    .withSpeeds(requestedSpeeds)
+                    .withSpeeds(mPeriodicIO.requestedSpeeds)
                     .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             );
         }
+    }
+
+    private static final class PeriodicIO {
+        private ChassisSpeeds requestedSpeeds = new ChassisSpeeds();
+        private boolean strafeMode;
+        private boolean precisionMode;
     }
 
     @Override
@@ -150,10 +158,11 @@ public final class SwerveDrive extends SubsystemBase {
         builder.setSmartDashboardType("Swerve Drive");
         builder.setActuator(true);
 
-        builder.addBooleanProperty("Strafe Mode? ", () -> strafeMode, null);
-        builder.addDoubleProperty("Target X Speed (m_s)", () -> requestedSpeeds.vxMetersPerSecond, null);
-        builder.addDoubleProperty("Target Y Speed (m_s)", () -> requestedSpeeds.vyMetersPerSecond, null);
-        builder.addDoubleProperty("Target Rotation Rate (rad_s)", () -> requestedSpeeds.omegaRadiansPerSecond, null);
+        builder.addBooleanProperty("Strafe mode?", () -> mPeriodicIO.strafeMode, null);
+        builder.addBooleanProperty("Precision mode?", () -> mPeriodicIO.precisionMode, null);
+        builder.addDoubleProperty("Target X Speed (m_s)", () -> mPeriodicIO.requestedSpeeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("Target Y Speed (m_s)", () -> mPeriodicIO.requestedSpeeds.vyMetersPerSecond, null);
+        builder.addDoubleProperty("Target Rotation Rate (rad_s)", () -> mPeriodicIO.requestedSpeeds.omegaRadiansPerSecond, null);
         builder.addDoubleProperty("Measured X", () -> driveTrain.getState().Pose.getX(), null);
         builder.addDoubleProperty("Measured Y", () -> driveTrain.getState().Pose.getY(), null);
         builder.addDoubleProperty("Heading", () -> driveTrain.getState().Pose.getRotation().getDegrees(), null);
@@ -176,6 +185,6 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     private void initTrimmer() { // TODO (will use this trimmer for PID - will use Steve's PID finding method with this)
-        Trimmer trimmer = Trimmer.getInstance();
+        final Trimmer trimmer = Trimmer.getInstance();
     }
 }

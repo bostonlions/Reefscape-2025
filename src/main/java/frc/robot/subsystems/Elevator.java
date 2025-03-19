@@ -26,11 +26,10 @@ import static frc.robot.Constants.ElevatorConstants.heights;
 import static frc.robot.Constants.ElevatorConstants.positionOrder;
 import static frc.robot.Constants.ElevatorConstants.motorConfig;
 
-public class Elevator extends SubsystemBase {
-    public PeriodicIO mPeriodicIO = new PeriodicIO();
+public final class Elevator extends SubsystemBase {
     private static Elevator mInstance;
+    private final PeriodicIO mPeriodicIO = new PeriodicIO();
     private final TalonFX mMain;
-    private boolean mForcingDown = false;
     private final TalonFX mFollower;
     private final DigitalInput mLimitSwitch;
 
@@ -65,7 +64,7 @@ public class Elevator extends SubsystemBase {
     public Command forceDownCommand() { return new InstantCommand(this::forceDown, this); }
     public Command stepToCommand(Position p) {
         return new FunctionalCommand(
-            () -> { System.out.println("Elevator stepped to " + p); setTarget(p); },
+            () -> setTarget(p),
             () -> {},
             (b) -> {},
             () -> mPeriodicIO.targetPosition == p && doneMoving(),
@@ -99,7 +98,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setSetpointMotionMagic(double distance) {
-        System.out.println("Elevator setSetpointMotionMagic " + distance);
         mPeriodicIO.demand = metersToRotations(distance);
         mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
     }
@@ -108,6 +106,7 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.targetPosition = p;
         mPeriodicIO.targetHeight = p == Position.MANUAL ? mPeriodicIO.manualTargetHeight : heights.get(p);
         mPeriodicIO.moving = true;
+
         setNeutralBrake(true);
         setSetpointMotionMagic(mPeriodicIO.targetHeight);
     }
@@ -147,16 +146,15 @@ public class Elevator extends SubsystemBase {
         mPeriodicIO.targetHeight = heights.get(Position.MIN);
         mPeriodicIO.moving = false;
         // Always reset forcing down when marking the min
-        mForcingDown = false;
+        mPeriodicIO.forcingDown = false;
         mMain.setPosition(metersToRotations(heights.get(Position.MIN)));
     }
 
     /** Lower the elevator slowly until it recognizes that it's stuck at the bottom. */
     public void forceDown() {
-        System.out.println("Elevator forceDown");
         mPeriodicIO.targetHeight = -1000.; // tell it we're going down, so we don't check the upper height limit
         mMain.setControl(new DutyCycleOut(-ElevatorConstants.resetDutyCycle));
-        mForcingDown = true;
+        mPeriodicIO.forcingDown = true;
     }
 
     private static final class PeriodicIO {
@@ -167,6 +165,7 @@ public class Elevator extends SubsystemBase {
         private double velocity;
         private double torqueCurrent;
         private boolean moving;
+        private boolean forcingDown = false;
 
         // Outputs
         private double demand;
@@ -189,7 +188,7 @@ public class Elevator extends SubsystemBase {
 
         /* Have we hit the top or bottom? and if forcing down have a differnet torque limit */
         double tourqueLimit = ElevatorConstants.bottomLimitTorque;
-        if (mForcingDown) tourqueLimit = ElevatorConstants.zeroingLimitTorque;
+        if (mPeriodicIO.forcingDown) tourqueLimit = ElevatorConstants.zeroingLimitTorque;
 
         if (
             ((mPeriodicIO.torqueCurrent < -tourqueLimit) &&
@@ -197,7 +196,6 @@ public class Elevator extends SubsystemBase {
             (mPeriodicIO.targetHeight < mPeriodicIO.height)) // ||
             // (mLimitSwitch.get() && mPeriodicIO.targetPosition != Position.MIN)
         ) {
-            System.out.println("Elevator bottom limit hit, marking min height");
             markMin();
             setTarget(positionOrder.get(0));
         } else if (
@@ -205,7 +203,6 @@ public class Elevator extends SubsystemBase {
             (mPeriodicIO.velocity < ElevatorConstants.limitVelocity) &&
             (mPeriodicIO.targetHeight > mPeriodicIO.height)
         ) {
-            System.out.println("Elevator top limit hit, marking max height");
             mMain.setPosition(metersToRotations(heights.get(Position.MAX))); // mark max
             setTarget(positionOrder.get(positionOrder.size() - 1));
         }
@@ -235,7 +232,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        Trimmer trimmer = Trimmer.getInstance();
+        final Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Elevator",

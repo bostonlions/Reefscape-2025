@@ -64,18 +64,18 @@ public final class RobotContainer {
                     controller.getSwerveTranslation(),
                     controller.getSwerveRotation(),
                     // LB button switch toggles strafe mode AND snaps to reef
-                    (controller.driver.getRawButton(1)),
-                    ((controller.driver.getRawAxis(6) > 0.5)) // D switch toggles precision mode
+                    controller.driver.getRawButton(1),
+                    controller.driver.getRawAxis(6) > 0.5 // D switch toggles precision mode
                 ),
                 drive
             )
         );
         // LB button toggles strafe mode AND snaps to reef (I changed it to the LB button again just because it feels better)
-        // new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef()); // TODO: snapToReef
+        // new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef()); // TODO: snapToReef -- here tho? idk -- maybe in drive method
 
         // zero with climber pointing towards you -- C switch
         new Trigger(() -> controller.driver.getRawAxis(7) > 0.5).onTrue(
-            new InstantCommand(() -> drive.zeroGyroReversed()).ignoringDisable(true)
+            new InstantCommand(drive::zeroGyroReversed).ignoringDisable(true)
         );
         // zero with algae pointing towards you -- RB button
         new Trigger(() -> controller.driver.getRawButton(2)).onTrue(
@@ -96,7 +96,6 @@ public final class RobotContainer {
             .onTrue(elevator.stepToCommand(Position.L2));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .75)
             .onTrue(elevator.stepToCommand(Position.LOAD));
-        System.out.println("done starting elevator");
 
         /* CLIMBERHOOK SUBSYSTEM AND COMMANDS */
         climberHook = ClimberHook.getInstance();
@@ -112,13 +111,11 @@ public final class RobotContainer {
         // new Trigger(() -> controller.operator.getAxis(Side.LEFT, Axis.X) < -0.5)
         //     .onTrue(climberHook.climbCommand());
         // Trigger(() -> controller.operator.getButton(Button.START)).onTrue(climberHook.footReleaseCommand());
-        System.out.println("done starting climberhook");
 
         /* CORAL SUBSYSTEM AND COMMANDS */
         coral = Coral.getInstance();
         SmartDashboard.putData(coral);
         new Trigger(() -> controller.operator.getButton(Button.X)).onTrue(coral.toggleCommand());
-        System.out.println("done starting coral");
 
         /* ALGAE SUBSYSTEM AND COMMANDS */
         algae = Algae.getInstance();
@@ -137,11 +134,9 @@ public final class RobotContainer {
         //     .onTrue(algae.nudgeLeftCommand())
         //     .onFalse(algae.nudgeStopCommand());
 
-        /*
-         * TRIMMER - all subsystems can add items to be adjusted.
-         * These commands are marked to run in disabled mode, so we can
-         * tweak parameters and choose auto commands prior to the match starting.
-         */
+        // TRIMMER - all subsystems can add items to be adjusted.
+        // These commands are marked to run in disabled mode, so we can
+        // tweak parameters and choose auto commands prior to the match starting.
         trimmer = Trimmer.getInstance();
         SmartDashboard.putData(trimmer);
         new Trigger(() -> (controller.operator.getController().getPOV() == 270)).onTrue(trimmer.nextSubsystemCommand());
@@ -149,10 +144,9 @@ public final class RobotContainer {
         new Trigger(() -> (controller.operator.getController().getPOV() == 0)).onTrue(trimmer.incrementItemCommand());
         new Trigger(() -> (controller.operator.getController().getPOV() == 180)).onTrue(trimmer.decrementItemCommand());
 
-        /* Autonomous commands */
+        // Autonomous commands
         auton = Auton.getInstance();
         SmartDashboard.putData(auton);
-        System.out.println("done init RobotContainer");
     }
 
     public Command getAutonomousCommand() {
