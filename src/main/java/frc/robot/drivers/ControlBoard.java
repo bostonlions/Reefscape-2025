@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class ControlBoard {
-    private static ControlBoard mInstance = null;
+    private static ControlBoard mInstance;
     public final CustomXboxController operator;
     public final GenericHID driver;
     private final double speedFactor;
@@ -31,15 +31,15 @@ public final class ControlBoard {
 
     /** Driver method */
     public Translation2d getSwerveTranslation() {
-        double forwardAxis = 0;
-        double strafeAxis = 0;
+        double forwardAxis = 0.;
+        double strafeAxis = 0.;
         if (ControllerConstants.isMambo) {
             forwardAxis = driver.getRawAxis(2);
             strafeAxis = driver.getRawAxis(1);
-            double mag = Math.pow(forwardAxis*forwardAxis + strafeAxis * strafeAxis, 0.5);
+            double mag = Math.pow(forwardAxis * forwardAxis + strafeAxis * strafeAxis, 0.5);
             double curveFactor = Math.pow(mag, 0.25);
-            forwardAxis = forwardAxis * curveFactor;
-            strafeAxis = strafeAxis * curveFactor;
+            forwardAxis *= curveFactor;
+            strafeAxis *= curveFactor;
         } else {
             forwardAxis = getRightThrottle();
             strafeAxis = getRightYaw();
@@ -56,14 +56,14 @@ public final class ControlBoard {
 
         Translation2d tAxes = new Translation2d(forwardAxis, strafeAxis);
 
-        if (Math.abs(tAxes.getNorm()) < kSwerveDeadband) return new Translation2d(); else {
-            Rotation2d deadband_direction = new Rotation2d(tAxes.getX(), tAxes.getY());
-            Translation2d deadband_vector = new Translation2d(kSwerveDeadband, deadband_direction);
+        if (Math.abs(tAxes.getNorm()) < kSwerveDeadband) return new Translation2d();
 
-            double scaled_x = MathUtil.applyDeadband(forwardAxis, Math.abs(deadband_vector.getX()));
-            double scaled_y = MathUtil.applyDeadband(strafeAxis, Math.abs(deadband_vector.getY()));
-            return new Translation2d(scaled_x, scaled_y).times(SwerveConstants.SMConstFactory.SpeedAt12Volts);
-        }
+        Rotation2d deadband_direction = new Rotation2d(tAxes.getX(), tAxes.getY());
+        Translation2d deadband_vector = new Translation2d(kSwerveDeadband, deadband_direction);
+
+        double scaled_x = MathUtil.applyDeadband(forwardAxis, Math.abs(deadband_vector.getX()));
+        double scaled_y = MathUtil.applyDeadband(strafeAxis, Math.abs(deadband_vector.getY()));
+        return new Translation2d(scaled_x, scaled_y).times(SwerveConstants.SMConstFactory.SpeedAt12Volts);
     }
 
     /** Driver method */
