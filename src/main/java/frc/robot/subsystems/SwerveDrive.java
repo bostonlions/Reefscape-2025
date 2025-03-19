@@ -67,8 +67,8 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     private SwerveDrive() {
-        driveTrain.configNeutralMode(NeutralModeValue.Brake); // TODO: do we want this? Is coast better?
         driveTrain.getOdometryThread().start(); // TODO: do we want this?
+        driveTrain.configNeutralMode(NeutralModeValue.Brake); // TODO: do we want this? Is coast better?
     }
 
     public Command followPathCommand(String pathName, boolean isFirstPath) {
