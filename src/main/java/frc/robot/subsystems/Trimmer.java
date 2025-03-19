@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public final class Trimmer extends SubsystemBase {
-    private static Trimmer mInstance;
+    private static Trimmer instance;
     private List<String> subsystems;
     private List<List<Item>> items;
     private int currentSubsystemIndex;
@@ -23,8 +23,8 @@ public final class Trimmer extends SubsystemBase {
     private String[] itemsArray;
 
     public static Trimmer getInstance() {
-        if (mInstance == null) mInstance = new Trimmer();
-        return mInstance;
+        if (instance == null) instance = new Trimmer();
+        return instance;
     }
 
     private Trimmer() {

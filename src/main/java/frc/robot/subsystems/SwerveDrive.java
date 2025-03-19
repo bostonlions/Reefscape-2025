@@ -2,12 +2,14 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
-
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
@@ -64,7 +66,10 @@ public final class SwerveDrive extends SubsystemBase {
         return instance;
     }
 
-    private SwerveDrive() {}
+    private SwerveDrive() {
+        driveTrain.configNeutralMode(NeutralModeValue.Brake); // TODO: do we want this? Is coast better?
+        driveTrain.getOdometryThread().start(); // TODO: do we want this?
+    }
 
     public Command followPathCommand(String pathName, boolean isFirstPath) {
         try {
@@ -123,28 +128,36 @@ public final class SwerveDrive extends SubsystemBase {
         driveTrain.resetRotation(new Rotation2d(0.));
     }
 
-    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafeAndSnap, boolean precisionMode) { // TODO: precision mode and strafe mode reductions
+    public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafeAndSnap, boolean precisionMode) { // TODO: precision mode and strafe mode reductions; and snap implementation
         mPeriodicIO.requestedSpeeds = new ChassisSpeeds(targetSpeed.getX(), targetSpeed.getY(), targetRotationRate);
         mPeriodicIO.strafeMode = strafeAndSnap;
         mPeriodicIO.precisionMode = precisionMode;
 
-        if (strafeAndSnap) {
-            driveTrain.setControl(
+        SwerveRequest req =
+            mPeriodicIO.strafeMode ?
                 new SwerveRequest.ApplyRobotSpeeds()
                     .withSpeeds(mPeriodicIO.requestedSpeeds)
                     .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-            );
-            // TODO: implement snap in this if block
-        }
-        else {
-            driveTrain.setControl(
-                new SwerveRequest.ApplyFieldSpeeds()
-                    .withSpeeds(mPeriodicIO.requestedSpeeds)
-                    .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-                    .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-            );
-        }
+            : new SwerveRequest.ApplyFieldSpeeds()
+                .withSpeeds(mPeriodicIO.requestedSpeeds)
+                .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+                .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+
+        driveTrain.setControl(req);
+
+        System.out.println(
+            "\n\n---------------\n\n*** SwerveRequest DEBUG ***\n\n" +
+
+            "Speeds: " + (
+                mPeriodicIO.strafeMode ? ((ApplyRobotSpeeds) req).Speeds : ((ApplyFieldSpeeds) req).Speeds
+            ) +
+            "\nCenter of Rotation: " + (
+                mPeriodicIO.strafeMode ? ((ApplyRobotSpeeds) req).CenterOfRotation : ((ApplyFieldSpeeds) req).CenterOfRotation
+            ) +
+
+            "\n\n---------------\n\n"
+        );
     }
 
     private static final class PeriodicIO {
@@ -152,6 +165,9 @@ public final class SwerveDrive extends SubsystemBase {
         private boolean strafeMode;
         private boolean precisionMode;
     }
+
+    // @Override
+    // public void periodic() {}
 
     @Override
     public void initSendable(SendableBuilder builder) {
