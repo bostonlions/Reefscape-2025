@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
@@ -10,6 +9,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
+
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
@@ -28,9 +28,9 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.SwerveConstants;
 
 public final class SwerveDrive extends SubsystemBase {
-    private static SwerveDrive instance;
+    private static SwerveDrive mInstance;
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
-    private final SwerveDrivetrain<TalonFX, TalonFX, CANcoder> driveTrain = new SwerveDrivetrain<
+    private final SwerveDrivetrain<TalonFX, TalonFX, CANcoder> mDriveTrain = new SwerveDrivetrain<
         TalonFX, TalonFX, CANcoder
     >(
         TalonFX::new, TalonFX::new, CANcoder::new,
@@ -62,13 +62,12 @@ public final class SwerveDrive extends SubsystemBase {
     );
 
     public static SwerveDrive getInstance() {
-        if (instance == null) instance = new SwerveDrive();
-        return instance;
+        if (mInstance == null) mInstance = new SwerveDrive();
+        return mInstance;
     }
 
     private SwerveDrive() {
-        driveTrain.getOdometryThread().start(); // TODO: do we want this?
-        driveTrain.configNeutralMode(NeutralModeValue.Brake); // TODO: do we want this? Is coast better?
+        mDriveTrain.getOdometryThread().start(); // TODO: do we want this?
     }
 
     public Command followPathCommand(String pathName, boolean isFirstPath) {
@@ -85,19 +84,19 @@ public final class SwerveDrive extends SubsystemBase {
 
             return new InstantCommand(() -> {
                 if (isFirstPath) path.getStartingHolonomicPose().ifPresent(
-                    (pose) -> driveTrain.resetPose(pose)
+                    (pose) -> mDriveTrain.resetPose(pose)
                 );
             }).andThen(new FollowPathCommand(
                 path,
-                () -> driveTrain.getState().Pose,
+                () -> mDriveTrain.getState().Pose,
                 () -> {
                     // TODO: if driveTrain.getState().Speeds is field-relative, use this one:
                     // return ChassisSpeeds.fromFieldRelativeSpeeds(driveTrain.getState().Speeds, driveTrain.getState().Pose.getRotation());
                     // TODO part 2: and if it's robot-relative, use this one:
-                    return driveTrain.getState().Speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                    return mDriveTrain.getState().Speeds; // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 },
                 (ChassisSpeeds setPointSpeeds, DriveFeedforwards dff) -> {
-                    driveTrain.setControl(
+                    mDriveTrain.setControl(
                         new SwerveRequest.ApplyRobotSpeeds()
                             .withSpeeds(setPointSpeeds)
                             .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
@@ -121,11 +120,11 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     public void zeroGyro() {
-        driveTrain.resetRotation(new Rotation2d(180.));
+        mDriveTrain.resetRotation(new Rotation2d(180.));
     }
 
     public void zeroGyroReversed() {
-        driveTrain.resetRotation(new Rotation2d(0.));
+        mDriveTrain.resetRotation(new Rotation2d(0.));
     }
 
     public void setTargetSpeeds(Translation2d targetSpeed, double targetRotationRate, boolean strafeAndSnap, boolean precisionMode) { // TODO: precision mode and strafe mode reductions; and snap implementation
@@ -144,7 +143,7 @@ public final class SwerveDrive extends SubsystemBase {
                 .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                 .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-        driveTrain.setControl(req);
+        mDriveTrain.setControl(req);
 
         System.out.println(
             "\n\n---------------\n\n*** SwerveRequest DEBUG ***\n\n" +
@@ -179,25 +178,25 @@ public final class SwerveDrive extends SubsystemBase {
         builder.addDoubleProperty("Target X Speed (m_s)", () -> mPeriodicIO.requestedSpeeds.vxMetersPerSecond, null);
         builder.addDoubleProperty("Target Y Speed (m_s)", () -> mPeriodicIO.requestedSpeeds.vyMetersPerSecond, null);
         builder.addDoubleProperty("Target Rotation Rate (rad_s)", () -> mPeriodicIO.requestedSpeeds.omegaRadiansPerSecond, null);
-        builder.addDoubleProperty("Measured X", () -> driveTrain.getState().Pose.getX(), null);
-        builder.addDoubleProperty("Measured Y", () -> driveTrain.getState().Pose.getY(), null);
-        builder.addDoubleProperty("Heading", () -> driveTrain.getState().Pose.getRotation().getDegrees(), null);
-        builder.addDoubleProperty("Measured X speed (m_s)", () -> driveTrain.getState().Speeds.vxMetersPerSecond, null);
-        builder.addDoubleProperty("Measured Y speed (m_s)", () -> driveTrain.getState().Speeds.vyMetersPerSecond, null);
-        builder.addDoubleProperty("Measured Rotation rate (rad_s)", () -> driveTrain.getState().Speeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Measured X", () -> mDriveTrain.getState().Pose.getX(), null);
+        builder.addDoubleProperty("Measured Y", () -> mDriveTrain.getState().Pose.getY(), null);
+        builder.addDoubleProperty("Heading", () -> mDriveTrain.getState().Pose.getRotation().getDegrees(), null);
+        builder.addDoubleProperty("Measured X speed (m_s)", () -> mDriveTrain.getState().Speeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("Measured Y speed (m_s)", () -> mDriveTrain.getState().Speeds.vyMetersPerSecond, null);
+        builder.addDoubleProperty("Measured Rotation rate (rad_s)", () -> mDriveTrain.getState().Speeds.omegaRadiansPerSecond, null);
 
-        builder.addDoubleProperty("FR angle voltage", () -> driveTrain.getModules()[0].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("FR drive voltage", () -> driveTrain.getModules()[0].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("FR cancoder", () -> driveTrain.getModules()[0].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("FL angle voltage", () -> driveTrain.getModules()[1].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("FL drive voltage", () -> driveTrain.getModules()[1].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("FL cancoder", () -> driveTrain.getModules()[1].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("BR angle voltage", () -> driveTrain.getModules()[2].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("BR drive voltage", () -> driveTrain.getModules()[2].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("BR cancoder", () -> driveTrain.getModules()[2].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("BL angle voltage", () -> driveTrain.getModules()[3].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("BL drive voltage", () -> driveTrain.getModules()[3].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
-        builder.addDoubleProperty("BL cancoder", () -> driveTrain.getModules()[3].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("FR angle voltage", () -> mDriveTrain.getModules()[0].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FR drive voltage", () -> mDriveTrain.getModules()[0].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FR cancoder", () -> mDriveTrain.getModules()[0].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("FL angle voltage", () -> mDriveTrain.getModules()[1].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FL drive voltage", () -> mDriveTrain.getModules()[1].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("FL cancoder", () -> mDriveTrain.getModules()[1].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("BR angle voltage", () -> mDriveTrain.getModules()[2].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BR drive voltage", () -> mDriveTrain.getModules()[2].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BR cancoder", () -> mDriveTrain.getModules()[2].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("BL angle voltage", () -> mDriveTrain.getModules()[3].getSteerMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BL drive voltage", () -> mDriveTrain.getModules()[3].getDriveMotor().getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("BL cancoder", () -> mDriveTrain.getModules()[3].getEncoder().getAbsolutePosition().getValueAsDouble(), null);
     }
 
     private void initTrimmer() { // TODO (will use this trimmer for PID - will use Steve's PID finding method with this)

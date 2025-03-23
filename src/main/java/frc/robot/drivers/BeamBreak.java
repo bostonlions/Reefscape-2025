@@ -4,9 +4,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public final class BeamBreak {
     private final DigitalInput mBreak;
-    private boolean lastStatus;
-    private boolean tripped;
-    private boolean cleared;
+    private boolean lastStatus, tripped, cleared;
 
     public BeamBreak(int channel) {
         mBreak = new DigitalInput(channel);

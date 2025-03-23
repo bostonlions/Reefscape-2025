@@ -59,7 +59,7 @@ public final class Constants {
             new Pair<Double, Double>(-trackWidth / 2, -wheelBase / 2)
         );
 
-        // MODULE CANCODER ANGLE OFFSETS
+        // MODULE CANCODER ANGLE OFFSETS - TODO: update these for new swerve drive system
         // To calibrate:
         // - Tip the robot up on its back side
         // - Align the bevel gears to the right side (from lookers perspective) on all the wheels.
