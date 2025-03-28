@@ -40,10 +40,11 @@ public final class RobotContainer {
     private final Coral coral;
     private final Algae algae;
     private final Trimmer trimmer;
-    private final Auton auton;
 
     public RobotContainer() {
         controller = ControlBoard.getInstance();
+
+        SmartDashboard.putData(Auton.getInstance());
 
         UsbCamera cam1 = CameraServer.startAutomaticCapture(0); // Start the Camera 1
         UsbCamera cam2 = CameraServer.startAutomaticCapture(1); // Start the Camera 2
@@ -129,7 +130,6 @@ public final class RobotContainer {
         new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
             .onTrue(algae.nudgeLeftCommand())
             .onFalse(algae.nudgeStopCommand());
-
         // new Trigger(() -> controller.operator.getTrigger(Side.LEFT))
         //     .onTrue(algae.nudgeLeftCommand())
         //     .onFalse(algae.nudgeStopCommand());
@@ -143,14 +143,6 @@ public final class RobotContainer {
         new Trigger(() -> (controller.operator.getController().getPOV() == 90)).onTrue(trimmer.nextItemCommand());
         new Trigger(() -> (controller.operator.getController().getPOV() == 0)).onTrue(trimmer.incrementItemCommand());
         new Trigger(() -> (controller.operator.getController().getPOV() == 180)).onTrue(trimmer.decrementItemCommand());
-
-        // Autonomous commands
-        auton = Auton.getInstance();
-        SmartDashboard.putData(auton);
-    }
-
-    public Command getAutonomousCommand() {
-        return auton.getCommand();
     }
 
     public void teleopInit() {

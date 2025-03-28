@@ -1,7 +1,9 @@
 package frc.robot;
 
 public final class Ports {
+    /** Not really a port; a name */
     public static final String CANBUS_DRIVE = "Big Justice";
+    /** Not really a port; a name */
     public static final String CANBUS_OPS = "Baby Gronk";
 
     public static final int DRIVER_CONTROL = 2;

@@ -68,11 +68,9 @@ public final class ControlBoard {
 
     /** Driver method */
     public double getSwerveRotation() {
-        double rotAxis = ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw();
-        rotAxis = (ControllerConstants.invertRAxis ? rotAxis : -rotAxis) * speedFactor;
-
-        if (Math.abs(rotAxis) < kSwerveDeadband) return 0.;
-        return SwerveConstants.maxAngularVelocity *
+        double rotAxis = (ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw()) *
+            (ControllerConstants.invertRAxis ? speedFactor : -speedFactor);
+        return Math.abs(rotAxis) < kSwerveDeadband ? 0 :
             (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband)) / (1 - kSwerveDeadband);
     }
 

@@ -49,19 +49,19 @@ public final class Coral extends SubsystemBase {
         return new InstantCommand(this::activateCoral, this);
     }
 
-    public void setWantNeutralBrake(boolean brake) {
+    private void setWantNeutralBrake(boolean brake) {
         NeutralModeValue mode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
         mMotor.setNeutralMode(mode);
     }
 
-    public void setSetpoint(double speed) {
+    private void setSetpoint(double speed) {
         mPeriodicIO.demand = speed;
         if (speed == 0) mMotor.setControl(new NeutralOut());
         else mMotor.setControl(new DutyCycleOut(speed));
     }
 
     /** To start or interrupt a load or unload upon a button push */
-    public void activateCoral() {
+    private void activateCoral() {
         if (mPeriodicIO.state == State.IDLE) {
             setSetpoint(mPeriodicIO.loadSpeed);
             mPeriodicIO.state = State.LOADING_NO_CORAL;
@@ -72,14 +72,6 @@ public final class Coral extends SubsystemBase {
             setSetpoint(0);
             mPeriodicIO.state = mBeamBreak.get() ? State.LOADED : State.IDLE;
         }
-    }
-
-    public double getAngleDeg() {
-        return mPeriodicIO.position_degrees;
-    }
-
-    public double getTorqueCurrent() {
-        return mPeriodicIO.current;
     }
 
     private static final class PeriodicIO {
@@ -160,7 +152,7 @@ public final class Coral extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        final Trimmer trimmer = Trimmer.getInstance();
+        Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Coral",

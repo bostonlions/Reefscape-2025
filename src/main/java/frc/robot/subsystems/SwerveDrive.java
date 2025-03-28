@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
@@ -14,6 +16,7 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -26,10 +29,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Ports;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.drivers.CustomXboxController.Axis;
 
 public final class SwerveDrive extends SubsystemBase {
     private static SwerveDrive mInstance;
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
+    /** Robot relative */
+    private final List<Pair<Double, Double>> swerveModulePositions = List.of(
+        new Pair<Double, Double>(SwerveConstants.trackWidth / 2, SwerveConstants.wheelBase / 2),
+        new Pair<Double, Double>(-SwerveConstants.trackWidth / 2, SwerveConstants.wheelBase / 2),
+        new Pair<Double, Double>(SwerveConstants.trackWidth / 2, -SwerveConstants.wheelBase / 2),
+        new Pair<Double, Double>(-SwerveConstants.trackWidth / 2, -SwerveConstants.wheelBase / 2)
+    );
     private final SwerveDrivetrain<TalonFX, TalonFX, CANcoder> mDriveTrain = new SwerveDrivetrain<
         TalonFX, TalonFX, CANcoder
     >(
@@ -37,26 +48,26 @@ public final class SwerveDrive extends SubsystemBase {
         new SwerveDrivetrainConstants().withCANBusName(Ports.CANBUS_DRIVE).withPigeon2Id(Ports.PIGEON),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.FR_ROTATION, Ports.FR_DRIVE, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset,
-            SwerveConstants.swerveModulePositions.get(0).getFirst(),
-            SwerveConstants.swerveModulePositions.get(0).getSecond(),
+            swerveModulePositions.get(0).getFirst(),
+            swerveModulePositions.get(0).getSecond(),
             false, false, false
         ),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.FL_ROTATION, Ports.FL_DRIVE, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset,
-            SwerveConstants.swerveModulePositions.get(1).getFirst(),
-            SwerveConstants.swerveModulePositions.get(1).getSecond(),
+            swerveModulePositions.get(1).getFirst(),
+            swerveModulePositions.get(1).getSecond(),
             false, false, false
         ),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.BR_ROTATION, Ports.BR_DRIVE, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset,
-            SwerveConstants.swerveModulePositions.get(2).getFirst(),
-            SwerveConstants.swerveModulePositions.get(2).getSecond(),
+            swerveModulePositions.get(2).getFirst(),
+            swerveModulePositions.get(2).getSecond(),
             false, false, false
         ),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.BL_ROTATION, Ports.BL_DRIVE, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset,
-            SwerveConstants.swerveModulePositions.get(3).getFirst(),
-            SwerveConstants.swerveModulePositions.get(3).getSecond(),
+            swerveModulePositions.get(3).getFirst(),
+            swerveModulePositions.get(3).getSecond(),
             false, false, false
         )
     );
@@ -68,6 +79,11 @@ public final class SwerveDrive extends SubsystemBase {
 
     private SwerveDrive() {
         mDriveTrain.getOdometryThread().start(); // TODO: do we want this?
+    }
+
+    public static double getSwerveModulePos(int swerveModuleNum, Axis axis) {
+        Pair<Double, Double> pos = getInstance().swerveModulePositions.get(swerveModuleNum - 1);
+        return axis == Axis.X ? pos.getFirst() : pos.getSecond();
     }
 
     public Command followPathCommand(String pathName, boolean isFirstPath) {
@@ -200,6 +216,6 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     private void initTrimmer() { // TODO (will use this trimmer for PID - will use Steve's PID finding method with this)
-        final Trimmer trimmer = Trimmer.getInstance();
+        Trimmer trimmer = Trimmer.getInstance();
     }
 }

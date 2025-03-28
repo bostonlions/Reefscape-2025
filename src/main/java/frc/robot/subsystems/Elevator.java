@@ -78,7 +78,7 @@ public final class Elevator extends SubsystemBase {
         mFollower.setControl(new Follower(Ports.ELEVATOR_B, true));
     }
 
-    public void setNeutralBrake(boolean brake) {
+    private void setNeutralBrake(boolean brake) {
         NeutralModeValue wantedMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
         mMain.setNeutralMode(wantedMode);
         mFollower.setNeutralMode(wantedMode);
@@ -97,12 +97,12 @@ public final class Elevator extends SubsystemBase {
         return rotations * ElevatorConstants.wheelCircumference / ElevatorConstants.gearRatio;
     }
 
-    public void setSetpointMotionMagic(double distance) {
+    private void setSetpointMotionMagic(double distance) {
         mPeriodicIO.demand = metersToRotations(distance);
         mMain.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
     }
 
-    public void setTarget(Position p) {
+    private void setTarget(Position p) {
         mPeriodicIO.targetPosition = p;
         mPeriodicIO.targetHeight = p == Position.MANUAL ? mPeriodicIO.manualTargetHeight : heights.get(p);
         mPeriodicIO.moving = true;
@@ -111,7 +111,7 @@ public final class Elevator extends SubsystemBase {
         setSetpointMotionMagic(mPeriodicIO.targetHeight);
     }
 
-    public int getClosestStepNum(boolean goingUp) {
+    private int getClosestStepNum(boolean goingUp) {
         if (mPeriodicIO.targetPosition == Position.MIN) return -1;
         if (mPeriodicIO.targetPosition == Position.MAX) return positionOrder.size();
         if (mPeriodicIO.targetPosition == Position.MANUAL) {
@@ -127,21 +127,21 @@ public final class Elevator extends SubsystemBase {
         return positionOrder.indexOf(mPeriodicIO.targetPosition);
     }
 
-    public boolean doneMoving() {
+    private boolean doneMoving() {
         return !mPeriodicIO.moving;
     }
 
-    public void stepUp() {
+    private void stepUp() {
         int curStep = getClosestStepNum(true);
         if (curStep < positionOrder.size() - 1) setTarget(positionOrder.get(curStep + 1));
     }
 
-    public void stepDown() {
+    private void stepDown() {
         int curStep = getClosestStepNum(false);
         if (curStep > 0) setTarget(positionOrder.get(curStep - 1));
     }
 
-    public void markMin() {
+    private void markMin() {
         mPeriodicIO.targetPosition = Position.MIN;
         mPeriodicIO.targetHeight = heights.get(Position.MIN);
         mPeriodicIO.moving = false;
@@ -151,7 +151,7 @@ public final class Elevator extends SubsystemBase {
     }
 
     /** Lower the elevator slowly until it recognizes that it's stuck at the bottom. */
-    public void forceDown() {
+    private void forceDown() {
         mPeriodicIO.targetHeight = -1000.; // tell it we're going down, so we don't check the upper height limit
         mMain.setControl(new DutyCycleOut(-ElevatorConstants.resetDutyCycle));
         mPeriodicIO.forcingDown = true;
@@ -182,16 +182,16 @@ public final class Elevator extends SubsystemBase {
         mPeriodicIO.velocity = mMain.getRotorVelocity().getValue().in(Units.RotationsPerSecond);
         mPeriodicIO.torqueCurrent = mMain.getTorqueCurrent().getValueAsDouble();
 
-        if (mPeriodicIO.height < heights.get(Position.MIN)) { // checking if we're below min
-            // forceDown();
-        }
+        // if (mPeriodicIO.height < heights.get(Position.MIN)) { // checking if we're below min
+        //     forceDown();
+        // }
 
-        /* Have we hit the top or bottom? and if forcing down have a differnet torque limit */
-        double tourqueLimit = ElevatorConstants.bottomLimitTorque;
-        if (mPeriodicIO.forcingDown) tourqueLimit = ElevatorConstants.zeroingLimitTorque;
-
+        // have we hit the top or bottom? And if forcing down have a differnet torque limit
         if (
-            ((mPeriodicIO.torqueCurrent < -tourqueLimit) &&
+            ((mPeriodicIO.torqueCurrent < -(
+                mPeriodicIO.forcingDown ?
+                ElevatorConstants.zeroingLimitTorque : ElevatorConstants.bottomLimitTorque
+            )) &&
             (mPeriodicIO.velocity > -ElevatorConstants.limitVelocity) &&
             (mPeriodicIO.targetHeight < mPeriodicIO.height)) // ||
             // (mLimitSwitch.get() && mPeriodicIO.targetPosition != Position.MIN)
@@ -207,9 +207,13 @@ public final class Elevator extends SubsystemBase {
             setTarget(positionOrder.get(positionOrder.size() - 1));
         }
 
-        /* Have we finished moving? */
-        if (mPeriodicIO.moving && MathUtil.isNear(mPeriodicIO.height, mPeriodicIO.targetHeight,
-            ElevatorConstants.heightTolerance)) mPeriodicIO.moving = false;
+        // have we finished moving?
+        if (
+            mPeriodicIO.moving &&
+            MathUtil.isNear(
+                mPeriodicIO.height, mPeriodicIO.targetHeight, ElevatorConstants.heightTolerance
+            )
+        ) mPeriodicIO.moving = false;
     }
 
     @Override
@@ -232,7 +236,7 @@ public final class Elevator extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        final Trimmer trimmer = Trimmer.getInstance();
+        Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Elevator",

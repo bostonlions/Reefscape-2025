@@ -106,21 +106,13 @@ public final class Algae extends SubsystemBase {
     public Command nudgeLeftCommand() { return new InstantCommand(() -> this.nudgeDrive(1), this); }
     public Command nudgeStopCommand() { return new InstantCommand(() -> this.nudgeDrive(0), this); }
 
-    public void setConfigs() {
+    private void setConfigs() {
         mDriveMotor.getConfigurator().apply(driveMotorConfig);
         mDriveMotor.setPosition(0);
         mAngleMotor.getConfigurator().apply(angleMotorConfig);
     }
 
-    public double getCanCoderPosition() {
-        return MathUtil.inputModulus(
-            mCANcoder.getAbsolutePosition().getValueAsDouble() * 360 - AlgaeConstants.cancoderOffset,
-            0,
-            360
-        );
-    }
-
-    public void setAngleSetpoint(double angle) {
+    private void setAngleSetpoint(double angle) {
         mPeriodicIO.angleSetpoint = angle;
         mPeriodicIO.C_demand = angle / 360.;
 
@@ -129,13 +121,13 @@ public final class Algae extends SubsystemBase {
         mAngleMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.C_demand));
     }
 
-    public void setDriveSpeed(double rps) {
+    private void setDriveSpeed(double rps) {
         mPeriodicIO.D_demand = rps * AlgaeConstants.driveGearRatio;
         mDriveMotor.setControl(new MotionMagicVelocityDutyCycle(mPeriodicIO.D_demand));
     }
 
     /** Use xbox triggers to turn the drive wheel a bit in or out so operator can get a better grip on the ball */
-    public void nudgeDrive(int direction) {
+    private void nudgeDrive(int direction) {
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case LOADED:
@@ -152,14 +144,14 @@ public final class Algae extends SubsystemBase {
         }
     }
 
-    public void setPosition(PositionState newPosition) {
+    private void setPosition(PositionState newPosition) {
         if (newPosition != mPeriodicIO.requestedPosition) {
             mPeriodicIO.requestedPosition = newPosition;
             setState();
         }
     }
 
-    public void toggleDrive() {
+    private void toggleDrive() {
         switch(mPeriodicIO.driveState) {
             case IDLE:
             case UNLOADING_NO_ALGAE:
@@ -178,7 +170,7 @@ public final class Algae extends SubsystemBase {
         setState();
     }
 
-    public void setState() {
+    private void setState() {
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
         mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(mPeriodicIO.driveState);
         mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : DOWN_SPEEDS).get(mPeriodicIO.driveState);
@@ -192,7 +184,7 @@ public final class Algae extends SubsystemBase {
             setDriveSpeed(mPeriodicIO.targetSpeed);
     }
 
-    public double getAdjustedCancoderAngle() {
+    private double getAdjustedCancoderAngle() {
         return MathUtil.inputModulus(
             mCANcoder.getPosition().getValueAsDouble() * 360, -180, 180
         );
@@ -246,7 +238,6 @@ public final class Algae extends SubsystemBase {
                     mPeriodicIO.driveState = DriveState.LOADED;
                     setState();
                 }
-
                 break;
             case UNLOADING_WITH_ALGAE:
                 if (!mBeamBreak.get()) {
@@ -324,7 +315,7 @@ public final class Algae extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        final Trimmer trimmer = Trimmer.getInstance();
+        Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Algae",

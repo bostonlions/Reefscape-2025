@@ -57,33 +57,35 @@ public final class ClimberHook extends SubsystemBase {
     }
 
     /** Only used in footReleaseCommand (not a real class variable) */
-    private double startingExtension;
+    // private double startingExtension;
 
-    public Command footReleaseCommand() {
-        return new InstantCommand(() -> {startingExtension = mPeriodicIO.extension; setSetpointMotionMagic(startingExtension + ClimberHookConstants.footReleaseRotations);})
-            .andThen(new WaitCommand(ClimberHookConstants.footReleaseDelay))
-            .andThen(new InstantCommand(() -> setSetpointMotionMagic(startingExtension)));
-    }
+    // public Command footReleaseCommand() {
+    //     return new InstantCommand(() -> {
+    //         startingExtension = mPeriodicIO.extension;
+    //         setSetpointMotionMagic(startingExtension + ClimberHookConstants.footReleaseRotations);
+    //     }).andThen(new WaitCommand(ClimberHookConstants.footReleaseDelay))
+    //         .andThen(new InstantCommand(() -> setSetpointMotionMagic(startingExtension)));
+    // }
 
     private void setConfig() {
         mMotor.getConfigurator().apply(motorConfig);
     }
 
-    public void markPosition(Position p) {
+    private void markPosition(Position p) {
         mMotor.setPosition(extensions.get(p) * ClimberHookConstants.gearRatio);
     }
 
-    public void setWantNeutralBrake(boolean brake) {
+    private void setWantNeutralBrake(boolean brake) {
         NeutralModeValue mode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
         mMotor.setNeutralMode(mode);
     }
 
-    public void setSetpointMotionMagic(double winchRotations) {
+    private void setSetpointMotionMagic(double winchRotations) {
         mPeriodicIO.demand = winchRotations * ClimberHookConstants.gearRatio;
         mMotor.setControl(new MotionMagicDutyCycle(mPeriodicIO.demand));
     }
 
-    public void setTarget(Position p) {
+    private void setTarget(Position p) {
         mPeriodicIO.targetExtension = p == Position.MANUAL ? mPeriodicIO.manualTargetExtension : extensions.get(p);
         ClimberHookConstants.motorConfig.MotionMagic.MotionMagicCruiseVelocity = (
             (p == Position.CLIMBED ? ClimberHookConstants.climbSpeed : ClimberHookConstants.extendSpeed) *
@@ -94,7 +96,7 @@ public final class ClimberHook extends SubsystemBase {
     }
 
     /** Use xbox left joystick up/down to manually move in/out. Edit the nudge speed with the trimmer */
-    public void nudge(int direction) {
+    private void nudge(int direction) {
         double speed = direction * mPeriodicIO.nudgeSpeed * ClimberHookConstants.gearRatio;
         if (direction != 0) {
             mMotor.setControl(new MotionMagicVelocityDutyCycle(speed));
@@ -105,17 +107,12 @@ public final class ClimberHook extends SubsystemBase {
         }
     }
 
-    public double getTorqueCurrent(){
-        return mPeriodicIO.current;
-    }
-
     private static final class PeriodicIO {
-        /* INPUTS */
-
-        /** In winch rotations */
-        private double extension;
+        // Inputs
         private double current;
         private double output_voltage;
+        /** In winch rotations */
+        private double extension;
         private double velocity;
         private boolean moving;
 
@@ -165,7 +162,7 @@ public final class ClimberHook extends SubsystemBase {
     }
 
     private void initTrimmer() {
-        final Trimmer trimmer = Trimmer.getInstance();
+        Trimmer trimmer = Trimmer.getInstance();
 
         trimmer.add(
             "Climberhook",

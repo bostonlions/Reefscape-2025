@@ -9,6 +9,10 @@ import java.util.Map;
 
 import static java.util.Map.entry;
 
+import frc.robot.drivers.CustomXboxController.Axis;
+
+import static frc.robot.subsystems.SwerveDrive.getSwerveModulePos;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
@@ -33,31 +37,19 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
     public static final class SwerveConstants {
-        /** The speed reduction when drive is in strafe mode; drive speed gets divided by this */
+        // Reductions by which drive speed gets divided
         public static final double strafeReduction = 4.;
-        /** The speed reduction when drive is in precision mode; drive speed gets divided by this */
         public static final double precisionReduction = 8.;
 
-        public static final double maxAngularVelocity = 8.;
-
         // Drivetrain Constants
-        private static final double trackWidth = Units.inchesToMeters(24.25);
-        private static final double wheelBase = Units.inchesToMeters(24.25);
-
-        /** Robot relative */
-        public static final List<Pair<Double, Double>> swerveModulePositions = List.of(
-            new Pair<Double, Double>(trackWidth / 2, wheelBase / 2),
-            new Pair<Double, Double>(-trackWidth / 2, wheelBase / 2),
-            new Pair<Double, Double>(trackWidth / 2, -wheelBase / 2),
-            new Pair<Double, Double>(-trackWidth / 2, -wheelBase / 2)
-        );
+        public static final double trackWidth = Units.inchesToMeters(24.25);
+        public static final double wheelBase = Units.inchesToMeters(24.25);
 
         // MODULE CANCODER ANGLE OFFSETS - TODO: update these for new swerve drive system
         // To calibrate:
@@ -156,20 +148,20 @@ public final class Constants {
                 4
             ),
             new Translation2d(
-                SwerveConstants.swerveModulePositions.get(3).getFirst(),
-                SwerveConstants.swerveModulePositions.get(3).getSecond()
+                getSwerveModulePos(4, Axis.X),
+                getSwerveModulePos(4, Axis.Y)
             ),
             new Translation2d(
-                SwerveConstants.swerveModulePositions.get(1).getFirst(),
-                SwerveConstants.swerveModulePositions.get(1).getSecond()
+                getSwerveModulePos(2, Axis.X),
+                getSwerveModulePos(2, Axis.Y)
             ),
             new Translation2d(
-                SwerveConstants.swerveModulePositions.get(2).getFirst(),
-                SwerveConstants.swerveModulePositions.get(2).getSecond()
+                getSwerveModulePos(3, Axis.X),
+                getSwerveModulePos(3, Axis.Y)
             ),
             new Translation2d(
-                SwerveConstants.swerveModulePositions.get(0).getFirst(),
-                SwerveConstants.swerveModulePositions.get(0).getSecond()
+                getSwerveModulePos(1, Axis.X),
+                getSwerveModulePos(1, Axis.Y)
             )
         );
 
@@ -188,8 +180,10 @@ public final class Constants {
         public static final double bottomLimitTorque = 600.; // trying to see if making these huge fixes it
         public static final double zeroingLimitTorque = 30.; // trying to see if making these huge fixes it
         public static final double topLimitTorque = 1000.;
+        /** Velocity tolerance within which the elevator might be stopped */
         public static final double limitVelocity = 0.1;
-        public static final double heightTolerance = 0.005; // meters from target to consider movement complete
+        /** Meters from target to consider movement complete */
+        public static final double heightTolerance = 0.005;
         public static final double resetDutyCycle = 0.3;
 
         public enum Position { MIN, LOAD, L2, L3, L4, BARGE, MAX, MANUAL }
@@ -216,7 +210,7 @@ public final class Constants {
                 .withSupplyCurrentLowerLimit(20)
                 .withSupplyCurrentLowerTime(0.1))
             .withSlot0(new Slot0Configs()
-                .withKP(.6)
+                .withKP(0.6)
                 .withKI(0.1)
                 .withKD(0.)
                 .withKV(0.))
@@ -238,7 +232,8 @@ public final class Constants {
         public static final double extendSpeed = 2.5;
         public static final double climbSpeed = 3.5;
         public static final double nudgeSpeed = 2.1;
-        public static final double climbDelay = 0.5; // seconds to wait at DROP before climbing
+        /** Seconds to wait at DROP before climbing */
+        public static final double climbDelay = 0.5;
         public static final double footReleaseDelay = 2.;
         public static final double footReleaseRotations = 0.6;
 
@@ -277,7 +272,7 @@ public final class Constants {
     public static final class CoralConstants {
         public static final double gearRatio = 4.;
         public static final double loadSpeed = 0.7;
-        /** If this is 0 we never break from case statement */
+        /** If this is 0 we never break from case statement in coral.java */
         public static final double extraLoadRotations = 0.02;
         public static final double unloadSpeed = 0.35;
         public static final double extraUnloadRotations = 0.2;
