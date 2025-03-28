@@ -20,13 +20,11 @@ public final class CustomXboxController {
     }
 
     public double getAxis(Side side, Axis axis) {
-        boolean left = side == Side.LEFT;
-        boolean y = axis == Axis.Y;
-        return mController.getRawAxis((left ? 0 : 4) + (y ? 1 : 0));
+        return mController.getRawAxis((side == Side.LEFT ? 0 : 4) + (axis == Axis.Y ? 1 : 0));
     }
 
     public boolean getTrigger(Side side) {
-        return mController.getRawAxis(side == Side.LEFT ? 2 : 3) > ControllerConstants.kTriggerThreshold;
+        return mController.getRawAxis(side == Side.LEFT ? 2 : 3) > ControllerConstants.triggerThreshold;
     }
 
     public boolean getButton(Button button) {

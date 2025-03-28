@@ -14,8 +14,7 @@ public final class ControlBoard {
     private static ControlBoard mInstance;
     public final CustomXboxController operator;
     public final GenericHID driver;
-    private final double speedFactor;
-    private final double kSwerveDeadband;
+    private final double swerveDeadband;
 
     public static ControlBoard getInstance() {
         if (mInstance == null) mInstance = new ControlBoard();
@@ -25,14 +24,13 @@ public final class ControlBoard {
     private ControlBoard() {
         driver = new GenericHID(Ports.DRIVER_CONTROL);
         operator = new CustomXboxController(Ports.OPERATOR_CONTROL);
-        speedFactor = ControllerConstants.kInputClipping;
-        kSwerveDeadband = ControllerConstants.stickDeadband;
+        swerveDeadband = ControllerConstants.stickDeadband;
     }
 
     /** Driver method */
     public Translation2d getSwerveTranslation() {
-        double forwardAxis = 0.;
-        double strafeAxis = 0.;
+        double forwardAxis;
+        double strafeAxis;
         if (ControllerConstants.isMambo) {
             forwardAxis = driver.getRawAxis(2);
             strafeAxis = driver.getRawAxis(1);
@@ -45,21 +43,18 @@ public final class ControlBoard {
             strafeAxis = getRightYaw();
         }
 
-        forwardAxis *= speedFactor;
-        strafeAxis *= speedFactor;
-
         SmartDashboard.putNumber("Raw Y", forwardAxis);
         SmartDashboard.putNumber("Raw X", strafeAxis);
 
-        forwardAxis = ControllerConstants.invertYAxis ? forwardAxis : -forwardAxis;
-        strafeAxis = ControllerConstants.invertXAxis ? strafeAxis : -strafeAxis;
+        if (!ControllerConstants.invertYAxis) forwardAxis = -forwardAxis;
+        if (!ControllerConstants.invertXAxis) strafeAxis = -strafeAxis;
 
         Translation2d tAxes = new Translation2d(forwardAxis, strafeAxis);
 
-        if (Math.abs(tAxes.getNorm()) < kSwerveDeadband) return new Translation2d();
+        if (Math.abs(tAxes.getNorm()) < swerveDeadband) return new Translation2d();
 
         Rotation2d deadband_direction = new Rotation2d(tAxes.getX(), tAxes.getY());
-        Translation2d deadband_vector = new Translation2d(kSwerveDeadband, deadband_direction);
+        Translation2d deadband_vector = new Translation2d(swerveDeadband, deadband_direction);
 
         double scaled_x = MathUtil.applyDeadband(forwardAxis, Math.abs(deadband_vector.getX()));
         double scaled_y = MathUtil.applyDeadband(strafeAxis, Math.abs(deadband_vector.getY()));
@@ -68,10 +63,10 @@ public final class ControlBoard {
 
     /** Driver method */
     public double getSwerveRotation() {
-        double rotAxis = (ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw()) *
-            (ControllerConstants.invertRAxis ? speedFactor : -speedFactor);
-        return Math.abs(rotAxis) < kSwerveDeadband ? 0 :
-            (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband)) / (1 - kSwerveDeadband);
+        double rotAxis = ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw();
+        if (!ControllerConstants.invertRAxis) rotAxis = -rotAxis;
+        return Math.abs(rotAxis) < swerveDeadband ? 0 : SwerveConstants.SMConstFactory.SpeedAt12Volts *
+            (rotAxis - (Math.signum(rotAxis) * swerveDeadband)) / (1 - swerveDeadband);
     }
 
     /** Non-mambo controller. Returns positions from -1 to 1 */
@@ -80,9 +75,9 @@ public final class ControlBoard {
 
         if (leftYaw != 0) leftYaw -= ControllerConstants.LeftYawZero;
 
-        if (leftYaw > kSwerveDeadband) leftYaw /= (ControllerConstants.LeftYawHigh +
+        if (leftYaw > swerveDeadband) leftYaw /= (ControllerConstants.LeftYawHigh +
             (ControllerConstants.isC1 ? -ControllerConstants.LeftYawZero : ControllerConstants.LeftYawZero));
-        else if (leftYaw < -kSwerveDeadband) leftYaw /= (ControllerConstants.LeftYawLow +
+        else if (leftYaw < -swerveDeadband) leftYaw /= (ControllerConstants.LeftYawLow +
             ControllerConstants.LeftYawZero);
         return MathUtil.clamp(leftYaw, -1, 1);
     }
@@ -93,10 +88,10 @@ public final class ControlBoard {
 
         if (rightThrottle != 0) rightThrottle = rightThrottle - ControllerConstants.RightThrottleZero;
 
-        if (rightThrottle > (ControllerConstants.isC1 ? kSwerveDeadband : 0.102))
+        if (rightThrottle > (ControllerConstants.isC1 ? swerveDeadband : 0.102))
             rightThrottle /= (ControllerConstants.RightThrottleHigh + (ControllerConstants.isC1 ?
                 -ControllerConstants.RightThrottleZero : ControllerConstants.RightThrottleZero));
-        else if (rightThrottle < -kSwerveDeadband) rightThrottle /= (ControllerConstants.RightThrottleLow
+        else if (rightThrottle < -swerveDeadband) rightThrottle /= (ControllerConstants.RightThrottleLow
             + ControllerConstants.RightThrottleZero);
         return MathUtil.clamp(rightThrottle, -1, 1);
     }
@@ -107,9 +102,9 @@ public final class ControlBoard {
 
         if (rightYaw != 0) rightYaw -= ControllerConstants.RightYawZero;
 
-        if (rightYaw > kSwerveDeadband) rightYaw /= (ControllerConstants.RightYawHigh -
+        if (rightYaw > swerveDeadband) rightYaw /= (ControllerConstants.RightYawHigh -
             ControllerConstants.RightYawZero);
-        else if (rightYaw < -kSwerveDeadband) rightYaw /= (ControllerConstants.RightYawLow +
+        else if (rightYaw < -swerveDeadband) rightYaw /= (ControllerConstants.RightYawLow +
             ControllerConstants.RightYawZero);
         return MathUtil.clamp(rightYaw, -1, 1);
     }

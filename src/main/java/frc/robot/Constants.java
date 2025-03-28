@@ -187,6 +187,7 @@ public final class Constants {
         public static final double resetDutyCycle = 0.3;
 
         public enum Position { MIN, LOAD, L2, L3, L4, BARGE, MAX, MANUAL }
+
         /** Heights in meters */
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.06), // increased by 0.06
@@ -298,7 +299,7 @@ public final class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double intakeSuction = -.1;
+        public static final double intakeSuction = -0.1;
 
         public static final double angleGearRatio = (57. / 15) * 5;
         public static final double driveGearRatio = 2.;
@@ -414,14 +415,9 @@ public final class Constants {
     }
 
     public static final class ControllerConstants {
-        /**
-         * Max says trimming joystick input by a percent is the best way to
-         * limit speed; that way the autonomous system doesn't get messed up.
-         * <p> Set to 1 for 100% of joystick range
-         */
-        public static final double kInputClipping = 1.;
-        public static final double kTriggerThreshold = 0.2;
+        public static final double triggerThreshold = 0.2;
         public static final double stickDeadband = 0.05;
+
         public static final int leftXAxis = 0;
         public static final int leftYAxis = 1;
         public static final int rightXAxis = 3;
@@ -437,64 +433,17 @@ public final class Constants {
         // If not Mambo there are 2 controllers with the same mechanics, but different calibrations
         public static final boolean isC1 = true;
 
-        // Controller 1 left side:
-        public static final double C1LeftThrottleZero = -0.125;
-        public static final double C1LeftYawZero = 0.039370;
-
-        public static final double C1LeftThrottleHigh = 0.787402;
-        public static final double C1LeftThrottleLow = 0.968750;
-
-        public static final double C1LeftYawHigh = 0.86612;
-        public static final double C1LeftYawLow = 0.77338;
-
-        // Controller 1 right side:
-        public static final double C1RightThrottleZero = 0.055118;
-        public static final double C1RightYawZero = 0.055118;
-
-        public static final double C1RightYawHigh = 0.866142;
-        public static final double C1RightYawLow = 0.765625;
-
-        public static final double C1RightThrottleHigh = 0.732283;
-        public static final double C1RightThrottleLow = 0.601563;
-
-        // Controller 2 left side:
-        public static final double C2LeftThrottleZero = -0.023438;
-        public static final double C2LeftYawZero = -0.078125;
-
-        public static final double C2LeftThrottleHigh = 0.834646;
-        public static final double C2LeftThrottleLow = 0.867188;
-
-        public static final double C2LeftYawHigh = 0.748031;
-        public static final double C2LeftYawLow = 0.890625;
-
-        // Controller 2 right side:
-        public static final double C2RightThrottleZero = -0.054688; // high 0.007874
-        public static final double C2RightYawZero = 0.062992;
-
-        public static final double C2RightYawHigh = 0.866142;
-        public static final double C2RightYawLow = 0.664063;
-
-        public static final double C2RightThrottleHigh = 0.669291;
-        public static final double C2RightThrottleLow = 0.664063;
-
-        // Controller left side:
-        public static final double LeftThrottleZero = isC1 ? C1LeftThrottleZero : C2LeftThrottleZero;
-        public static final double LeftYawZero = isC1 ? C1LeftYawZero : C2LeftYawZero;
-
-        public static final double LeftThrottleHigh = isC1 ? C1LeftThrottleHigh : C2LeftThrottleHigh;
-        public static final double LeftThrottleLow = isC1 ? C1LeftThrottleLow : C2LeftThrottleLow;
-
-        public static final double LeftYawHigh = isC1 ? C1LeftYawHigh : C2LeftYawHigh;
-        public static final double LeftYawLow = isC1 ? C1LeftYawLow : C2LeftYawLow;
-
-        // Controller right side:
-        public static final double RightThrottleZero = isC1 ? C1RightThrottleZero : C2RightThrottleZero;
-        public static final double RightYawZero = isC1 ? C1RightYawZero : C2RightYawZero;
-
-        public static final double RightYawHigh = isC1 ? C1RightYawHigh : C2RightYawHigh;
-        public static final double RightYawLow = isC1 ? C1RightYawLow : C2RightYawLow;
-
-        public static final double RightThrottleHigh = isC1 ? C1RightThrottleHigh : C2RightThrottleHigh;
-        public static final double RightThrottleLow = isC1 ? C1RightThrottleLow : C2RightThrottleLow;
+        public static final double LeftThrottleZero = isC1 ? -0.125 : -0.023438;
+        public static final double LeftYawZero = isC1 ? 0.039370 : -0.078125;
+        public static final double LeftThrottleHigh = isC1 ? 0.787402 : 0.834646;
+        public static final double LeftThrottleLow = isC1 ? 0.968750 : 0.867188;
+        public static final double LeftYawHigh = isC1 ? 0.86612 : 0.748031;
+        public static final double LeftYawLow = isC1 ? 0.77338 : 0.890625;
+        public static final double RightThrottleZero = isC1 ? 0.055118 : -0.054688; // high 0.007874 (for C2 one)
+        public static final double RightYawZero = isC1 ? 0.055118 : 0.062992;
+        public static final double RightYawHigh = isC1 ? 0.866142 : 0.866142;
+        public static final double RightYawLow = isC1 ? 0.765625 : 0.664063;
+        public static final double RightThrottleHigh = isC1 ? 0.732283 : 0.669291;
+        public static final double RightThrottleLow = isC1 ? 0.601563 : 0.664063;
     }
 }

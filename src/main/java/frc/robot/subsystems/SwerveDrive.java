@@ -16,7 +16,6 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -34,13 +33,6 @@ import frc.robot.drivers.CustomXboxController.Axis;
 public final class SwerveDrive extends SubsystemBase {
     private static SwerveDrive mInstance;
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
-    /** Robot relative */
-    private final List<Pair<Double, Double>> swerveModulePositions = List.of(
-        new Pair<Double, Double>(SwerveConstants.trackWidth / 2, SwerveConstants.wheelBase / 2),
-        new Pair<Double, Double>(-SwerveConstants.trackWidth / 2, SwerveConstants.wheelBase / 2),
-        new Pair<Double, Double>(SwerveConstants.trackWidth / 2, -SwerveConstants.wheelBase / 2),
-        new Pair<Double, Double>(-SwerveConstants.trackWidth / 2, -SwerveConstants.wheelBase / 2)
-    );
     private final SwerveDrivetrain<TalonFX, TalonFX, CANcoder> mDriveTrain = new SwerveDrivetrain<
         TalonFX, TalonFX, CANcoder
     >(
@@ -48,26 +40,26 @@ public final class SwerveDrive extends SubsystemBase {
         new SwerveDrivetrainConstants().withCANBusName(Ports.CANBUS_DRIVE).withPigeon2Id(Ports.PIGEON),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.FR_ROTATION, Ports.FR_DRIVE, Ports.FR_CANCODER, SwerveConstants.FR_AngleOffset,
-            swerveModulePositions.get(0).getFirst(),
-            swerveModulePositions.get(0).getSecond(),
+            getSwerveModulePos(1, Axis.X),
+            getSwerveModulePos(1, Axis.Y),
             false, false, false
         ),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.FL_ROTATION, Ports.FL_DRIVE, Ports.FL_CANCODER, SwerveConstants.FL_AngleOffset,
-            swerveModulePositions.get(1).getFirst(),
-            swerveModulePositions.get(1).getSecond(),
+            getSwerveModulePos(2, Axis.X),
+            getSwerveModulePos(2, Axis.Y),
             false, false, false
         ),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.BR_ROTATION, Ports.BR_DRIVE, Ports.BR_CANCODER, SwerveConstants.BR_AngleOffset,
-            swerveModulePositions.get(2).getFirst(),
-            swerveModulePositions.get(2).getSecond(),
+            getSwerveModulePos(3, Axis.X),
+            getSwerveModulePos(3, Axis.Y),
             false, false, false
         ),
         SwerveConstants.SMConstFactory.createModuleConstants(
             Ports.BL_ROTATION, Ports.BL_DRIVE, Ports.BL_CANCODER, SwerveConstants.BL_AngleOffset,
-            swerveModulePositions.get(3).getFirst(),
-            swerveModulePositions.get(3).getSecond(),
+            getSwerveModulePos(4, Axis.X),
+            getSwerveModulePos(4, Axis.Y),
             false, false, false
         )
     );
@@ -81,9 +73,17 @@ public final class SwerveDrive extends SubsystemBase {
         mDriveTrain.getOdometryThread().start(); // TODO: do we want this?
     }
 
+    /** @return the requested coordinate of the robot-relative position of the requested swerve module */
     public static double getSwerveModulePos(int swerveModuleNum, Axis axis) {
-        Pair<Double, Double> pos = getInstance().swerveModulePositions.get(swerveModuleNum - 1);
-        return axis == Axis.X ? pos.getFirst() : pos.getSecond();
+        return (
+            axis == Axis.X ? List.of(
+                SwerveConstants.trackWidth / 2, -SwerveConstants.trackWidth / 2,
+                SwerveConstants.trackWidth / 2, -SwerveConstants.trackWidth / 2
+            ) : List.of(
+                SwerveConstants.wheelBase / 2, SwerveConstants.wheelBase / 2,
+                -SwerveConstants.wheelBase / 2, -SwerveConstants.wheelBase / 2
+            )
+        ).get(swerveModuleNum - 1);
     }
 
     public Command followPathCommand(String pathName, boolean isFirstPath) {
