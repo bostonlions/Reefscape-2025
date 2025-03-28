@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -25,7 +24,6 @@ public final class ClimberHook extends SubsystemBase {
     private static ClimberHook mInstance;
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
     private final TalonFX mMotor;
-    private final TalonFXConfiguration motorConfig;
 
     public static ClimberHook getInstance() {
         if (mInstance == null) mInstance = new ClimberHook();
@@ -34,7 +32,6 @@ public final class ClimberHook extends SubsystemBase {
 
     private ClimberHook() {
         mMotor = new TalonFX(Ports.CLIMBER_HOOK_DRIVE, Ports.CANBUS_OPS);
-        motorConfig = ClimberHookConstants.motorConfig;
 
         setConfig();
 
@@ -68,7 +65,7 @@ public final class ClimberHook extends SubsystemBase {
     // }
 
     private void setConfig() {
-        mMotor.getConfigurator().apply(motorConfig);
+        mMotor.getConfigurator().apply(ClimberHookConstants.motorConfig);
     }
 
     private void markPosition(Position p) {
@@ -76,8 +73,7 @@ public final class ClimberHook extends SubsystemBase {
     }
 
     private void setWantNeutralBrake(boolean brake) {
-        NeutralModeValue mode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-        mMotor.setNeutralMode(mode);
+        mMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
 
     private void setSetpointMotionMagic(double winchRotations) {
@@ -173,20 +169,23 @@ public final class ClimberHook extends SubsystemBase {
         trimmer.add(
             "Climberhook",
             "kP",
-            () -> motorConfig.Slot0.kP,
-            (up) -> {motorConfig.Slot0.kP = Trimmer.increment(motorConfig.Slot0.kP, 0.01, 0.2, up); setConfig();}
+            () -> ClimberHookConstants.motorConfig.Slot0.kP,
+            (up) -> {ClimberHookConstants.motorConfig.Slot0.kP =
+                Trimmer.increment(ClimberHookConstants.motorConfig.Slot0.kP, 0.01, 0.2, up); setConfig();}
         );
         trimmer.add(
             "Climberhook",
             "kI",
-            () -> motorConfig.Slot0.kI,
-            (up) -> {motorConfig.Slot0.kI = Trimmer.increment(motorConfig.Slot0.kI, 0.01, 0.2, up); setConfig();}
+            () -> ClimberHookConstants.motorConfig.Slot0.kI,
+            (up) -> {ClimberHookConstants.motorConfig.Slot0.kI =
+                Trimmer.increment(ClimberHookConstants.motorConfig.Slot0.kI, 0.01, 0.2, up); setConfig();}
         );
         trimmer.add(
             "Climberhook",
             "kD",
-            () -> motorConfig.Slot0.kD,
-            (up) -> {motorConfig.Slot0.kD = Trimmer.increment(motorConfig.Slot0.kD, 0.01, 0.2, up); setConfig();}
+            () -> ClimberHookConstants.motorConfig.Slot0.kD,
+            (up) -> {ClimberHookConstants.motorConfig.Slot0.kD =
+                Trimmer.increment(ClimberHookConstants.motorConfig.Slot0.kD, 0.01, 0.2, up); setConfig();}
         );
     }
 }

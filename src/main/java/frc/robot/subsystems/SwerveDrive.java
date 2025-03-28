@@ -9,8 +9,6 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
-import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -32,6 +30,9 @@ import frc.robot.drivers.CustomXboxController.Axis;
 
 public final class SwerveDrive extends SubsystemBase {
     private static SwerveDrive mInstance;
+    private static final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
+        .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+        .withSteerRequestType(SteerRequestType.MotionMagicExpo);
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
     private final SwerveDrivetrain<TalonFX, TalonFX, CANcoder> mDriveTrain = new SwerveDrivetrain<
         TalonFX, TalonFX, CANcoder
@@ -148,30 +149,13 @@ public final class SwerveDrive extends SubsystemBase {
         mPeriodicIO.strafeMode = strafeAndSnap;
         mPeriodicIO.precisionMode = precisionMode;
 
-        SwerveRequest req =
-            mPeriodicIO.strafeMode ?
-                new SwerveRequest.ApplyRobotSpeeds()
-                    .withSpeeds(mPeriodicIO.requestedSpeeds)
-                    .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-                    .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-            : new SwerveRequest.ApplyFieldSpeeds()
-                .withSpeeds(mPeriodicIO.requestedSpeeds)
+        mDriveTrain.setControl(
+            mPeriodicIO.strafeMode ? new SwerveRequest.ApplyRobotSpeeds()
                 .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-                .withSteerRequestType(SteerRequestType.MotionMagicExpo);
-
-        mDriveTrain.setControl(req);
-
-        System.out.println(
-            "\n\n---------------\n\n*** SwerveRequest DEBUG ***\n\n" +
-
-            "Speeds: " + (
-                mPeriodicIO.strafeMode ? ((ApplyRobotSpeeds) req).Speeds : ((ApplyFieldSpeeds) req).Speeds
-            ) +
-            "\nCenter of Rotation: " + (
-                mPeriodicIO.strafeMode ? ((ApplyRobotSpeeds) req).CenterOfRotation : ((ApplyFieldSpeeds) req).CenterOfRotation
-            ) +
-
-            "\n\n---------------\n\n"
+                .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+                .withSpeeds(mPeriodicIO.requestedSpeeds)
+            : fieldCentricRequest.withVelocityX(-targetSpeed.getY()).withVelocityY(-targetSpeed.getX())
+                .withRotationalRate(targetRotationRate)
         );
     }
 
