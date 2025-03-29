@@ -65,7 +65,10 @@ public final class ControlBoard {
     public double getSwerveRotation() {
         double rotAxis = ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw();
         if (!ControllerConstants.invertRAxis) rotAxis = -rotAxis;
-        return Math.abs(rotAxis) < swerveDeadband ? 0 : SwerveConstants.SMConstFactory.SpeedAt12Volts *
+        // converting meters per second to radians per second
+        double maxRotationalSpeed = SwerveConstants.SMConstFactory.SpeedAt12Volts /
+            SwerveConstants.SMConstFactory.WheelRadius;
+        return Math.abs(rotAxis) < swerveDeadband ? 0 : maxRotationalSpeed *
             (rotAxis - (Math.signum(rotAxis) * swerveDeadband)) / (1 - swerveDeadband);
     }
 
@@ -86,7 +89,7 @@ public final class ControlBoard {
     private double getRightThrottle() {
         double rightThrottle = driver.getRawAxis(ControllerConstants.rightYAxis);
 
-        if (rightThrottle != 0) rightThrottle = rightThrottle - ControllerConstants.RightThrottleZero;
+        if (rightThrottle != 0) rightThrottle -= ControllerConstants.RightThrottleZero;
 
         if (rightThrottle > (ControllerConstants.isC1 ? swerveDeadband : 0.102))
             rightThrottle /= (ControllerConstants.RightThrottleHigh + (ControllerConstants.isC1 ?

@@ -127,7 +127,7 @@ public final class Constants {
             )
             .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
             .withSteerMotorType(SteerMotorArrangement.TalonFX_Integrated)
-            .withSpeedAt12Volts(5.02)
+            .withSpeedAt12Volts(5.02) // TODO: is this value right? (value in m/s)
             .withWheelRadius(Units.inchesToMeters(2));
     }
 
