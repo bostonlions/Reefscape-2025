@@ -211,20 +211,21 @@ public final class Constants {
         public static final double resetDutyCycle = 0.3;
 
         /** Heights in meters */
-        public enum Position { MIN, LOAD, L2, L3, L4, BARGE, MAX, MANUAL }
+        public enum Position { MIN, LOAD, L2, REEF_ALGAE, L3, L4, BARGE, MAX, MANUAL}
         public static final Map<Position, Double> heights = Map.ofEntries(
             entry(Position.MIN, 0.06), // increased by 0.06
             entry(Position.LOAD, 0.063), // increased by 0.06
-            entry(Position.L2, 0.36), //.36 home: .41
-            entry(Position.L3, 0.75), //.75 home: .82
-            entry(Position.L4, 1.38), //.402 home: 1.41
+            entry(Position.L2, 0.36), //Comp: .36 home: .41
+            entry(Position.REEF_ALGAE, 0.57), //Comp: ? home: .5
+            entry(Position.L3, 0.75), //Comp: .75 home: .82
+            entry(Position.L4, 1.38), //Comp: .402 home: 1.41
             entry(Position.BARGE, 1.48),
             entry(Position.MAX, 1.485),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually with trimmer
         );
         /** These are the positions you can access with step up and down */
         public static final List<Position> positionOrder = List.of(
-            Position.LOAD, Position.L2, Position.L3, Position.L4, Position.BARGE
+            Position.LOAD, Position.L2, Position.REEF_ALGAE, Position.L3, Position.L4, Position.BARGE
         );
 
         public static final TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -320,7 +321,7 @@ public final class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double intakeSuction = -.1;
+        public static final double intakeSuction = 0; // with net it is around -.1
 
         public static final double angleGearRatio = (57. / 15) * 5;
         public static final double driveGearRatio = 2.;
@@ -334,7 +335,10 @@ public final class Constants {
 
         /** Should be the amount of SECONDS it takes to stop */
         public static final double extraReefIntakeTime = 0.8;
-        public static final double reefIntakeSpeed = 20.;
+        public static final double hightReefIntakeSpeed = 10.;//was 20
+
+        public static final double lowReefIntakeSpeed = -10.;
+        public static final double extraLowReefIntakeTime = 0.17;
 
         /** Should be the amount of ROTATIONS it takes to stop */
         public static final double extraProcessorUnloadRotations = 36.;
@@ -349,20 +353,21 @@ public final class Constants {
          * To get that value, set cancoderOffset to 0, load the code to the robot, and
          * look at smart dashboard for the CANCoder Position when it is horizontal
          */
-        public static final double cancoderOffset = -27.;
+        public static final double cancoderOffset = 143.;
 
         public enum Position {
-            MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX
+            MIN, STOW_DOWN, GROUND_INTAKE, LOADED_DOWN, PROCESSOR, STOW_UP, REEF, LOADED_UP, BARGE, MAX, REEF_LOWER // fix order(reef_lower)
         }
 
         /** Angles in degrees from horizontal */
-        public static final Map<Position, Double> angles = Map.ofEntries(
+        public static final Map<Position, Double> angles = Map.ofEntries(//fix order to make it organized
             entry(Position.MIN, -91.),
             entry(Position.STOW_DOWN, -82.),
             entry(Position.PROCESSOR, -50.),
             entry(Position.LOADED_DOWN, -63.),
-            entry(Position.GROUND_INTAKE, -57.),
-            entry(Position.REEF, 52.),
+            entry(Position.GROUND_INTAKE, -45.),
+            entry(Position.REEF, 60.),
+            entry(Position.REEF_LOWER, -60.),
             entry(Position.BARGE, 95.),
             entry(Position.LOADED_UP, 95.),
             entry(Position.STOW_UP, 95.),

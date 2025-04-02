@@ -33,7 +33,7 @@ import frc.robot.lib.swerve.SwerveDriveKinematics;
 
 public final class Drive extends SubsystemBase {
     public SwerveModule[] mModules;
-    private PIDController snapPid = new PIDController(0.1, 0, 0.005);
+    private PIDController snapPid = new PIDController(0.1, 0, 0.002);
     private Pigeon mPigeon = Pigeon.getInstance();
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private DriveControlState mControlState = DriveControlState.FORCE_ORIENT;

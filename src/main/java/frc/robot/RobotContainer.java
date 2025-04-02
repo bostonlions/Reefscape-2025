@@ -91,6 +91,8 @@ public final class RobotContainer {
             .onTrue(elevator.stepToCommand(Position.L4));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.X) > .9)
             .onTrue(elevator.stepToCommand(Position.L3));
+        new Trigger(() -> controller.operator.getButton(Button.R_JOYSTICK))
+            .onTrue(elevator.stepToCommand(Position.REEF_ALGAE));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.X) < -.9)
             .onTrue(elevator.stepToCommand(Position.L2));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .75)

@@ -59,8 +59,8 @@ public class Algae extends SubsystemBase {
     );
     private static final Map<DriveState, Double> UP_SPEEDS = Map.ofEntries(
         entry(DriveState.IDLE, 0.),
-        entry(DriveState.INTAKE_NO_ALGAE, -AlgaeConstants.reefIntakeSpeed),
-        entry(DriveState.INTAKE_WITH_ALGAE, -AlgaeConstants.reefIntakeSpeed),
+        entry(DriveState.INTAKE_NO_ALGAE, -AlgaeConstants.hightReefIntakeSpeed),
+        entry(DriveState.INTAKE_WITH_ALGAE, -AlgaeConstants.hightReefIntakeSpeed),
         entry(DriveState.LOADED, 0.),
         entry(DriveState.UNLOADING_WITH_ALGAE, AlgaeConstants.bargeUnloadSpeed),
         entry(DriveState.UNLOADING_NO_ALGAE, AlgaeConstants.bargeUnloadSpeed)
@@ -69,6 +69,22 @@ public class Algae extends SubsystemBase {
         entry(DriveState.IDLE, 0.),
         entry(DriveState.INTAKE_NO_ALGAE, -AlgaeConstants.groundIntakeSpeed),
         entry(DriveState.INTAKE_WITH_ALGAE, -AlgaeConstants.groundIntakeSpeed),
+        entry(DriveState.LOADED, 0.),
+        entry(DriveState.UNLOADING_WITH_ALGAE, AlgaeConstants.processorUnloadSpeed),
+        entry(DriveState.UNLOADING_NO_ALGAE, AlgaeConstants.processorUnloadSpeed)
+    );
+    private static final Map<DriveState, Position> ELEVATOR_DOWN_POSITIONS = Map.ofEntries(
+        entry(DriveState.IDLE, Position.STOW_DOWN),
+        entry(DriveState.INTAKE_NO_ALGAE, Position.REEF_LOWER),
+        entry(DriveState.INTAKE_WITH_ALGAE, Position.REEF_LOWER),
+        entry(DriveState.LOADED, Position.LOADED_DOWN),
+        entry(DriveState.UNLOADING_WITH_ALGAE, Position.PROCESSOR),
+        entry(DriveState.UNLOADING_NO_ALGAE, Position.PROCESSOR)
+    );
+    private static final Map<DriveState, Double> ELEVATOR_DOWN_SPEEDS = Map.ofEntries(
+        entry(DriveState.IDLE, 0.),
+        entry(DriveState.INTAKE_NO_ALGAE, -AlgaeConstants.lowReefIntakeSpeed),
+        entry(DriveState.INTAKE_WITH_ALGAE, -AlgaeConstants.lowReefIntakeSpeed),
         entry(DriveState.LOADED, 0.),
         entry(DriveState.UNLOADING_WITH_ALGAE, AlgaeConstants.processorUnloadSpeed),
         entry(DriveState.UNLOADING_NO_ALGAE, AlgaeConstants.processorUnloadSpeed)
@@ -208,8 +224,8 @@ public class Algae extends SubsystemBase {
         if (mDebug) System.out.println("setState");
 
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
-        mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(mPeriodicIO.driveState);
-        mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : DOWN_SPEEDS).get(mPeriodicIO.driveState);
+        mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : (Elevator.getInstance().isElevatorDown()) ? DOWN_POSITIONS : ELEVATOR_DOWN_POSITIONS).get(mPeriodicIO.driveState);
+        mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : (Elevator.getInstance().isElevatorDown()) ? DOWN_SPEEDS : ELEVATOR_DOWN_SPEEDS).get(mPeriodicIO.driveState);
 
         if (mDebug) System.out.println("setState targetPosition: " + mPeriodicIO.targetPosition);
         if (mDebug) System.out.println("setState targetSpeed: " + mPeriodicIO.targetSpeed);
@@ -266,12 +282,14 @@ public class Algae extends SubsystemBase {
             case INTAKE_NO_ALGAE:
                 if (mBeamBreak.get()) {
                     mPeriodicIO.stopTime = System.currentTimeMillis() + (long)(1000 * 
-                        (isUp ? AlgaeConstants.extraReefIntakeTime : AlgaeConstants.extraGroundIntakeTime)
+                        (isUp ? AlgaeConstants.extraReefIntakeTime : 
+                        (Elevator.getInstance().isElevatorDown()) ? AlgaeConstants.extraGroundIntakeTime : AlgaeConstants.extraLowReefIntakeTime)
                     );
                     mPeriodicIO.driveState = DriveState.INTAKE_WITH_ALGAE;
                 }
 
-                if ((isUp ? AlgaeConstants.extraReefIntakeTime : AlgaeConstants.extraGroundIntakeTime) > 0) {
+                if ((isUp ? AlgaeConstants.extraReefIntakeTime : 
+                (Elevator.getInstance().isElevatorDown()) ? AlgaeConstants.extraGroundIntakeTime : AlgaeConstants.extraLowReefIntakeTime) > 0) {
                     // we wanna check the next case without waiting for next periodic loop,
                     // just if no wait time after the ground intake
                     break;

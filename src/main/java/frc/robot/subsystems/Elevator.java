@@ -175,6 +175,10 @@ public class Elevator extends SubsystemBase {
         private double manualTargetHeight = heights.get(positionOrder.get(0));
     }
 
+    public boolean isElevatorDown() {
+        return (mPeriodicIO.targetPosition == Position.LOAD ? true : false);
+    }
+
     @Override
     public void periodic() {
         mPeriodicIO.voltage = mMain.getMotorVoltage().getValue().in(Units.Volts);
