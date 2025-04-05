@@ -30,10 +30,10 @@ import frc.robot.drivers.CustomXboxController.Axis;
 
 public final class SwerveDrive extends SubsystemBase {
     private static SwerveDrive mInstance;
+    private final PeriodicIO mPeriodicIO = new PeriodicIO();
     private static final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
         .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
         .withSteerRequestType(SteerRequestType.MotionMagicExpo);
-    private final PeriodicIO mPeriodicIO = new PeriodicIO();
     private final SwerveDrivetrain<TalonFX, TalonFX, CANcoder> mDriveTrain = new SwerveDrivetrain<
         TalonFX, TalonFX, CANcoder
     >(
@@ -166,7 +166,7 @@ public final class SwerveDrive extends SubsystemBase {
     }
 
     // @Override
-    // public void periodic() {}
+    // public void periodic() {} // TODO: anything needed in this method?
 
     @Override
     public void initSendable(SendableBuilder builder) {

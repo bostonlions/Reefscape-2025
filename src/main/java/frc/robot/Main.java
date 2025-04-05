@@ -6,7 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
 
-final class Main {
+public final class Main {
     /**
      * If this isn't working to deploy code, it might be because of vendordeps updates, in
      * which case the code has to be built once first to allow for deploying in the future
