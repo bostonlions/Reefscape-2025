@@ -35,7 +35,7 @@ public final class Auton extends SubsystemBase {
                 algae.upCommand()
                 .andThen(sleep(1))
                 .andThen(elevator.stepToCommand(Position.L4))
-            ).andThen(
+            ).andThen( // TODO: does it work to put all subsequent commands in the same andThen like is done below?
                 sleep(.5), // give time for robot to stabilize after bringing elevator up
                 coral.toggleCommand(),
                 sleep(.3),

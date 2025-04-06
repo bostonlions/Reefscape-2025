@@ -9,10 +9,6 @@ import java.util.Map;
 
 import static java.util.Map.entry;
 
-import frc.robot.drivers.CustomXboxController.Axis;
-
-import static frc.robot.subsystems.SwerveDrive.getSwerveModulePos;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
@@ -32,18 +28,18 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
+    /** In kg */
+    public static final double robotMass = 57.;
+    public static final double robotMomentOfInertia = 3.873;
+
     public static final class SwerveConstants {
-        // Reductions by which drive speed gets divided
+        /** COF = coefficient of friction */
+        public static final double wheelCOF = 1.15;
+
+        // Drive speed gets divided by these:
         public static final double strafeReduction = 4.;
         public static final double precisionReduction = 8.;
 
@@ -64,7 +60,7 @@ public final class Constants {
 
         public static final SwerveModuleConstantsFactory<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
-        > SMConstFactory = new SwerveModuleConstantsFactory<
+        > swerveModConstFactory = new SwerveModuleConstantsFactory<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration
         >()
             .withCouplingGearRatio(50. / 14) // TODO: is this value right?
@@ -81,7 +77,7 @@ public final class Constants {
                     .withPeakForwardVoltage(12.)
                     .withPeakReverseVoltage(-12.))
                 .withSlot0(new Slot0Configs()
-                    .withKP(0.03)
+                    .withKP(2.)
                     .withKI(0.)
                     .withKD(0.)
                     .withKV(0.124))
@@ -131,49 +127,6 @@ public final class Constants {
             .withWheelRadius(Units.inchesToMeters(2));
     }
 
-    public static final class AutonConstants {
-        public static final RobotConfig pathPlannerConfig = new RobotConfig(
-            57.,
-            3.873,
-            new ModuleConfig(
-                SwerveConstants.SMConstFactory.WheelRadius,
-                SwerveConstants.SMConstFactory.SpeedAt12Volts * 0.85,
-                1.15,
-
-                // .withReduction here is VERY IMPORTANT! Autonomous drive WILL NOT WORK WITHOUT IT
-                DCMotor.getKrakenX60(1).withReduction(
-                    SwerveConstants.SMConstFactory.DriveMotorGearRatio
-                ),
-
-                111.,
-                4
-            ),
-            new Translation2d(
-                getSwerveModulePos(4, Axis.X),
-                getSwerveModulePos(4, Axis.Y)
-            ),
-            new Translation2d(
-                getSwerveModulePos(2, Axis.X),
-                getSwerveModulePos(2, Axis.Y)
-            ),
-            new Translation2d(
-                getSwerveModulePos(3, Axis.X),
-                getSwerveModulePos(3, Axis.Y)
-            ),
-            new Translation2d(
-                getSwerveModulePos(1, Axis.X),
-                getSwerveModulePos(1, Axis.Y)
-            )
-        );
-
-        /** PPHolonomicController is the built in path following controller for holonomic drive trains */
-        public static final PPHolonomicDriveController ppHolonomicDriveController =
-            new PPHolonomicDriveController(
-                new PIDConstants(5., 0., 0.), // Translation PID constants
-                new PIDConstants(5., 0., 0.) // Rotation PID constants
-            );
-    }
-
     public static final class ElevatorConstants {
         public static final double gearRatio = 5.;
         public static final double wheelCircumference = 0.12; // 24 teeth x 5mm belt tooth pitch - 1.625" * PI is ~0.129m
@@ -200,6 +153,7 @@ public final class Constants {
             entry(Position.MAX, 1.485),
             entry(Position.MANUAL, 0.) // not targeting a set position; controlled manually with trimmer
         );
+
         /** These are the positions you can access with step up and down */
         public static final List<Position> positionOrder = List.of(
             Position.LOAD, Position.L2, Position.L3, Position.L4, Position.BARGE

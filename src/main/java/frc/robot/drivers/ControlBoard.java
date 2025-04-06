@@ -58,7 +58,7 @@ public final class ControlBoard {
 
         double scaled_x = MathUtil.applyDeadband(forwardAxis, Math.abs(deadband_vector.getX()));
         double scaled_y = MathUtil.applyDeadband(strafeAxis, Math.abs(deadband_vector.getY()));
-        return new Translation2d(scaled_x, scaled_y).times(SwerveConstants.SMConstFactory.SpeedAt12Volts);
+        return new Translation2d(scaled_x, scaled_y).times(SwerveConstants.swerveModConstFactory.SpeedAt12Volts);
     }
 
     /** Driver method */
@@ -66,8 +66,8 @@ public final class ControlBoard {
         double rotAxis = ControllerConstants.isMambo ? driver.getRawAxis(3) : getLeftYaw();
         if (!ControllerConstants.invertRAxis) rotAxis = -rotAxis;
         // converting meters per second to radians per second
-        double maxRotationalSpeed = SwerveConstants.SMConstFactory.SpeedAt12Volts /
-            SwerveConstants.SMConstFactory.WheelRadius;
+        double maxRotationalSpeed = SwerveConstants.swerveModConstFactory.SpeedAt12Volts /
+            SwerveConstants.swerveModConstFactory.WheelRadius;
         return Math.abs(rotAxis) < swerveDeadband ? 0 : maxRotationalSpeed *
             (rotAxis - (Math.signum(rotAxis) * swerveDeadband)) / (1 - swerveDeadband);
     }

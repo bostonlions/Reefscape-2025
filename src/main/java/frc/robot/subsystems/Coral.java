@@ -56,8 +56,7 @@ public final class Coral extends SubsystemBase {
 
     private void setSetpoint(double speed) {
         mPeriodicIO.demand = speed;
-        if (speed == 0) mMotor.setControl(new NeutralOut());
-        else mMotor.setControl(new DutyCycleOut(speed));
+        mMotor.setControl(speed == 0 ? new NeutralOut() : new DutyCycleOut(speed));
     }
 
     /** To start or interrupt a load or unload upon a button push */
