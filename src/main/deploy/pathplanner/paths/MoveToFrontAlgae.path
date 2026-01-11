@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 6.0,
-        "y": 3.85
+        "y": 3.835
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.750888428990061,
-        "y": 3.871057663425943
+        "y": 3.856057663425943
       },
       "isLocked": false,
       "linkedName": "AwayFromFrontReef"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 5.74,
-        "y": 3.825
+        "y": 3.835
       },
       "prevControl": {
         "x": 5.988984771155175,
-        "y": 3.8024925849372853
+        "y": 3.812492584937285
       },
       "nextControl": null,
       "isLocked": false,

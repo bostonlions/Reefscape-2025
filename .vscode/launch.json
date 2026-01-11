@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Vision",
+      "request": "launch",
+      "mainClass": "frc.robot.Vision",
+      "projectName": "Reefscape-2025"
+    },
+    {
+      "type": "java",
       "name": "Main",
       "request": "launch",
       "mainClass": "frc.robot.Main",

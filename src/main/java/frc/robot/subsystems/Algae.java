@@ -73,22 +73,6 @@ public class Algae extends SubsystemBase {
         entry(DriveState.UNLOADING_WITH_ALGAE, AlgaeConstants.processorUnloadSpeed),
         entry(DriveState.UNLOADING_NO_ALGAE, AlgaeConstants.processorUnloadSpeed)
     );
-    private static final Map<DriveState, Position> ELEVATOR_DOWN_POSITIONS = Map.ofEntries(
-        entry(DriveState.IDLE, Position.STOW_DOWN),
-        entry(DriveState.INTAKE_NO_ALGAE, Position.REEF_LOWER),
-        entry(DriveState.INTAKE_WITH_ALGAE, Position.REEF_LOWER),
-        entry(DriveState.LOADED, Position.LOADED_DOWN),
-        entry(DriveState.UNLOADING_WITH_ALGAE, Position.PROCESSOR),
-        entry(DriveState.UNLOADING_NO_ALGAE, Position.PROCESSOR)
-    );
-    private static final Map<DriveState, Double> ELEVATOR_DOWN_SPEEDS = Map.ofEntries(
-        entry(DriveState.IDLE, 0.),
-        entry(DriveState.INTAKE_NO_ALGAE, -AlgaeConstants.lowReefIntakeSpeed),
-        entry(DriveState.INTAKE_WITH_ALGAE, -AlgaeConstants.lowReefIntakeSpeed),
-        entry(DriveState.LOADED, 0.),
-        entry(DriveState.UNLOADING_WITH_ALGAE, AlgaeConstants.processorUnloadSpeed),
-        entry(DriveState.UNLOADING_NO_ALGAE, AlgaeConstants.processorUnloadSpeed)
-    );
 
     public static Algae getInstance() {
         if (mInstance == null) mInstance = new Algae();
@@ -165,8 +149,12 @@ public class Algae extends SubsystemBase {
     /** Use xbox triggers to turn the drive wheel a bit in or out so operator can get a better grip on the ball */
     public void nudgeDrive(int direction) {
         switch(mPeriodicIO.driveState) {
-            case IDLE:
             case LOADED:
+                if (direction == 0) {
+                    setState();
+                    break;
+                }
+            case IDLE:
                 boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
                 mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(
                     direction == 0 ? mPeriodicIO.driveState : DriveState.UNLOADING_NO_ALGAE
@@ -224,8 +212,8 @@ public class Algae extends SubsystemBase {
         if (mDebug) System.out.println("setState");
 
         boolean isUp = mPeriodicIO.requestedPosition == PositionState.UP;
-        mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : (Elevator.getInstance().isElevatorDown()) ? DOWN_POSITIONS : ELEVATOR_DOWN_POSITIONS).get(mPeriodicIO.driveState);
-        mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : (Elevator.getInstance().isElevatorDown()) ? DOWN_SPEEDS : ELEVATOR_DOWN_SPEEDS).get(mPeriodicIO.driveState);
+        mPeriodicIO.targetPosition = (isUp ? UP_POSITIONS : DOWN_POSITIONS).get(mPeriodicIO.driveState);
+        mPeriodicIO.targetSpeed = (isUp ? UP_SPEEDS : DOWN_SPEEDS).get(mPeriodicIO.driveState);
 
         if (mDebug) System.out.println("setState targetPosition: " + mPeriodicIO.targetPosition);
         if (mDebug) System.out.println("setState targetSpeed: " + mPeriodicIO.targetSpeed);
@@ -379,6 +367,7 @@ public class Algae extends SubsystemBase {
         builder.addDoubleProperty("Drive motor demand", () -> mPeriodicIO.D_demand, null);
         builder.addDoubleProperty("CANCODER Position", () -> mPeriodicIO.adjustedCancoderAngle, null);
         builder.addDoubleProperty("CANCODER Raw Position", () -> mCANcoder.getAbsolutePosition().getValueAsDouble() * 360, null);
+        builder.addBooleanProperty("Beambreak tripped?", () -> mBeamBreak.get(), null);
         builder.addDoubleProperty("Angle setpoint", () -> mPeriodicIO.angleSetpoint, null);
         builder.addStringProperty("Target PositionState", () -> mPeriodicIO.requestedPosition.toString(), null);
         builder.addStringProperty("Target DriveState", () -> mPeriodicIO.driveState.toString(), null);

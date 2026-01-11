@@ -12,16 +12,16 @@
         "y": 4.089246832403526
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "coralAtFrontOfReef"
     },
     {
       "anchor": {
         "x": 6.0,
-        "y": 3.85
+        "y": 3.835
       },
       "prevControl": {
         "x": 5.859344128383675,
-        "y": 4.05667831473053
+        "y": 4.041678314730531
       },
       "nextControl": null,
       "isLocked": false,

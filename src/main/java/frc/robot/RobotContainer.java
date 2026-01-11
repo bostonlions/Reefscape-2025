@@ -45,11 +45,11 @@ public final class RobotContainer {
         UsbCamera cam1 = CameraServer.startAutomaticCapture(0); // Start the Camera 1
         UsbCamera cam2 = CameraServer.startAutomaticCapture(1); // Start the Camera 2
         UsbCamera cam3 = CameraServer.startAutomaticCapture(2); // Start the Camera 3
-        cam1.setResolution(80,60);
+        cam1.setResolution(80, 60);
         cam1.setFPS(15);
-        cam2.setResolution(80,60);
+        cam2.setResolution(80, 60);
         cam2.setFPS(15);
-        cam3.setResolution(80,60);
+        cam3.setResolution(80, 60);
         cam3.setFPS(15);
 
         /* DRIVE SUBSYSTEM AND COMMANDS */
@@ -64,7 +64,7 @@ public final class RobotContainer {
                     controller.getSwerveRotation(),
                     // LB button switch toggles strafe mode AND snaps to reef
                     (controller.driver.getRawButton(1)),
-                    ((controller.driver.getRawAxis(6) > 0.5)) // D switch toggles precision mode
+                    (false) // D switch toggles precision mode
                 ),
                 drive
             )
@@ -73,7 +73,7 @@ public final class RobotContainer {
         new Trigger(() -> controller.driver.getRawButton(1)).onTrue(drive.snapToReef());
 
         // zero with climber pointing towards you -- C switch
-        new Trigger(() -> controller.driver.getRawAxis(7) > 0.5).onTrue(
+        new Trigger(() -> false).onTrue( //was C switch
             new InstantCommand(() -> drive.zeroGyro(0)).ignoringDisable(true)
         );
         // zero with algae pointing towards you -- RB button
@@ -91,8 +91,6 @@ public final class RobotContainer {
             .onTrue(elevator.stepToCommand(Position.L4));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.X) > .9)
             .onTrue(elevator.stepToCommand(Position.L3));
-        new Trigger(() -> controller.operator.getButton(Button.R_JOYSTICK))
-            .onTrue(elevator.stepToCommand(Position.REEF_ALGAE));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.X) < -.9)
             .onTrue(elevator.stepToCommand(Position.L2));
         new Trigger(() -> controller.operator.getAxis(Side.RIGHT, Axis.Y) > .75)

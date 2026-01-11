@@ -1,0 +1,68 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.725,
+        "y": 4.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.70009920630946,
+        "y": 4.163262561740524
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.75,
+        "y": 4.3
+      },
+      "prevControl": {
+        "x": 6.4467396207064045,
+        "y": 4.198334252893892
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "coralAtFrontOfReef"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Pulling up to reef",
+      "minWaypointRelativePos": 0.7184334908845389,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.95,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 500.0,
+        "maxAngularAcceleration": 500.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 1.65,
+    "maxAcceleration": 2.5,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 500.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -0.20889851994630534
+  },
+  "reversed": false,
+  "folder": "Testing new algae",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -0.07950216260281932
+  },
+  "useDefaultConstraints": false
+}

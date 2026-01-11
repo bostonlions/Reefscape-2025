@@ -8,32 +8,37 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.655512401377691,
-        "y": 5.141258787746225
+        "x": 5.189408749781937,
+        "y": 5.457056338248371
       },
       "isLocked": false,
       "linkedName": "RightReefPos2"
     },
     {
       "anchor": {
-        "x": 7.7805,
-        "y": 5.25
+        "x": 5.862823920774937,
+        "y": 6.2691997320910335
       },
       "prevControl": {
-        "x": 6.749077868852458,
-        "y": 5.145850409836064
+        "x": 5.555688120560763,
+        "y": 5.90951364898752
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "barge"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.287846481876336,
+      "rotationDegrees": 55.6483532254152
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.75,
+    "maxVelocity": 3.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 500.0,
@@ -42,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.92599379524518
+    "rotation": -179.4510197328662
   },
   "reversed": false,
   "folder": "08 - pos 2 TWO algae",
